@@ -1,0 +1,28 @@
+{
+  "name": "fittrack",
+  "version": "1.0.0",
+  "description": "A workout tracking application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "seed": "node seeders/seed.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "express": "^4.21.2",
+    "mongodb": "^6.18.0",
+    "mongoose": "^7.8.7",
+    "morgan": "^1.10.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "workout",
+    "fitness",
+    "tracker"
+  ],
+  "author": "",
+  "license": "MIT"
+}
