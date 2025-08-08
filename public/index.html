@@ -1,14 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100;300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" />
-    <title>FitTrack - Your Fitness Journey</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitTrack - Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -17,522 +13,569 @@
         }
 
         body {
-            font-family: 'Lexend', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
         }
 
-        /* Enhanced Navigation */
-        nav {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 1rem 0;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        .navbar {
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 16px 0;
             position: sticky;
             top: 0;
             z-index: 100;
+            backdrop-filter: blur(8px);
         }
 
         .nav-container {
             max-width: 1200px;
             margin: 0 auto;
+            padding: 0 24px;
             display: flex;
-            justify-content: space-between;
+            justify-content: between;
             align-items: center;
-            padding: 0 2rem;
         }
 
         .nav-brand {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            color: white;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #4f46e5;
             text-decoration: none;
-            font-size: 1.5rem;
-            font-weight: 600;
         }
 
-        .nav-brand i {
-            font-size: 2rem;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 0.5rem;
-            border-radius: 50%;
-        }
-
-        .nav-links {
+        .brand-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            border-radius: 12px;
             display: flex;
             align-items: center;
-            gap: 2rem;
+            justify-content: center;
+            color: white;
         }
 
-        .nav-links a {
-            color: white;
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .nav-link {
+            color: #64748b;
             text-decoration: none;
             font-weight: 500;
-            transition: all 0.3s ease;
-            padding: 0.5rem 1rem;
-            border-radius: 25px;
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
         }
 
-        .nav-links a:hover,
-        .nav-links a.active {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
+        .nav-link:hover,
+        .nav-link.active {
+            color: #4f46e5;
+            background: #f1f5f9;
         }
 
-        .user-profile {
+        .nav-user {
             display: flex;
             align-items: center;
-            gap: 1rem;
-            color: white;
+            gap: 16px;
         }
 
         .user-avatar {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             display: flex;
             align-items: center;
             justify-content: center;
+            color: white;
             font-weight: 600;
+            font-size: 14px;
         }
 
         .logout-btn {
+            padding: 8px 16px;
             background: transparent;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            color: #64748b;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.2s ease;
         }
 
         .logout-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: #f1f5f9;
+            border-color: #cbd5e1;
         }
 
-        /* Hero Section */
-        .hero {
-            text-align: center;
-            padding: 4rem 2rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            margin-bottom: 3rem;
-        }
-
-        .hero h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        /* Main Content */
         .main-container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 2rem;
+            padding: 32px 24px;
         }
 
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
-        }
-
-        /* Enhanced Cards */
-        .workout-card {
-            background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
+        .welcome-section {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            border-radius: 24px;
+            padding: 40px;
+            color: white;
+            margin-bottom: 32px;
             position: relative;
             overflow: hidden;
         }
 
-        .workout-card::before {
+        .welcome-section::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
         }
 
-        .workout-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        .welcome-content h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
         }
 
-        .card-header {
+        .welcome-content p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f1f5f9;
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-header {
             display: flex;
             align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+            justify-content: space-between;
+            margin-bottom: 16px;
         }
 
-        .card-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-            border-radius: 15px;
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 1.5rem;
-        }
-
-        .card-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .workout-stats {
-            margin-bottom: 2rem;
-        }
-
-        .stat-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .stat-item:last-child {
-            border-bottom: none;
-        }
-
-        .stat-label {
-            color: #666;
-            font-weight: 500;
         }
 
         .stat-value {
-            font-weight: 600;
-            color: #333;
-            font-size: 1.1rem;
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 4px;
         }
 
-        /* Action Buttons */
+        .stat-label {
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .workout-sections {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f1f5f9;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .section-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .workout-info {
+            margin-bottom: 24px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
         .action-buttons {
             display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
+            gap: 12px;
         }
 
-        .btn-primary,
-        .btn-secondary {
+        .btn {
             flex: 1;
-            padding: 1rem;
-            border: none;
-            border-radius: 12px;
-            font-family: inherit;
+            padding: 14px 20px;
+            border-radius: 16px;
             font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
             text-decoration: none;
             text-align: center;
-            min-width: 150px;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             color: white;
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
         }
 
         .btn-secondary {
-            background: transparent;
-            color: #4CAF50;
-            border: 2px solid #4CAF50;
+            background: #f8fafc;
+            color: #4f46e5;
+            border: 1px solid #e2e8f0;
         }
 
         .btn-secondary:hover {
-            background: #4CAF50;
-            color: white;
+            background: #f1f5f9;
+            border-color: #cbd5e1;
         }
 
-        /* Current Workout Section */
         .current-workout {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
             color: white;
         }
 
-        .current-workout::before {
-            background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
-        }
-
-        .current-workout .card-icon {
+        .current-workout .section-icon {
             background: rgba(255, 255, 255, 0.2);
         }
 
+        .current-workout .info-item {
+            border-bottom-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .current-workout .info-label {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .current-workout .info-value {
+            color: white;
+        }
+
         .exercise-list {
-            margin-bottom: 1.5rem;
+            margin-bottom: 20px;
         }
 
         .exercise-item {
             background: rgba(255, 255, 255, 0.1);
-            padding: 1rem;
-            border-radius: 10px;
-            margin-bottom: 0.5rem;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
             backdrop-filter: blur(10px);
         }
 
-        .exercise-item:last-child {
-            margin-bottom: 0;
+        .exercise-name {
+            font-weight: 600;
+            margin-bottom: 4px;
         }
 
-        /* Quick Stats */
-        .quick-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 3rem;
+        .exercise-details {
+            font-size: 14px;
+            opacity: 0.9;
         }
 
-        .stat-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
+        .empty-state {
             text-align: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-            transition: transform 0.3s ease;
+            padding: 32px;
+            color: #64748b;
         }
 
-        .stat-card:hover {
-            transform: translateY(-5px);
+        .empty-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            background: #f1f5f9;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #4CAF50;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-description {
-            color: #666;
-            font-weight: 500;
-        }
-
-        /* Welcome Message */
-        .welcome-message {
-            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-            padding: 2rem;
-            border-radius: 20px;
-            margin-bottom: 3rem;
-            text-align: center;
-        }
-
-        .welcome-message h2 {
-            color: #333;
-            font-size: 1.8rem;
-            margin-bottom: 1rem;
-        }
-
-        /* Responsive Design */
         @media (max-width: 768px) {
             .nav-container {
                 flex-direction: column;
-                gap: 1rem;
-                padding: 0 1rem;
+                gap: 16px;
             }
 
-            .nav-links {
-                gap: 1rem;
+            .nav-menu {
+                order: 2;
             }
 
-            .hero h1 {
-                font-size: 2rem;
+            .nav-user {
+                order: 1;
             }
 
-            .main-container {
-                padding: 0 1rem;
+            .welcome-section {
+                padding: 32px 24px;
             }
 
-            .dashboard-grid {
+            .welcome-content h1 {
+                font-size: 24px;
+            }
+
+            .workout-sections {
                 grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
 
             .action-buttons {
                 flex-direction: column;
             }
-
-            .btn-primary,
-            .btn-secondary {
-                min-width: auto;
-            }
-
-            .quick-stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
         }
 
         @media (max-width: 480px) {
-            .quick-stats {
+            .stats-grid {
                 grid-template-columns: 1fr;
             }
-        }
 
-        /* Loading State */
-        .loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 200px;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #4CAF50;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            .section-card {
+                padding: 24px;
+            }
         }
     </style>
 </head>
-
 <body>
-    <!-- Navigation -->
-    <nav>
+    <nav class="navbar">
         <div class="nav-container">
             <a href="#" class="nav-brand">
-                <i class="fas fa-dumbbell"></i>
+                <div class="brand-icon">
+                    <svg width="20" height="20" viewBox="0 0 40 40" fill="none">
+                        <path d="M8 16h4v8H8z" fill="currentColor"/>
+                        <path d="M28 16h4v8h-4z" fill="currentColor"/>
+                        <path d="M12 18h16v4H12z" fill="currentColor"/>
+                        <circle cx="8" cy="14" r="2" fill="currentColor"/>
+                        <circle cx="32" cy="14" r="2" fill="currentColor"/>
+                        <circle cx="8" cy="26" r="2" fill="currentColor"/>
+                        <circle cx="32" cy="26" r="2" fill="currentColor"/>
+                    </svg>
+                </div>
                 FitTrack
             </a>
             
-            <div class="nav-links">
-                <a href="#" class="active">Home</a>
-                <a href="/stats.html">Dashboard</a>
-                <a href="/history.html">History</a>
+            <div class="nav-menu">
+                <a href="#" class="nav-link active">Home</a>
+                <a href="/stats.html" class="nav-link">Analytics</a>
+                <a href="/history.html" class="nav-link">History</a>
             </div>
             
-            <div class="user-profile">
+            <div class="nav-user">
                 <div class="user-avatar" id="userAvatar">
-                    <i class="fas fa-user"></i>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                 </div>
                 <span id="userName">User</span>
                 <button class="logout-btn" onclick="logout()">
-                    <i class="fas fa-sign-out-alt"></i> Logout
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="display: inline; margin-right: 4px;">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <polyline points="16,17 21,12 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Logout
                 </button>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <div class="hero">
-        <h1>Welcome to Your Fitness Journey</h1>
-        <p>Track your workouts, monitor your progress, and achieve your fitness goals with FitTrack</p>
-    </div>
-
-    <!-- Main Content -->
     <div class="main-container">
-        <!-- Welcome Message -->
-        <div class="welcome-message" id="welcomeMessage">
-            <h2>Good morning, <span id="userNameWelcome">User</span>!</h2>
-            <p>Ready to crush your fitness goals today?</p>
-        </div>
-
-        <!-- Quick Stats -->
-        <div class="quick-stats" id="quickStats">
-            <div class="stat-card">
-                <div class="stat-number" id="totalWorkouts">0</div>
-                <div class="stat-description">Total Workouts</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="thisWeek">0</div>
-                <div class="stat-description">This Week</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="totalTime">0</div>
-                <div class="stat-description">Minutes Trained</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="avgWorkout">0</div>
-                <div class="stat-description">Avg Workout Time</div>
+        <div class="welcome-section">
+            <div class="welcome-content">
+                <h1 id="welcomeTitle">Good morning, <span id="userNameWelcome">User</span>!</h1>
+                <p>Ready to crush your fitness goals today?</p>
             </div>
         </div>
 
-        <!-- Dashboard Grid -->
-        <div class="dashboard-grid">
-            <!-- Last Workout Card -->
-            <div class="workout-card" id="lastWorkoutCard">
-                <div class="card-header">
-                    <div class="card-icon">
-                        <i class="fas fa-history"></i>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M8 16h4v8H8z" fill="currentColor"/>
+                            <path d="M28 16h4v8h-4z" fill="currentColor"/>
+                            <path d="M12 18h16v4H12z" fill="currentColor"/>
+                        </svg>
                     </div>
-                    <h2 class="card-title">Last Workout</h2>
+                </div>
+                <div class="stat-value" id="totalWorkouts">0</div>
+                <div class="stat-label">Total Workouts</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                            <polyline points="12,6 12,12 16,14" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="stat-value" id="totalTime">0</div>
+                <div class="stat-label">Minutes Trained</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); color: white;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" stroke="currentColor" stroke-width="2" fill="currentColor"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="stat-value" id="thisWeek">0</div>
+                <div class="stat-label">This Week</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%); color: white;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" stroke="currentColor" stroke-width="2" fill="currentColor"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="stat-value" id="avgWorkout">0</div>
+                <div class="stat-label">Avg Duration</div>
+            </div>
+        </div>
+
+        <div class="workout-sections">
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-icon" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h2 class="section-title">Last Workout</h2>
                 </div>
                 
-                <div class="workout-stats" id="lastWorkoutStats">
-                    <div class="loading">
-                        <div class="spinner"></div>
+                <div class="workout-info" id="lastWorkoutInfo">
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+                                <path d="M8 16h4v8H8z" fill="currentColor"/>
+                                <path d="M28 16h4v8h-4z" fill="currentColor"/>
+                                <path d="M12 18h16v4H12z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <p>No workouts yet. Start your first workout!</p>
                     </div>
                 </div>
                 
                 <div class="action-buttons">
-                    <a href="/excercise.html" class="btn-primary">
-                        <i class="fas fa-play"></i> Continue Workout
-                    </a>
-                    <a href="/excercise.html" class="btn-secondary">
-                        <i class="fas fa-plus"></i> New Workout
-                    </a>
+                    <a href="/excercise.html" class="btn btn-primary">Start Workout</a>
+                    <a href="/history.html" class="btn btn-secondary">View History</a>
                 </div>
             </div>
 
-            <!-- Current Workout Card -->
-            <div class="workout-card current-workout">
-                <div class="card-header">
-                    <div class="card-icon">
-                        <i class="fas fa-fire"></i>
+            <div class="section-card current-workout">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" stroke="currentColor" stroke-width="2" fill="currentColor"/>
+                        </svg>
                     </div>
-                    <h2 class="card-title">Current Workout</h2>
+                    <h2 class="section-title">Current Session</h2>
                 </div>
                 
-                <div class="exercise-list" id="currentWorkoutExercises">
-                    <div class="exercise-item">No exercises added yet</div>
+                <div class="exercise-list" id="currentExercises">
+                    <div class="exercise-item">
+                        <div class="exercise-name">No exercises added yet</div>
+                        <div class="exercise-details">Start adding exercises to track your progress</div>
+                    </div>
                 </div>
                 
                 <div class="action-buttons">
-                    <button class="btn-primary" id="completeWorkoutBtn" onclick="completeWorkout()">
-                        <i class="fas fa-check"></i> Complete Workout
-                    </button>
+                    <a href="/excercise.html" class="btn btn-primary">Add Exercise</a>
+                    <button class="btn btn-secondary" id="completeWorkout" onclick="completeWorkout()">Complete</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script>
-        // API functions (simplified for demo)
         const API = {
             async getAllWorkouts() {
-                // Mock API call - replace with your actual API
                 return new Promise(resolve => {
                     setTimeout(() => {
                         const mockWorkouts = [
@@ -555,15 +598,9 @@
                         resolve(mockWorkouts);
                     }, 1000);
                 });
-            },
-
-            async getLastWorkout() {
-                const workouts = await this.getAllWorkouts();
-                return workouts[0];
             }
         };
 
-        // Authentication check
         function checkAuth() {
             const user = JSON.parse(localStorage.getItem('user'));
             if (!user) {
@@ -573,210 +610,173 @@
             return user;
         }
 
-        // Initialize user interface
         function initializeUser(user) {
             document.getElementById('userName').textContent = user.name || 'User';
             document.getElementById('userNameWelcome').textContent = user.name || 'User';
             
-            // Set user avatar
             const userAvatar = document.getElementById('userAvatar');
             if (user.picture) {
                 userAvatar.innerHTML = `<img src="${user.picture}" alt="User Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
-            } else {
-                userAvatar.innerHTML = user.name ? user.name.charAt(0).toUpperCase() : '<i class="fas fa-user"></i>';
+            } else if (user.name) {
+                userAvatar.innerHTML = user.name.charAt(0).toUpperCase();
             }
         }
 
-        // Logout function
         function logout() {
             localStorage.removeItem('user');
             localStorage.removeItem('currentWorkoutId');
             localStorage.removeItem('newWorkoutExercises');
+            localStorage.removeItem('workoutStartTime');
             window.location.href = '/login.html';
         }
 
-        // Load workout statistics
         async function loadWorkoutStats() {
             try {
                 const workouts = await API.getAllWorkouts();
                 
-                // Update quick stats
                 document.getElementById('totalWorkouts').textContent = workouts.length;
                 
-                // Calculate this week's workouts
-                const thisWeekStart = moment().startOf('week');
-                const thisWeekWorkouts = workouts.filter(w => moment(w.day).isAfter(thisWeekStart));
+                const thisWeekStart = new Date();
+                thisWeekStart.setDate(thisWeekStart.getDate() - 7);
+                const thisWeekWorkouts = workouts.filter(w => new Date(w.day) > thisWeekStart);
                 document.getElementById('thisWeek').textContent = thisWeekWorkouts.length;
                 
-                // Calculate total time
                 const totalMinutes = workouts.reduce((total, workout) => {
                     return total + workout.exercises.reduce((sum, ex) => sum + (ex.duration || 0), 0);
                 }, 0);
                 document.getElementById('totalTime').textContent = totalMinutes;
                 
-                // Calculate average workout time
                 const avgTime = workouts.length > 0 ? Math.round(totalMinutes / workouts.length) : 0;
                 document.getElementById('avgWorkout').textContent = avgTime;
                 
-                // Load last workout
                 if (workouts.length > 0) {
                     loadLastWorkout(workouts[0]);
-                } else {
-                    showNoWorkoutMessage();
                 }
                 
             } catch (error) {
                 console.error('Error loading workout stats:', error);
-                showNoWorkoutMessage();
             }
         }
 
-        // Load last workout details
         function loadLastWorkout(workout) {
-            const statsContainer = document.getElementById('lastWorkoutStats');
+            const container = document.getElementById('lastWorkoutInfo');
             
             if (!workout || !workout.exercises.length) {
-                showNoWorkoutMessage();
                 return;
             }
 
             const totalDuration = workout.exercises.reduce((sum, ex) => sum + (ex.duration || 0), 0);
             const exerciseCount = workout.exercises.length;
-            const workoutDate = moment(workout.day).format('MMM Do, YYYY');
+            const workoutDate = new Date(workout.day).toLocaleDateString();
             
-            statsContainer.innerHTML = `
-                <div class="stat-item">
-                    <span class="stat-label">Date</span>
-                    <span class="stat-value">${workoutDate}</span>
+            container.innerHTML = `
+                <div class="info-item">
+                    <span class="info-label">Date</span>
+                    <span class="info-value">${workoutDate}</span>
                 </div>
-                <div class="stat-item">
-                    <span class="stat-label">Duration</span>
-                    <span class="stat-value">${totalDuration} min</span>
+                <div class="info-item">
+                    <span class="info-label">Duration</span>
+                    <span class="info-value">${totalDuration} min</span>
                 </div>
-                <div class="stat-item">
-                    <span class="stat-label">Exercises</span>
-                    <span class="stat-value">${exerciseCount}</span>
+                <div class="info-item">
+                    <span class="info-label">Exercises</span>
+                    <span class="info-value">${exerciseCount}</span>
                 </div>
-                <div class="stat-item">
-                    <span class="stat-label">Last Exercise</span>
-                    <span class="stat-value">${workout.exercises[workout.exercises.length - 1].name}</span>
-                </div>
-            `;
-        }
-
-        // Show no workout message
-        function showNoWorkoutMessage() {
-            const statsContainer = document.getElementById('lastWorkoutStats');
-            statsContainer.innerHTML = `
-                <div style="text-align: center; padding: 2rem; color: #666;">
-                    <i class="fas fa-dumbbell" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
-                    <p>No workouts yet. Start your first workout!</p>
+                <div class="info-item">
+                    <span class="info-label">Last Exercise</span>
+                    <span class="info-value">${workout.exercises[workout.exercises.length - 1].name}</span>
                 </div>
             `;
         }
 
-        // Load current workout exercises
         function loadCurrentWorkout() {
             const exercises = JSON.parse(localStorage.getItem('newWorkoutExercises') || '[]');
-            const container = document.getElementById('currentWorkoutExercises');
+            const container = document.getElementById('currentExercises');
             
             if (exercises.length === 0) {
-                container.innerHTML = '<div class="exercise-item">No exercises added yet</div>';
+                container.innerHTML = `
+                    <div class="exercise-item">
+                        <div class="exercise-name">No exercises added yet</div>
+                        <div class="exercise-details">Start adding exercises to track your progress</div>
+                    </div>
+                `;
                 return;
             }
             
             container.innerHTML = exercises.map(ex => {
-                if (ex.type === 'resistance') {
-                    return `<div class="exercise-item">
-                        <strong>${ex.name}</strong> - ${ex.weight}kg × ${ex.sets} sets × ${ex.reps} reps (${ex.duration} min)
-                    </div>`;
-                } else {
-                    return `<div class="exercise-item">
-                        <strong>${ex.name}</strong> - ${ex.distance}km in ${ex.duration} min
-                    </div>`;
-                }
+                const details = ex.type === 'resistance' 
+                    ? `${ex.weight}kg × ${ex.sets} sets × ${ex.reps} reps (${ex.duration} min)`
+                    : `${ex.distance}km in ${ex.duration} min`;
+                
+                return `
+                    <div class="exercise-item">
+                        <div class="exercise-name">${ex.name}</div>
+                        <div class="exercise-details">${details}</div>
+                    </div>
+                `;
             }).join('');
         }
 
-        // Complete current workout
         async function completeWorkout() {
             const workoutId = localStorage.getItem('currentWorkoutId');
             if (!workoutId) {
-                alert('No workout to complete.');
                 return;
             }
 
             try {
-                // Clear current workout data
                 localStorage.removeItem('currentWorkoutId');
                 localStorage.removeItem('newWorkoutExercises');
+                localStorage.removeItem('workoutStartTime');
                 
-                // Refresh the page data
                 loadWorkoutStats();
                 loadCurrentWorkout();
                 
-                // Show success message
-                showToast('Workout completed successfully!', 'success');
+                showToast('Workout completed successfully!');
                 
             } catch (error) {
                 console.error('Error completing workout:', error);
-                showToast('Error completing workout. Please try again.', 'error');
             }
         }
 
-        // Show toast notification
-        function showToast(message, type = 'info') {
+        function showToast(message) {
             const toast = document.createElement('div');
             toast.style.cssText = `
                 position: fixed;
                 top: 20px;
                 right: 20px;
-                background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
+                background: linear-gradient(135deg, #059669 0%, #10b981 100%);
                 color: white;
-                padding: 1rem 1.5rem;
-                border-radius: 10px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                padding: 16px 20px;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
                 z-index: 1000;
-                font-family: 'Lexend', sans-serif;
+                font-family: 'Inter', sans-serif;
                 font-weight: 500;
-                animation: slideInRight 0.3s ease-out;
+                animation: slideIn 0.3s ease-out;
             `;
             toast.textContent = message;
             
             document.body.appendChild(toast);
             
             setTimeout(() => {
-                toast.style.animation = 'slideOutRight 0.3s ease-in forwards';
+                toast.style.animation = 'slideOut 0.3s ease-in forwards';
                 setTimeout(() => document.body.removeChild(toast), 300);
             }, 3000);
         }
 
-        // Update welcome message based on time of day
         function updateWelcomeMessage() {
             const hour = new Date().getHours();
-            const welcomeEl = document.getElementById('welcomeMessage');
-            let greeting, message, gradient;
+            const welcomeTitle = document.getElementById('welcomeTitle');
+            const userName = JSON.parse(localStorage.getItem('user')).name || 'User';
             
-            if (hour < 12) {
-                greeting = 'Good morning';
-                message = 'Ready to start your day strong?';
-                gradient = 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)';
-            } else if (hour < 18) {
-                greeting = 'Good afternoon';
-                message = 'Time for your workout session!';
-                gradient = 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)';
-            } else {
-                greeting = 'Good evening';
-                message = 'Perfect time to unwind with some exercise!';
-                gradient = 'linear-gradient(135deg, #d299c2 0%, #fef9d7 100%)';
-            }
+            let greeting;
+            if (hour < 12) greeting = 'Good morning';
+            else if (hour < 18) greeting = 'Good afternoon';
+            else greeting = 'Good evening';
             
-            welcomeEl.style.background = gradient;
-            welcomeEl.querySelector('h2').innerHTML = `${greeting}, <span id="userNameWelcome">${JSON.parse(localStorage.getItem('user')).name}</span>!`;
-            welcomeEl.querySelector('p').textContent = message;
+            welcomeTitle.innerHTML = `${greeting}, <span id="userNameWelcome">${userName}</span>!`;
         }
 
-        // Listen for storage events (updates from other pages)
         window.addEventListener('storage', (e) => {
             if (e.key === 'workoutUpdated') {
                 loadWorkoutStats();
@@ -786,7 +786,6 @@
             }
         });
 
-        // Initialize page
         document.addEventListener('DOMContentLoaded', () => {
             const user = checkAuth();
             if (user) {
@@ -797,10 +796,9 @@
             }
         });
 
-        // Add CSS animations
         const style = document.createElement('style');
         style.textContent = `
-            @keyframes slideInRight {
+            @keyframes slideIn {
                 from {
                     transform: translateX(100%);
                     opacity: 0;
@@ -811,7 +809,7 @@
                 }
             }
             
-            @keyframes slideOutRight {
+            @keyframes slideOut {
                 from {
                     transform: translateX(0);
                     opacity: 1;
@@ -825,5 +823,4 @@
         document.head.appendChild(style);
     </script>
 </body>
-
 </html>

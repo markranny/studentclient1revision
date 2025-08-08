@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100;300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FitTrack - Add Exercise</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -15,172 +13,210 @@
         }
 
         body {
-            font-family: 'Lexend', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
         }
 
-        /* Navigation */
-        nav {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 1rem 0;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        .navbar {
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 16px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(8px);
         }
 
         .nav-container {
             max-width: 1200px;
             margin: 0 auto;
+            padding: 0 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 2rem;
         }
 
         .nav-brand {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            color: white;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #4f46e5;
             text-decoration: none;
-            font-size: 1.5rem;
-            font-weight: 600;
         }
 
-        .nav-brand i {
-            font-size: 2rem;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 0.5rem;
-            border-radius: 50%;
-        }
-
-        .nav-links {
+        .brand-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            border-radius: 12px;
             display: flex;
             align-items: center;
-            gap: 2rem;
+            justify-content: center;
+            color: white;
         }
 
-        .nav-links a {
-            color: white;
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .nav-link {
+            color: #64748b;
             text-decoration: none;
             font-weight: 500;
-            transition: all 0.3s ease;
-            padding: 0.5rem 1rem;
-            border-radius: 25px;
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
         }
 
-        .nav-links a:hover,
-        .nav-links a.active {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
+        .nav-link:hover,
+        .nav-link.active {
+            color: #4f46e5;
+            background: #f1f5f9;
         }
 
-        /* Main Content */
-        .exercise-container {
+        .main-container {
             max-width: 800px;
-            margin: 2rem auto;
-            padding: 0 2rem;
+            margin: 0 auto;
+            padding: 32px 24px;
         }
 
         .page-header {
             text-align: center;
-            margin-bottom: 3rem;
+            margin-bottom: 32px;
         }
 
-        .page-header h1 {
-            font-size: 2.5rem;
-            color: #333;
-            margin-bottom: 0.5rem;
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
         }
 
-        .page-header p {
-            color: #666;
-            font-size: 1.1rem;
+        .page-subtitle {
+            color: #64748b;
+            font-size: 18px;
         }
 
-        /* Exercise Form Card */
-        .exercise-card {
+        .workout-timer {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .timer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .timer-section {
+            flex: 1;
+        }
+
+        .timer-label {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+
+        .timer-value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .form-card {
             background: white;
             border-radius: 20px;
-            padding: 2.5rem;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .exercise-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            padding: 32px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f1f5f9;
         }
 
         .form-header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 32px;
         }
 
-        .form-header h2 {
-            color: #333;
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .form-header p {
-            color: #666;
-        }
-
-        /* Form Groups */
-        .form-group {
-            margin-bottom: 2rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #333;
+        .form-title {
+            font-size: 24px;
             font-weight: 600;
-            font-size: 1rem;
+            color: #1e293b;
+            margin-bottom: 8px;
         }
 
-        .form-group select,
-        .form-group input {
+        .form-description {
+            color: #64748b;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .form-select,
+        .form-input {
             width: 100%;
-            padding: 1rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-family: 'Lexend', sans-serif;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background: white;
-        }
-
-        .form-group select:focus,
-        .form-group input:focus {
-            outline: none;
-            border-color: #4CAF50;
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
-        }
-
-        .form-group select {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 1rem center;
-            background-size: 1.5rem;
+            padding: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 16px;
+            background: #ffffff;
+            transition: all 0.2s ease;
             appearance: none;
+            font-family: 'Inter', sans-serif;
         }
 
-        /* Exercise Type Forms */
-        .exercise-type-form {
+        .form-select:focus,
+        .form-input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .form-select {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23374151' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .exercise-type-card {
             display: none;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 24px 0;
             animation: fadeIn 0.3s ease-out;
         }
 
-        .exercise-type-form.active {
+        .exercise-type-card.active {
             display: block;
+            border-color: #4f46e5;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e0e7ff 100%);
         }
 
         @keyframes fadeIn {
@@ -194,60 +230,48 @@
             }
         }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-
-        /* Exercise Type Indicator */
-        .exercise-type-indicator {
-            display: none;
+        .type-indicator {
+            display: flex;
             align-items: center;
-            gap: 1rem;
-            padding: 1rem;
-            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 12px 16px;
+            background: white;
             border-radius: 12px;
-            margin-bottom: 1.5rem;
+            border: 2px solid #4f46e5;
         }
 
-        .exercise-type-indicator.active {
-            display: flex;
+        .type-icon {
+            width: 24px;
+            height: 24px;
+            color: #4f46e5;
         }
 
-        .exercise-type-indicator i {
-            font-size: 1.5rem;
-            color: #4CAF50;
-        }
-
-        .exercise-type-indicator span {
+        .type-label {
             font-weight: 600;
-            color: #2e7d32;
+            color: #4f46e5;
         }
 
-        /* Action Buttons */
-        .action-buttons {
+        .form-actions {
             display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 32px;
         }
 
         .btn {
             flex: 1;
-            padding: 1rem 2rem;
-            border: none;
-            border-radius: 12px;
-            font-family: 'Lexend', sans-serif;
+            padding: 16px 24px;
+            border-radius: 16px;
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 16px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            text-align: center;
-            min-width: 150px;
-            position: relative;
-            overflow: hidden;
+            transition: all 0.2s ease;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: 'Inter', sans-serif;
         }
 
         .btn:disabled {
@@ -257,125 +281,50 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             color: white;
         }
 
         .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
         }
 
-        .btn-secondary {
-            background: transparent;
-            color: #4CAF50;
-            border: 2px solid #4CAF50;
-        }
-
-        .btn-secondary:hover:not(:disabled) {
-            background: #4CAF50;
+        .btn-success {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
             color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
             transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(5, 150, 105, 0.3);
         }
 
-        /* Progress Indicator */
-        .progress-container {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-            margin-bottom: 2rem;
-        }
-
-        .progress-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .progress-header h3 {
-            color: #333;
-            font-size: 1.2rem;
-        }
-
-        .workout-timer {
-            color: #4CAF50;
-            font-weight: 600;
-        }
-
-        .exercise-count {
-            text-align: center;
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 10px;
-        }
-
-        .exercise-count .number {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #4CAF50;
-            margin-bottom: 0.25rem;
-        }
-
-        .exercise-count .label {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        /* Toast Notification */
         .toast {
             position: fixed;
             top: 20px;
             right: -400px;
-            background: #4CAF50;
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
             color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             z-index: 1000;
-            font-family: 'Lexend', sans-serif;
             font-weight: 500;
             transition: right 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 8px;
         }
 
         .toast.show {
             right: 20px;
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .nav-container {
-                flex-direction: column;
-                gap: 1rem;
-                padding: 0 1rem;
-            }
-
-            .exercise-container {
-                padding: 0 1rem;
-            }
-
-            .exercise-card {
-                padding: 1.5rem;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-            }
-
-            .btn {
-                min-width: auto;
-            }
+        .toast.error {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
         }
 
-        /* Loading Animation */
         .btn-loading {
             position: relative;
             color: transparent !important;
@@ -400,204 +349,232 @@
             0% { transform: translate(-50%, -50%) rotate(0deg); }
             100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 24px 16px;
+            }
+
+            .form-card {
+                padding: 24px;
+            }
+
+            .timer-content {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
-
 <body>
-    <!-- Navigation -->
-    <nav>
+    <nav class="navbar">
         <div class="nav-container">
             <a href="/index.html" class="nav-brand">
-                <i class="fas fa-dumbbell"></i>
+                <div class="brand-icon">
+                    <svg width="20" height="20" viewBox="0 0 40 40" fill="none">
+                        <path d="M8 16h4v8H8z" fill="currentColor"/>
+                        <path d="M28 16h4v8h-4z" fill="currentColor"/>
+                        <path d="M12 18h16v4H12z" fill="currentColor"/>
+                        <circle cx="8" cy="14" r="2" fill="currentColor"/>
+                        <circle cx="32" cy="14" r="2" fill="currentColor"/>
+                        <circle cx="8" cy="26" r="2" fill="currentColor"/>
+                        <circle cx="32" cy="26" r="2" fill="currentColor"/>
+                    </svg>
+                </div>
                 FitTrack
             </a>
             
-            <div class="nav-links">
-                <a href="/index.html">Home</a>
-                <a href="/stats.html">Dashboard</a>
-                <a href="/history.html">History</a>
+            <div class="nav-menu">
+                <a href="/index.html" class="nav-link">Home</a>
+                <a href="/stats.html" class="nav-link">Analytics</a>
+                <a href="/history.html" class="nav-link">History</a>
+                <a href="/excercise.html" class="nav-link active">Exercise</a>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <div class="exercise-container">
-        <!-- Page Header -->
+    <div class="main-container">
         <div class="page-header">
-            <h1>Add Exercise</h1>
-            <p>Track your workout by adding exercises to your current session</p>
+            <h1 class="page-title">Add Exercise</h1>
+            <p class="page-subtitle">Track your workout by adding exercises to your session</p>
         </div>
 
-        <!-- Progress Indicator -->
-        <div class="progress-container">
-            <div class="progress-header">
-                <h3>Current Workout</h3>
-                <div class="workout-timer" id="workoutTimer">00:00</div>
-            </div>
-            <div class="exercise-count">
-                <div class="number" id="exerciseCount">0</div>
-                <div class="label">Exercises Added</div>
+        <div class="workout-timer">
+            <div class="timer-content">
+                <div class="timer-section">
+                    <div class="timer-label">Session Time</div>
+                    <div class="timer-value" id="sessionTimer">00:00</div>
+                </div>
+                <div class="timer-section">
+                    <div class="timer-label">Exercises Added</div>
+                    <div class="timer-value" id="exerciseCount">0</div>
+                </div>
+                <div class="timer-section">
+                    <div class="timer-label">Total Duration</div>
+                    <div class="timer-value" id="totalDuration">0 min</div>
+                </div>
             </div>
         </div>
 
-        <!-- Exercise Form -->
-        <div class="exercise-card">
+        <div class="form-card">
             <div class="form-header">
-                <h2>Add New Exercise</h2>
-                <p>Select the type of exercise and fill in the details</p>
+                <h2 class="form-title">Add New Exercise</h2>
+                <p class="form-description">Select exercise type and enter the details</p>
             </div>
 
             <form id="exerciseForm">
-                <!-- Exercise Type Selection -->
                 <div class="form-group">
-                    <label for="exerciseType">Exercise Type</label>
-                    <select id="exerciseType" name="type" required>
-                        <option value="" disabled selected>Select Exercise Type</option>
-                        <option value="resistance">🏋️ Resistance Training</option>
-                        <option value="cardio">🏃 Cardio Exercise</option>
+                    <label class="form-label" for="exerciseType">Exercise Type</label>
+                    <select id="exerciseType" class="form-select" required>
+                        <option value="" disabled selected>Choose exercise type</option>
+                        <option value="resistance">Resistance Training</option>
+                        <option value="cardio">Cardio Exercise</option>
                     </select>
                 </div>
 
-                <!-- Exercise Type Indicator -->
-                <div class="exercise-type-indicator" id="resistanceIndicator">
-                    <i class="fas fa-dumbbell"></i>
-                    <span>Resistance Training Selected</span>
-                </div>
-
-                <div class="exercise-type-indicator" id="cardioIndicator">
-                    <i class="fas fa-heart"></i>
-                    <span>Cardio Exercise Selected</span>
-                </div>
-
-                <!-- Resistance Form -->
-                <div class="exercise-type-form" id="resistanceForm">
-                    <div class="form-group">
-                        <label for="exerciseName">Exercise Name</label>
-                        <input type="text" id="exerciseName" name="name" placeholder="e.g., Bench Press" required>
+                <div class="exercise-type-card" id="resistanceCard">
+                    <div class="type-indicator">
+                        <svg class="type-icon" viewBox="0 0 24 24" fill="none">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                            <line x1="8" y1="21" x2="16" y2="21" stroke="currentColor" stroke-width="2"/>
+                            <line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span class="type-label">Resistance Training</span>
                     </div>
-                    
+
+                    <div class="form-group">
+                        <label class="form-label" for="resistanceName">Exercise Name</label>
+                        <input type="text" id="resistanceName" class="form-input" placeholder="e.g., Bench Press" required>
+                    </div>
+
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="weight">Weight (kg)</label>
-                            <input type="number" id="weight" name="weight" placeholder="0" min="0" step="0.5" required>
+                            <label class="form-label" for="weight">Weight (kg)</label>
+                            <input type="number" id="weight" class="form-input" placeholder="0" min="0" step="0.5" required>
                         </div>
-                        
                         <div class="form-group">
-                            <label for="sets">Sets</label>
-                            <input type="number" id="sets" name="sets" placeholder="0" min="1" required>
+                            <label class="form-label" for="sets">Sets</label>
+                            <input type="number" id="sets" class="form-input" placeholder="0" min="1" required>
                         </div>
-                        
                         <div class="form-group">
-                            <label for="reps">Reps per Set</label>
-                            <input type="number" id="reps" name="reps" placeholder="0" min="1" required>
+                            <label class="form-label" for="reps">Reps per Set</label>
+                            <input type="number" id="reps" class="form-input" placeholder="0" min="1" required>
                         </div>
-                        
                         <div class="form-group">
-                            <label for="resistanceDuration">Duration (minutes)</label>
-                            <input type="number" id="resistanceDuration" name="duration" placeholder="0" min="1" required>
+                            <label class="form-label" for="resistanceDuration">Duration (min)</label>
+                            <input type="number" id="resistanceDuration" class="form-input" placeholder="0" min="1" required>
                         </div>
                     </div>
                 </div>
 
-                <!-- Cardio Form -->
-                <div class="exercise-type-form" id="cardioForm">
-                    <div class="form-group">
-                        <label for="cardioName">Exercise Name</label>
-                        <input type="text" id="cardioName" name="cardio-name" placeholder="e.g., Running" required>
+                <div class="exercise-type-card" id="cardioCard">
+                    <div class="type-indicator">
+                        <svg class="type-icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="2" fill="currentColor"/>
+                        </svg>
+                        <span class="type-label">Cardio Exercise</span>
                     </div>
-                    
+
+                    <div class="form-group">
+                        <label class="form-label" for="cardioName">Exercise Name</label>
+                        <input type="text" id="cardioName" class="form-input" placeholder="e.g., Running" required>
+                    </div>
+
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="distance">Distance (km)</label>
-                            <input type="number" id="distance" name="distance" placeholder="0" min="0" step="0.1" required>
+                            <label class="form-label" for="distance">Distance (km)</label>
+                            <input type="number" id="distance" class="form-input" placeholder="0" min="0" step="0.1" required>
                         </div>
-                        
                         <div class="form-group">
-                            <label for="cardioDuration">Duration (minutes)</label>
-                            <input type="number" id="cardioDuration" name="cardio-duration" placeholder="0" min="1" required>
+                            <label class="form-label" for="cardioDuration">Duration (min)</label>
+                            <input type="number" id="cardioDuration" class="form-input" placeholder="0" min="1" required>
                         </div>
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="action-buttons">
+                <div class="form-actions">
                     <button type="button" class="btn btn-primary" id="addExerciseBtn" disabled>
-                        <i class="fas fa-plus"></i> Add Exercise
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Add Exercise
                     </button>
-                    <button type="button" class="btn btn-secondary" id="completeWorkoutBtn" disabled>
-                        <i class="fas fa-check"></i> Complete Workout
+                    <button type="button" class="btn btn-success" id="completeWorkoutBtn" disabled>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <polyline points="20,6 9,17 4,12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Complete Workout
                     </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Toast Notification -->
     <div class="toast" id="toast">
-        <i class="fas fa-check"></i>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <polyline points="20,6 9,17 4,12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
         <span>Exercise added successfully!</span>
     </div>
 
     <script>
         let workoutStartTime = Date.now();
-        let exerciseCount = 0;
-        let workoutTimer;
+        let sessionTimer;
 
-        // Initialize workout timer
-        function startWorkoutTimer() {
-            workoutTimer = setInterval(() => {
+        function startSessionTimer() {
+            sessionTimer = setInterval(() => {
                 const elapsed = Math.floor((Date.now() - workoutStartTime) / 1000);
                 const minutes = Math.floor(elapsed / 60);
                 const seconds = elapsed % 60;
-                document.getElementById('workoutTimer').textContent = 
+                document.getElementById('sessionTimer').textContent = 
                     `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             }, 1000);
         }
 
-        // Update exercise count
-        function updateExerciseCount() {
+        function updateWorkoutStats() {
             const exercises = JSON.parse(localStorage.getItem('newWorkoutExercises') || '[]');
-            exerciseCount = exercises.length;
-            document.getElementById('exerciseCount').textContent = exerciseCount;
+            const exerciseCount = exercises.length;
+            const totalDuration = exercises.reduce((sum, ex) => sum + (ex.duration || 0), 0);
             
-            // Enable complete workout button if exercises exist
+            document.getElementById('exerciseCount').textContent = exerciseCount;
+            document.getElementById('totalDuration').textContent = `${totalDuration} min`;
+            
             const completeBtn = document.getElementById('completeWorkoutBtn');
             completeBtn.disabled = exerciseCount === 0;
         }
 
-        // Handle exercise type change
         document.getElementById('exerciseType').addEventListener('change', function() {
             const type = this.value;
-            const resistanceForm = document.getElementById('resistanceForm');
-            const cardioForm = document.getElementById('cardioForm');
-            const resistanceIndicator = document.getElementById('resistanceIndicator');
-            const cardioIndicator = document.getElementById('cardioIndicator');
+            const resistanceCard = document.getElementById('resistanceCard');
+            const cardioCard = document.getElementById('cardioCard');
             
-            // Hide all forms and indicators
-            resistanceForm.classList.remove('active');
-            cardioForm.classList.remove('active');
-            resistanceIndicator.classList.remove('active');
-            cardioIndicator.classList.remove('active');
+            resistanceCard.classList.remove('active');
+            cardioCard.classList.remove('active');
             
-            // Show selected form and indicator
             if (type === 'resistance') {
-                resistanceForm.classList.add('active');
-                resistanceIndicator.classList.add('active');
+                resistanceCard.classList.add('active');
             } else if (type === 'cardio') {
-                cardioForm.classList.add('active');
-                cardioIndicator.classList.add('active');
+                cardioCard.classList.add('active');
             }
             
             validateForm();
         });
 
-        // Validate form inputs
         function validateForm() {
             const type = document.getElementById('exerciseType').value;
             let isValid = false;
             
             if (type === 'resistance') {
-                const name = document.getElementById('exerciseName').value;
+                const name = document.getElementById('resistanceName').value;
                 const weight = document.getElementById('weight').value;
                 const sets = document.getElementById('sets').value;
                 const reps = document.getElementById('reps').value;
@@ -615,17 +592,14 @@
             document.getElementById('addExerciseBtn').disabled = !isValid;
         }
 
-        // Add event listeners for form validation
         document.querySelectorAll('input, select').forEach(input => {
             input.addEventListener('input', validateForm);
         });
 
-        // Handle add exercise
         document.getElementById('addExerciseBtn').addEventListener('click', async function() {
             const btn = this;
             const type = document.getElementById('exerciseType').value;
             
-            // Show loading state
             btn.classList.add('btn-loading');
             btn.disabled = true;
             
@@ -634,7 +608,7 @@
             if (type === 'resistance') {
                 exerciseData = {
                     ...exerciseData,
-                    name: document.getElementById('exerciseName').value,
+                    name: document.getElementById('resistanceName').value,
                     weight: parseFloat(document.getElementById('weight').value),
                     sets: parseInt(document.getElementById('sets').value),
                     reps: parseInt(document.getElementById('reps').value),
@@ -650,60 +624,48 @@
             }
 
             try {
-                // Simulate API call
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 
-                // Add to local storage
                 const exercises = JSON.parse(localStorage.getItem('newWorkoutExercises') || '[]');
                 exercises.push(exerciseData);
                 localStorage.setItem('newWorkoutExercises', JSON.stringify(exercises));
                 
-                // Show success toast
                 showToast('Exercise added successfully!', 'success');
-                
-                // Reset form
                 resetForm();
-                
-                // Update exercise count
-                updateExerciseCount();
+                updateWorkoutStats();
                 
             } catch (error) {
                 console.error('Error adding exercise:', error);
                 showToast('Error adding exercise. Please try again.', 'error');
             } finally {
-                // Remove loading state
                 btn.classList.remove('btn-loading');
-                btn.disabled = true; // Will be enabled again when form is valid
+                btn.disabled = true;
             }
         });
 
-        // Handle complete workout
         document.getElementById('completeWorkoutBtn').addEventListener('click', async function() {
             const btn = this;
+            const exerciseCount = JSON.parse(localStorage.getItem('newWorkoutExercises') || '[]').length;
             
             if (exerciseCount === 0) {
-                showToast('Please add at least one exercise before completing the workout.', 'warning');
+                showToast('Please add at least one exercise before completing the workout.', 'error');
                 return;
             }
             
-            // Show loading state
             btn.classList.add('btn-loading');
             btn.disabled = true;
             
             try {
-                // Simulate API call to complete workout
                 await new Promise(resolve => setTimeout(resolve, 1500));
                 
-                // Clear workout data
                 localStorage.removeItem('currentWorkoutId');
                 localStorage.removeItem('newWorkoutExercises');
+                localStorage.removeItem('workoutStartTime');
                 
-                // Notify other pages
                 localStorage.setItem('workoutUpdated', Date.now());
                 
                 showToast('Workout completed successfully!', 'success');
                 
-                // Redirect to home page after a delay
                 setTimeout(() => {
                     window.location.href = '/index.html';
                 }, 2000);
@@ -716,60 +678,43 @@
             }
         });
 
-        // Reset form
         function resetForm() {
             document.getElementById('exerciseForm').reset();
-            document.getElementById('resistanceForm').classList.remove('active');
-            document.getElementById('cardioForm').classList.remove('active');
-            document.getElementById('resistanceIndicator').classList.remove('active');
-            document.getElementById('cardioIndicator').classList.remove('active');
+            document.getElementById('resistanceCard').classList.remove('active');
+            document.getElementById('cardioCard').classList.remove('active');
             document.getElementById('addExerciseBtn').disabled = true;
         }
 
-        // Show toast notification
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
-            const icon = toast.querySelector('i');
             const text = toast.querySelector('span');
+            const icon = toast.querySelector('svg');
             
-            // Set message
             text.textContent = message;
             
-            // Set icon and color based on type
             if (type === 'success') {
-                toast.style.background = '#4CAF50';
-                icon.className = 'fas fa-check';
+                toast.style.background = 'linear-gradient(135deg, #059669 0%, #10b981 100%)';
+                icon.innerHTML = '<polyline points="20,6 9,17 4,12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
             } else if (type === 'error') {
-                toast.style.background = '#f44336';
-                icon.className = 'fas fa-times';
-            } else if (type === 'warning') {
-                toast.style.background = '#ff9800';
-                icon.className = 'fas fa-exclamation-triangle';
+                toast.style.background = 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)';
+                icon.innerHTML = '<line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
             }
             
-            // Show toast
             toast.classList.add('show');
             
-            // Hide after 3 seconds
             setTimeout(() => {
                 toast.classList.remove('show');
             }, 3000);
         }
 
-        // Get or create workout ID
         async function initializeWorkout() {
             let workoutId = localStorage.getItem('currentWorkoutId');
             
             if (!workoutId) {
                 try {
-                    // Create new workout
-                    const workout = { day: new Date(), exercises: [] };
-                    // Simulate API call
                     await new Promise(resolve => setTimeout(resolve, 500));
-                    
                     workoutId = 'workout_' + Date.now();
                     localStorage.setItem('currentWorkoutId', workoutId);
-                    
                 } catch (error) {
                     console.error('Error creating workout:', error);
                     showToast('Error creating workout. Please check your connection.', 'error');
@@ -779,25 +724,17 @@
             return workoutId;
         }
 
-        // Initialize page
         document.addEventListener('DOMContentLoaded', async () => {
-            // Check authentication
             const user = JSON.parse(localStorage.getItem('user'));
             if (!user) {
                 window.location.href = '/login.html';
                 return;
             }
             
-            // Initialize workout
             await initializeWorkout();
+            startSessionTimer();
+            updateWorkoutStats();
             
-            // Start timer
-            startWorkoutTimer();
-            
-            // Update exercise count
-            updateExerciseCount();
-            
-            // Load existing workout start time if available
             const savedStartTime = localStorage.getItem('workoutStartTime');
             if (savedStartTime) {
                 workoutStartTime = parseInt(savedStartTime);
@@ -806,23 +743,19 @@
             }
         });
 
-        // Save workout start time when leaving page
         window.addEventListener('beforeunload', () => {
             localStorage.setItem('workoutStartTime', workoutStartTime.toString());
         });
 
-        // Handle page visibility change to pause/resume timer
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
-                clearInterval(workoutTimer);
+                clearInterval(sessionTimer);
             } else {
-                startWorkoutTimer();
+                startSessionTimer();
             }
         });
 
-        // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
-            // Ctrl/Cmd + Enter to add exercise
             if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                 const addBtn = document.getElementById('addExerciseBtn');
                 if (!addBtn.disabled) {
@@ -830,17 +763,15 @@
                 }
             }
             
-            // Escape to reset form
             if (e.key === 'Escape') {
                 resetForm();
             }
         });
 
-        // Auto-save form data
         function saveFormData() {
             const formData = {
                 type: document.getElementById('exerciseType').value,
-                exerciseName: document.getElementById('exerciseName').value,
+                resistanceName: document.getElementById('resistanceName').value,
                 weight: document.getElementById('weight').value,
                 sets: document.getElementById('sets').value,
                 reps: document.getElementById('reps').value,
@@ -853,7 +784,6 @@
             localStorage.setItem('exerciseFormData', JSON.stringify(formData));
         }
 
-        // Restore form data
         function restoreFormData() {
             const savedData = localStorage.getItem('exerciseFormData');
             if (savedData) {
@@ -866,24 +796,20 @@
                     }
                 });
                 
-                // Trigger change event for exercise type
                 if (formData.type) {
                     document.getElementById('exerciseType').dispatchEvent(new Event('change'));
                 }
             }
         }
 
-        // Add auto-save listeners
         document.querySelectorAll('input, select').forEach(input => {
             input.addEventListener('input', saveFormData);
         });
 
-        // Clear saved form data when exercise is added
         document.getElementById('addExerciseBtn').addEventListener('click', () => {
             localStorage.removeItem('exerciseFormData');
         });
 
-        // Restore form data on page load
         window.addEventListener('load', restoreFormData);
     </script>
 </body>
