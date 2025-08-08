@@ -4,71 +4,1035 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
-        integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous" />
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100;300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css" />
-    <link rel="stylesheet" href="css/stats.css" />
-    <link rel="shortcut icon" type="image/png" href="images/favicon.png"> 
-    <title>Workout Tracker | Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>FitTrack - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lexend', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        nav {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: white;
+            text-decoration: none;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .nav-brand i {
+            font-size: 2rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem;
+            border-radius: 50%;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Main Container */
+        .dashboard-container {
+            max-width: 1200px;
+            margin: -2rem auto 0;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Stats Overview */
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--accent-color, #4CAF50);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--accent-color, #4CAF50);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-change {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .stat-change.positive {
+            color: #4CAF50;
+        }
+
+        .stat-change.negative {
+            color: #f44336;
+        }
+
+        /* Color variations for stat cards */
+        .stat-card.workouts::before { --accent-color: #4CAF50; }
+        .stat-card.workouts .stat-icon { background: #4CAF50; }
+
+        .stat-card.time::before { --accent-color: #2196F3; }
+        .stat-card.time .stat-icon { background: #2196F3; }
+
+        .stat-card.calories::before { --accent-color: #FF9800; }
+        .stat-card.calories .stat-icon { background: #FF9800; }
+
+        .stat-card.streak::before { --accent-color: #9C27B0; }
+        .stat-card.streak .stat-icon { background: #9C27B0; }
+
+        /* Charts Section */
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4CAF50, #2196F3);
+        }
+
+        .chart-header {
+            margin-bottom: 2rem;
+        }
+
+        .chart-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .chart-description {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 1rem;
+        }
+
+        /* Recent Activity */
+        .recent-activity {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .activity-header {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            margin-bottom: 2rem;
+        }
+
+        .activity-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .activity-list {
+            list-style: none;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: #4CAF50;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title-text {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-details {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .activity-time {
+            color: #999;
+            font-size: 0.8rem;
+        }
+
+        /* Goals Section */
+        .goals-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .goal-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .goal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .goal-title {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .goal-percentage {
+            font-weight: 700;
+            color: #4CAF50;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+
+        .goal-details {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Loading State */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4CAF50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 0 1rem;
+            }
+
+            .dashboard-container {
+                padding: 0 1rem;
+            }
+
+            .stats-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .chart-card,
+            .stat-card {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-overview {
+                grid-template-columns: 1fr;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
 </head>
 
 <body>
+    <!-- Navigation -->
     <nav>
-        <div class="nav-title">
-            <a href="/index.html"><img src="images/logo.png"></a>
-        </div>
-        <div class="nav-links">
-            <a href="/index.html">Home</a>
-            <a id="fitness-tracker-link" href="/stats.html">Dashboard</a>
-            <a href="/history.html">Workout History</a>
+        <div class="nav-container">
+            <a href="/index.html" class="nav-brand">
+                <i class="fas fa-dumbbell"></i>
+                FitTrack
+            </a>
+            
+            <div class="nav-links">
+                <a href="/index.html">Home</a>
+                <a href="/stats.html" class="active">Dashboard</a>
+                <a href="/history.html">History</a>
+            </div>
         </div>
     </nav>
-    <div class="stats-wrapper">
-        <header>
-            <h1 class="text-center">Workout <span id="dashboard-span">Dashboard</span></h1>
-        </header>
-        <div class="container mt">
-            <div id="duration-heading" class="chart-heading">
-                <h3><i class="far fa-clock"></i> Workout Duration</h3>
-                <p>View the duration, in minutes, of each of your last seven workouts.</p>
-            </div>
-            <div class="row mt">
-                <div class="col-md-6">
-                    <div id="duration-line">
-                        <canvas id="canvas"></canvas>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <h1>Your Fitness Dashboard</h1>
+        <p>Track your progress and stay motivated on your fitness journey</p>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div class="dashboard-container">
+        <!-- Stats Overview -->
+        <div class="stats-overview">
+            <div class="stat-card workouts">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" id="totalWorkouts">0</div>
+                        <div class="stat-label">Total Workouts</div>
+                        <div class="stat-change positive" id="workoutChange">+0 this week</div>
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <div id="duration-pie">
-                        <canvas id="canvas2"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div id="weight-heading" class="chart-heading">
-                <h3><i class="fas fa-dumbbell"></i> Weight Lifted</h3>
-                <p>View the kilograms lifted in each of your last seven workouts.</p>
-            </div>
-            <div class="row mt">
-                <div class="col-md-6">
-                    <div id="weight-bar">
-                        <canvas id="canvas3"></canvas>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div id="weight-doughnut">
-                        <canvas id="canvas4"></canvas>
+                    <div class="stat-icon">
+                        <i class="fas fa-dumbbell"></i>
                     </div>
                 </div>
             </div>
+
+            <div class="stat-card time">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" id="totalTime">0</div>
+                        <div class="stat-label">Minutes Trained</div>
+                        <div class="stat-change positive" id="timeChange">+0 this week</div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card calories">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" id="totalCalories">0</div>
+                        <div class="stat-label">Calories Burned</div>
+                        <div class="stat-change positive" id="calorieChange">+0 this week</div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card streak">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" id="currentStreak">0</div>
+                        <div class="stat-label">Day Streak</div>
+                        <div class="stat-change positive" id="streakStatus">Keep it up!</div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <!-- Workout Duration Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Workout Duration Trend</h3>
+                    <p class="chart-description">Your workout duration over the last 7 sessions</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="durationChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Exercise Types Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Exercise Distribution</h3>
+                    <p class="chart-description">Breakdown of your exercise types</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="exerciseChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Weight Progress Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Weight Lifted Progress</h3>
+                    <p class="chart-description">Total weight lifted in recent workouts</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="weightChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Weekly Activity Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Weekly Activity</h3>
+                    <p class="chart-description">Your workout frequency this week</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Goals Section -->
+        <div class="goals-section">
+            <div class="goal-card">
+                <div class="goal-header">
+                    <span class="goal-title">Weekly Workout Goal</span>
+                    <span class="goal-percentage" id="weeklyGoalPercent">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="weeklyGoalProgress" style="width: 0%"></div>
+                </div>
+                <div class="goal-details" id="weeklyGoalDetails">0 of 5 workouts completed this week</div>
+            </div>
+
+            <div class="goal-card">
+                <div class="goal-header">
+                    <span class="goal-title">Monthly Time Goal</span>
+                    <span class="goal-percentage" id="monthlyGoalPercent">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="monthlyGoalProgress" style="width: 0%"></div>
+                </div>
+                <div class="goal-details" id="monthlyGoalDetails">0 of 1200 minutes completed this month</div>
+            </div>
+
+            <div class="goal-card">
+                <div class="goal-header">
+                    <span class="goal-title">Consistency Goal</span>
+                    <span class="goal-percentage" id="consistencyPercent">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="consistencyProgress" style="width: 0%"></div>
+                </div>
+                <div class="goal-details" id="consistencyDetails">Maintain 3+ workouts per week</div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="recent-activity">
+            <div class="activity-header">
+                <h3 class="activity-title">Recent Activity</h3>
+            </div>
+            <ul class="activity-list" id="activityList">
+                <div class="loading">
+                    <div class="spinner"></div>
+                </div>
+            </ul>
         </div>
     </div>
 
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
-    <script src="js/api.js"></script>
-    <script src="js/stats.js"></script>
+    
+    <script>
+        // Mock API for demo purposes
+        const API = {
+            async getAllWorkouts() {
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        const mockWorkouts = [];
+                        for (let i = 0; i < 15; i++) {
+                            mockWorkouts.push({
+                                _id: `workout_${i}`,
+                                day: new Date(Date.now() - (i * 86400000)),
+                                exercises: [
+                                    {
+                                        type: Math.random() > 0.5 ? 'resistance' : 'cardio',
+                                        name: ['Bench Press', 'Squats', 'Running', 'Cycling', 'Deadlift'][Math.floor(Math.random() * 5)],
+                                        duration: Math.floor(Math.random() * 30) + 15,
+                                        weight: Math.floor(Math.random() * 100) + 50,
+                                        reps: Math.floor(Math.random() * 10) + 8,
+                                        sets: Math.floor(Math.random() * 3) + 3,
+                                        distance: Math.floor(Math.random() * 5) + 1
+                                    },
+                                    {
+                                        type: Math.random() > 0.5 ? 'resistance' : 'cardio',
+                                        name: ['Push ups', 'Pull ups', 'Rowing', 'Treadmill', 'Burpees'][Math.floor(Math.random() * 5)],
+                                        duration: Math.floor(Math.random() * 25) + 10,
+                                        weight: Math.floor(Math.random() * 80) + 30,
+                                        reps: Math.floor(Math.random() * 12) + 6,
+                                        sets: Math.floor(Math.random() * 4) + 2,
+                                        distance: Math.floor(Math.random() * 8) + 2
+                                    }
+                                ]
+                            });
+                        }
+                        resolve(mockWorkouts);
+                    }, 1000);
+                });
+            }
+        };
+
+        // Global variables
+        let workouts = [];
+        let charts = {};
+
+        // Initialize dashboard
+        async function initializeDashboard() {
+            try {
+                // Check authentication
+                const user = JSON.parse(localStorage.getItem('user'));
+                if (!user) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                // Load workouts
+                workouts = await API.getAllWorkouts();
+                
+                // Update stats
+                updateStats();
+                
+                // Initialize charts
+                initializeCharts();
+                
+                // Load recent activity
+                loadRecentActivity();
+                
+                // Update goals
+                updateGoals();
+                
+            } catch (error) {
+                console.error('Error initializing dashboard:', error);
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            const totalWorkouts = workouts.length;
+            const totalTime = workouts.reduce((sum, workout) => 
+                sum + workout.exercises.reduce((exSum, ex) => exSum + (ex.duration || 0), 0), 0
+            );
+            
+            // Calculate estimated calories (rough estimate: 5 calories per minute)
+            const totalCalories = Math.round(totalTime * 5);
+            
+            // Calculate streak
+            const streak = calculateStreak();
+            
+            // This week's data
+            const thisWeekStart = moment().startOf('week');
+            const thisWeekWorkouts = workouts.filter(w => moment(w.day).isAfter(thisWeekStart));
+            const thisWeekTime = thisWeekWorkouts.reduce((sum, workout) => 
+                sum + workout.exercises.reduce((exSum, ex) => exSum + (ex.duration || 0), 0), 0
+            );
+
+            // Update DOM
+            document.getElementById('totalWorkouts').textContent = totalWorkouts;
+            document.getElementById('totalTime').textContent = totalTime;
+            document.getElementById('totalCalories').textContent = totalCalories.toLocaleString();
+            document.getElementById('currentStreak').textContent = streak;
+            
+            // Update changes
+            document.getElementById('workoutChange').textContent = `+${thisWeekWorkouts.length} this week`;
+            document.getElementById('timeChange').textContent = `+${thisWeekTime} this week`;
+            document.getElementById('calorieChange').textContent = `+${Math.round(thisWeekTime * 5)} this week`;
+            document.getElementById('streakStatus').textContent = streak > 0 ? 'Keep it up!' : 'Start your streak!';
+        }
+
+        // Calculate workout streak
+        function calculateStreak() {
+            if (workouts.length === 0) return 0;
+            
+            const sortedWorkouts = [...workouts].sort((a, b) => new Date(b.day) - new Date(a.day));
+            let streak = 0;
+            let currentDate = moment().startOf('day');
+            
+            for (const workout of sortedWorkouts) {
+                const workoutDate = moment(workout.day).startOf('day');
+                const daysDiff = currentDate.diff(workoutDate, 'days');
+                
+                if (daysDiff <= 1) {
+                    streak++;
+                    currentDate = workoutDate;
+                } else {
+                    break;
+                }
+            }
+            
+            return streak;
+        }
+
+        // Initialize charts
+        function initializeCharts() {
+            const last7Workouts = workouts.slice(0, 7).reverse();
+            
+            // Duration Chart
+            const durationCtx = document.getElementById('durationChart').getContext('2d');
+            charts.duration = new Chart(durationCtx, {
+                type: 'line',
+                data: {
+                    labels: last7Workouts.map(w => moment(w.day).format('MMM DD')),
+                    datasets: [{
+                        label: 'Duration (minutes)',
+                        data: last7Workouts.map(w => 
+                            w.exercises.reduce((sum, ex) => sum + (ex.duration || 0), 0)
+                        ),
+                        borderColor: '#4CAF50',
+                        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Exercise Types Chart
+            const exerciseTypes = {};
+            workouts.forEach(workout => {
+                workout.exercises.forEach(ex => {
+                    exerciseTypes[ex.type] = (exerciseTypes[ex.type] || 0) + 1;
+                });
+            });
+
+            const exerciseCtx = document.getElementById('exerciseChart').getContext('2d');
+            charts.exercise = new Chart(exerciseCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(exerciseTypes).map(type => 
+                        type.charAt(0).toUpperCase() + type.slice(1)
+                    ),
+                    datasets: [{
+                        data: Object.values(exerciseTypes),
+                        backgroundColor: ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Weight Chart
+            const weightCtx = document.getElementById('weightChart').getContext('2d');
+            charts.weight = new Chart(weightCtx, {
+                type: 'bar',
+                data: {
+                    labels: last7Workouts.map(w => moment(w.day).format('MMM DD')),
+                    datasets: [{
+                        label: 'Total Weight (kg)',
+                        data: last7Workouts.map(w => 
+                            w.exercises
+                                .filter(ex => ex.type === 'resistance')
+                                .reduce((sum, ex) => sum + ((ex.weight || 0) * (ex.reps || 0) * (ex.sets || 1)), 0)
+                        ),
+                        backgroundColor: '#2196F3',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Weekly Activity Chart
+            const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const thisWeekStart = moment().startOf('week');
+            const weeklyData = weekDays.map((day, index) => {
+                const dayDate = moment(thisWeekStart).add(index, 'days');
+                const dayWorkouts = workouts.filter(w => 
+                    moment(w.day).format('YYYY-MM-DD') === dayDate.format('YYYY-MM-DD')
+                );
+                return dayWorkouts.length;
+            });
+
+            const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
+            charts.weekly = new Chart(weeklyCtx, {
+                type: 'bar',
+                data: {
+                    labels: weekDays,
+                    datasets: [{
+                        label: 'Workouts',
+                        data: weeklyData,
+                        backgroundColor: weeklyData.map(value => 
+                            value > 0 ? '#4CAF50' : '#f0f0f0'
+                        ),
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 2,
+                            ticks: {
+                                stepSize: 1
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Load recent activity
+        function loadRecentActivity() {
+            const activityList = document.getElementById('activityList');
+            const recentWorkouts = workouts.slice(0, 5);
+            
+            if (recentWorkouts.length === 0) {
+                activityList.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #666;">
+                        <i class="fas fa-dumbbell" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                        <p>No recent activity. Start your first workout!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            activityList.innerHTML = recentWorkouts.map(workout => {
+                const duration = workout.exercises.reduce((sum, ex) => sum + (ex.duration || 0), 0);
+                const exerciseCount = workout.exercises.length;
+                const timeAgo = moment(workout.day).fromNow();
+                
+                return `
+                    <li class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-dumbbell"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title-text">Completed workout</div>
+                            <div class="activity-details">
+                                ${exerciseCount} exercises • ${duration} minutes
+                            </div>
+                        </div>
+                        <div class="activity-time">${timeAgo}</div>
+                    </li>
+                `;
+            }).join('');
+        }
+
+        // Update goals
+        function updateGoals() {
+            // Weekly workout goal (5 workouts per week)
+            const thisWeekStart = moment().startOf('week');
+            const thisWeekWorkouts = workouts.filter(w => moment(w.day).isAfter(thisWeekStart));
+            const weeklyGoal = 5;
+            const weeklyProgress = Math.min((thisWeekWorkouts.length / weeklyGoal) * 100, 100);
+            
+            document.getElementById('weeklyGoalPercent').textContent = `${Math.round(weeklyProgress)}%`;
+            document.getElementById('weeklyGoalProgress').style.width = `${weeklyProgress}%`;
+            document.getElementById('weeklyGoalDetails').textContent = 
+                `${thisWeekWorkouts.length} of ${weeklyGoal} workouts completed this week`;
+
+            // Monthly time goal (1200 minutes per month)
+            const thisMonthStart = moment().startOf('month');
+            const thisMonthWorkouts = workouts.filter(w => moment(w.day).isAfter(thisMonthStart));
+            const thisMonthTime = thisMonthWorkouts.reduce((sum, workout) => 
+                sum + workout.exercises.reduce((exSum, ex) => exSum + (ex.duration || 0), 0), 0
+            );
+            const monthlyGoal = 1200;
+            const monthlyProgress = Math.min((thisMonthTime / monthlyGoal) * 100, 100);
+            
+            document.getElementById('monthlyGoalPercent').textContent = `${Math.round(monthlyProgress)}%`;
+            document.getElementById('monthlyGoalProgress').style.width = `${monthlyProgress}%`;
+            document.getElementById('monthlyGoalDetails').textContent = 
+                `${thisMonthTime} of ${monthlyGoal} minutes completed this month`;
+
+            // Consistency goal (3+ workouts per week for last 4 weeks)
+            const consistentWeeks = calculateConsistentWeeks();
+            const consistencyGoal = 4;
+            const consistencyProgress = Math.min((consistentWeeks / consistencyGoal) * 100, 100);
+            
+            document.getElementById('consistencyPercent').textContent = `${Math.round(consistencyProgress)}%`;
+            document.getElementById('consistencyProgress').style.width = `${consistencyProgress}%`;
+            document.getElementById('consistencyDetails').textContent = 
+                `${consistentWeeks} of ${consistencyGoal} weeks with 3+ workouts`;
+        }
+
+        // Calculate consistent weeks
+        function calculateConsistentWeeks() {
+            let consistentWeeks = 0;
+            for (let i = 0; i < 4; i++) {
+                const weekStart = moment().subtract(i, 'weeks').startOf('week');
+                const weekEnd = moment().subtract(i, 'weeks').endOf('week');
+                const weekWorkouts = workouts.filter(w => {
+                    const workoutDate = moment(w.day);
+                    return workoutDate.isBetween(weekStart, weekEnd, null, '[]');
+                });
+                
+                if (weekWorkouts.length >= 3) {
+                    consistentWeeks++;
+                }
+            }
+            return consistentWeeks;
+        }
+
+        // Listen for workout updates
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'workoutUpdated') {
+                // Reload dashboard data
+                initializeDashboard();
+            }
+        });
+
+        // Refresh data periodically
+        setInterval(() => {
+            initializeDashboard();
+        }, 300000); // Refresh every 5 minutes
+
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', initializeDashboard);
+
+        // Handle chart responsiveness
+        window.addEventListener('resize', () => {
+            Object.values(charts).forEach(chart => {
+                if (chart) {
+                    chart.resize();
+                }
+            });
+        });
+    </script>
 </body>
 </html>

@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitTrack - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100;300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lexend', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 400px;
+            max-width: 90vw;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+        }
+
+        .logo i {
+            font-size: 24px;
+        }
+
+        .login-header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .login-form {
+            padding: 2rem;
+        }
+
+        .google-btn {
+            width: 100%;
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 10px;
+            font-family: 'Lexend', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .google-btn:hover {
+            background: #3367d6;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(66, 133, 244, 0.3);
+        }
+
+        .google-btn i {
+            font-size: 1.2rem;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+            color: #666;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e0e0e0;
+        }
+
+        .divider span {
+            padding: 0 1rem;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-family: 'Lexend', sans-serif;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 10px;
+            font-family: 'Lexend', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(76, 175, 80, 0.3);
+        }
+
+        .signup-link {
+            text-align: center;
+            color: #666;
+        }
+
+        .signup-link a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+
+        .demo-btn {
+            width: 100%;
+            background: transparent;
+            color: #4CAF50;
+            border: 2px solid #4CAF50;
+            padding: 1rem;
+            border-radius: 10px;
+            font-family: 'Lexend', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .demo-btn:hover {
+            background: #4CAF50;
+            color: white;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                margin: 1rem;
+            }
+            
+            .login-header {
+                padding: 1.5rem;
+            }
+            
+            .login-form {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="logo">
+                <i class="fas fa-dumbbell"></i>
+            </div>
+            <h1>FitTrack</h1>
+            <p>Track your fitness journey</p>
+        </div>
+        
+        <div class="login-form">
+            <!-- Google Sign In Button -->
+            <button class="google-btn" onclick="signInWithGoogle()">
+                <i class="fab fa-google"></i>
+                Sign in with Google
+            </button>
+            
+            <div class="divider">
+                <span>or continue with email</span>
+            </div>
+            
+            <!-- Traditional Login Form -->
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <button type="submit" class="login-btn">
+                    Sign In
+                </button>
+            </form>
+            
+            <div class="signup-link">
+                Don't have an account? <a href="#" onclick="showSignup()">Sign up</a>
+            </div>
+            
+            <!-- Demo Button -->
+            <button class="demo-btn" onclick="demoLogin()">
+                <i class="fas fa-play"></i> Try Demo
+            </button>
+        </div>
+    </div>
+
+    <!-- Google Sign-In API -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
+    <script>
+        // Initialize Google Sign-In
+        function initializeGoogleSignIn() {
+            google.accounts.id.initialize({
+                client_id: 'YOUR_GOOGLE_CLIENT_ID', // Replace with your actual Google Client ID
+                callback: handleGoogleSignIn
+            });
+        }
+
+        // Handle Google Sign-In response
+        function handleGoogleSignIn(response) {
+            console.log('Google Sign-In successful:', response);
+            
+            // Decode the JWT token to get user info
+            const userInfo = parseJwt(response.credential);
+            console.log('User info:', userInfo);
+            
+            // Store user info in localStorage
+            localStorage.setItem('user', JSON.stringify({
+                id: userInfo.sub,
+                email: userInfo.email,
+                name: userInfo.name,
+                picture: userInfo.picture,
+                loginMethod: 'google'
+            }));
+            
+            // Redirect to main app
+            window.location.href = '/index.html';
+        }
+
+        // Sign in with Google button click
+        function signInWithGoogle() {
+            google.accounts.id.prompt();
+        }
+
+        // Traditional login form handler
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // For demo purposes, accept any email/password
+            // In production, you'd validate against your backend
+            if (email && password) {
+                localStorage.setItem('user', JSON.stringify({
+                    email: email,
+                    name: email.split('@')[0],
+                    loginMethod: 'email'
+                }));
+                
+                window.location.href = '/index.html';
+            } else {
+                alert('Please enter valid credentials');
+            }
+        }
+
+        // Demo login
+        function demoLogin() {
+            localStorage.setItem('user', JSON.stringify({
+                email: 'demo@fittrack.com',
+                name: 'Demo User',
+                loginMethod: 'demo'
+            }));
+            
+            window.location.href = '/index.html';
+        }
+
+        // Show signup (for now just alert)
+        function showSignup() {
+            alert('Signup form would be implemented here. For now, use Google Sign-In or Demo login.');
+        }
+
+        // Utility function to parse JWT token
+        function parseJwt(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                return JSON.parse(jsonPayload);
+            } catch (error) {
+                console.error('Error parsing JWT:', error);
+                return {};
+            }
+        }
+
+        // Check if user is already logged in
+        window.addEventListener('load', () => {
+            const user = localStorage.getItem('user');
+            if (user) {
+                window.location.href = '/index.html';
+            }
+            
+            // Initialize Google Sign-In when the page loads
+            if (typeof google !== 'undefined') {
+                initializeGoogleSignIn();
+            }
+        });
+    </script>
+</body>
+</html>
