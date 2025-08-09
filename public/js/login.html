@@ -545,9 +545,74 @@
             }, 500);
         });
 
+        // Handle OAuth callback from server
+        function handleOAuthCallback() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userDataParam = urlParams.get('user');
+            const successParam = urlParams.get('success');
+            const errorParam = urlParams.get('error');
+            
+            console.log('Checking for OAuth callback...', { userDataParam: !!userDataParam, successParam, errorParam });
+            
+            if (successParam === 'oauth_complete' && userDataParam) {
+                try {
+                    const userData = JSON.parse(atob(userDataParam));
+                    console.log('OAuth callback successful, user data received:', userData);
+                    saveUserAndRedirect(userData);
+                    return true;
+                } catch (e) {
+                    console.error('Error parsing OAuth user data:', e);
+                    showError('Authentication data error. Please try again.');
+                }
+            }
+            
+            if (errorParam) {
+                console.error('OAuth error parameter:', errorParam);
+                let errorMessage = 'Authentication failed. Please try again.';
+                
+                switch (errorParam) {
+                    case 'oauth_denied':
+                        errorMessage = 'Google sign-in was cancelled. Please try again.';
+                        break;
+                    case 'oauth_expired':
+                        errorMessage = 'Authentication session expired. Please try again.';
+                        break;
+                    case 'oauth_config_missing':
+                        errorMessage = 'OAuth configuration error. Please contact support.';
+                        break;
+                    case 'network_error':
+                        errorMessage = 'Network error during authentication. Please check your connection.';
+                        break;
+                    case 'oauth_timeout':
+                        errorMessage = 'Authentication timed out. Please try again.';
+                        break;
+                    case 'oauth_failed':
+                    default:
+                        errorMessage = 'Google authentication failed. Please try email login.';
+                        break;
+                }
+                
+                showError(errorMessage);
+                
+                // Clean up URL
+                setTimeout(() => {
+                    window.history.replaceState({}, document.title, '/login.html');
+                }, 100);
+            }
+            
+            return false;
+        }
+
         // Handle page load and Google API initialization
         window.addEventListener('load', () => {
-            console.log('Page loaded, waiting for Google API...');
+            console.log('Page loaded, checking for OAuth callback...');
+            
+            // First check if this is an OAuth callback
+            if (handleOAuthCallback()) {
+                return; // OAuth callback handled, don't initialize Google API
+            }
+            
+            console.log('No OAuth callback, initializing Google Sign-In API...');
             
             // Show fallback button after a delay if Google doesn't load
             setTimeout(() => {
