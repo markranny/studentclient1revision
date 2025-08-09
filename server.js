@@ -33,7 +33,7 @@ app.use((req, res, next) => {
     next();
 });
 
-// ===== SERVERLESS-OPTIMIZED MONGODB CONNECTION =====
+// ===== FIXED SERVERLESS-OPTIMIZED MONGODB CONNECTION =====
 
 // Global connection cache for serverless environments
 let cached = global.mongoose;
@@ -43,14 +43,20 @@ if (!cached) {
 }
 
 /**
- * Connect to MongoDB with serverless-optimized settings
- * This function reuses connections in serverless environments like Vercel
+ * FIXED: Connect to MongoDB with improved serverless settings
  */
 async function connectMongoDB() {
-    // Return cached connection if available
-    if (cached.conn) {
+    // Return cached connection if available and connected
+    if (cached.conn && mongoose.connection.readyState === 1) {
         console.log('🔄 Using cached MongoDB connection');
         return cached.conn;
+    }
+
+    // Clear cache if connection is stale
+    if (cached.conn && mongoose.connection.readyState !== 1) {
+        console.log('🧹 Clearing stale MongoDB connection cache');
+        cached.conn = null;
+        cached.promise = null;
     }
 
     if (!process.env.MONGODB_URI) {
@@ -59,59 +65,81 @@ async function connectMongoDB() {
         );
     }
 
-    // Serverless-optimized MongoDB connection options
+    // FIXED: Serverless-optimized MongoDB connection options for Vercel
     const mongooseOptions = {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         
-        // CRITICAL: Serverless-specific optimizations
-        maxPoolSize: 1, // Keep very small for Vercel serverless functions
+        // CRITICAL: Vercel serverless-specific optimizations
+        maxPoolSize: 1, // Single connection for serverless
         minPoolSize: 0,
-        maxIdleTimeMS: 30000, // Close connections after 30 seconds of inactivity
-        serverSelectionTimeoutMS: 10000, // Fail fast in serverless environment
+        maxIdleTimeMS: 30000, // Close after 30s idle
+        serverSelectionTimeoutMS: 5000, // Reduced from 10s to 5s
         socketTimeoutMS: 45000,
         connectTimeoutMS: 10000,
+        heartbeatFrequencyMS: 30000, // Longer heartbeat for serverless
         
-        // Performance optimizations for serverless
-        bufferCommands: false, // Disable mongoose buffering
-        bufferMaxEntries: 0, // Disable mongoose buffering
+        // FIXED: Critical bufferCommands setting
+        bufferCommands: false, // Disable mongoose buffering for serverless
+        bufferMaxEntries: 0,
         
         // Reliability settings
         retryWrites: true,
         w: 'majority',
         
-        // Network optimization
-        family: 4 // Use IPv4, skip IPv6 for faster connection in Vercel
+        // FIXED: Network optimization for Vercel
+        family: 4, // IPv4 only for faster DNS resolution
+        
+        // ADDED: Additional serverless optimizations
+        autoIndex: false, // Don't auto-create indexes in production
+        autoCreate: false, // Don't auto-create collections
     };
 
     if (!cached.promise) {
-        console.log('🔗 Creating new MongoDB connection for serverless environment...');
+        console.log('🔗 Creating new MongoDB connection for Vercel serverless...');
         console.log('📝 Connection URI (masked):', process.env.MONGODB_URI.replace(/\/\/.*@/, "//***:***@"));
         
-        cached.promise = mongoose.connect(process.env.MONGODB_URI, mongooseOptions);
+        // FIXED: Use mongoose.connect directly without storing promise
+        cached.promise = mongoose.connect(process.env.MONGODB_URI, mongooseOptions)
+            .then((mongoose) => {
+                console.log('✅ MongoDB connected successfully (Vercel serverless mode)');
+                return mongoose;
+            })
+            .catch((error) => {
+                console.error('❌ MongoDB connection failed:', error.message);
+                // Clear cache on error
+                cached.conn = null;
+                cached.promise = null;
+                throw error;
+            });
     }
 
     try {
         cached.conn = await cached.promise;
         
-        // Set up connection event listeners
-        mongoose.connection.on('connected', () => {
-            console.log('✅ MongoDB connected successfully (serverless mode)');
-        });
+        // FIXED: Set up connection event listeners only once
+        if (!mongoose.connection._eventsSet) {
+            mongoose.connection.on('connected', () => {
+                console.log('✅ MongoDB connected successfully');
+            });
 
-        mongoose.connection.on('error', (err) => {
-            console.error('❌ MongoDB connection error:', err);
-            // Reset cache on error to allow retry
-            cached.conn = null;
-            cached.promise = null;
-        });
+            mongoose.connection.on('error', (err) => {
+                console.error('❌ MongoDB connection error:', err);
+                // Reset cache on error
+                cached.conn = null;
+                cached.promise = null;
+            });
 
-        mongoose.connection.on('disconnected', () => {
-            console.log('🔌 MongoDB disconnected');
-            // Reset cache on disconnect
-            cached.conn = null;
-            cached.promise = null;
-        });
+            mongoose.connection.on('disconnected', () => {
+                console.log('🔌 MongoDB disconnected');
+                // Reset cache on disconnect
+                cached.conn = null;
+                cached.promise = null;
+            });
+            
+            // Mark events as set
+            mongoose.connection._eventsSet = true;
+        }
 
         console.log('✅ MongoDB connection established successfully');
         console.log('🗄️ Database:', mongoose.connection.name);
@@ -128,43 +156,49 @@ async function connectMongoDB() {
         } else if (error.message.includes('authentication failed')) {
             console.error('🔧 Authentication failed - check username/password in MongoDB URI');
         } else if (error.message.includes('connection attempt failed')) {
-            console.error('🔧 Connection failed - check MongoDB Atlas IP whitelist (add 0.0.0.0/0)');
+            console.error('🔧 Connection failed - check MongoDB Atlas IP whitelist (should include 0.0.0.0/0)');
+        } else if (error.message.includes('Server selection timed out')) {
+            console.error('🔧 Server selection timeout - MongoDB Atlas may be paused or unreachable');
         }
         
-        // Reset cache on error to allow retry
+        // Reset cache on error
         cached.conn = null;
         cached.promise = null;
         throw error;
     }
 }
 
-// Initialize MongoDB connection
-connectMongoDB()
-    .then(() => {
-        console.log("✅ Initial MongoDB connection successful!");
-    })
-    .catch(err => {
-        console.error("❌ Initial MongoDB connection failed:", err.message);
-        console.log("\n🔧 Troubleshooting checklist:");
-        console.log("1. Verify MONGODB_URI environment variable is set correctly");
-        console.log("2. Check MongoDB Atlas IP whitelist includes 0.0.0.0/0 for Vercel");
-        console.log("3. Confirm database user has proper read/write permissions");
-        console.log("4. Ensure MongoDB Atlas cluster is running");
-        console.log("📱 Server will continue running but database features won't work until MongoDB is connected.");
-    });
-
-// ===== MIDDLEWARE TO ENSURE DB CONNECTION FOR API ROUTES =====
+// FIXED: Middleware to ensure DB connection with better error handling
 app.use('/api', async (req, res, next) => {
     try {
+        // Check if we already have a connection
+        if (mongoose.connection.readyState === 1) {
+            return next();
+        }
+        
+        // Try to connect
         await connectMongoDB();
         next();
     } catch (error) {
         console.error('❌ Database connection failed for API request:', error);
+        
+        // FIXED: Better error response for different scenarios
+        let errorMessage = 'Unable to connect to MongoDB. Please try again later.';
+        let suggestion = 'Check MongoDB Atlas connection and IP whitelist settings';
+        
+        if (error.message.includes('Server selection timed out')) {
+            errorMessage = 'Database connection timeout. The database may be paused or unreachable.';
+            suggestion = 'Check if MongoDB Atlas cluster is running and not paused';
+        } else if (error.message.includes('authentication failed')) {
+            errorMessage = 'Database authentication failed.';
+            suggestion = 'Verify MongoDB credentials in environment variables';
+        }
+        
         res.status(503).json({
             error: 'Database connection failed',
-            details: 'Unable to connect to MongoDB. Please try again later.',
+            details: errorMessage,
             timestamp: new Date().toISOString(),
-            suggestion: 'Check MongoDB Atlas connection and IP whitelist settings'
+            suggestion: suggestion
         });
     }
 });
@@ -194,19 +228,16 @@ app.get('/auth/google', (req, res) => {
         return res.redirect('/login.html?error=oauth_config_missing');
     }
     
-    // Determine the correct redirect URI based on environment
+    // FIXED: Better redirect URI detection for Vercel
     const isProduction = process.env.NODE_ENV === 'production';
-    const vercelUrl = process.env.VERCEL_URL; // Automatically provided by Vercel
+    const vercelUrl = process.env.VERCEL_URL;
     
     let redirectUri;
     if (isProduction && vercelUrl) {
-        // Use Vercel's provided URL for production
         redirectUri = `https://${vercelUrl}/auth/callback`;
     } else if (process.env.GOOGLE_OAUTH_REDIRECT_URI) {
-        // Use manually configured redirect URI
         redirectUri = process.env.GOOGLE_OAUTH_REDIRECT_URI;
     } else {
-        // Fallback to localhost for development
         redirectUri = `http://localhost:${PORT}/auth/callback`;
     }
     
@@ -219,7 +250,7 @@ app.get('/auth/google', (req, res) => {
         `scope=openid%20email%20profile&` +
         `access_type=offline&` +
         `prompt=consent&` +
-        `state=fittrack_login_${Date.now()}`; // Add timestamp for extra security
+        `state=fittrack_login_${Date.now()}`;
     
     console.log('🔄 Redirecting to Google OAuth...');
     res.redirect(googleAuthUrl);
@@ -253,7 +284,6 @@ app.get('/auth/callback', async (req, res) => {
         return res.redirect('/login.html?error=oauth_no_code');
     }
     
-    // Verify state parameter (basic CSRF protection)
     if (!state || !state.startsWith('fittrack_login_')) {
         console.error('❌ Invalid state parameter');
         return res.redirect('/login.html?error=oauth_invalid_state');
@@ -385,13 +415,17 @@ require("./routes/api-routes")(app);
 console.log("🔌 Loading HTML routes...");
 require("./routes/html-routes")(app);
 
-// ===== HEALTH CHECK ENDPOINT =====
+// ===== FIXED HEALTH CHECK ENDPOINT =====
 app.get('/health', async (req, res) => {
     try {
-        await connectMongoDB();
+        // FIXED: Don't try to connect if already connected
+        if (mongoose.connection.readyState !== 1) {
+            await connectMongoDB();
+        }
         
-        // Test MongoDB with a simple query
-        const workoutCount = await mongoose.connection.db.collection('workouts').countDocuments();
+        // Test MongoDB with a simple query with timeout
+        const workoutCount = await mongoose.connection.db.collection('workouts')
+            .countDocuments({}, { maxTimeMS: 5000 });
         
         res.json({
             status: 'healthy',
@@ -402,7 +436,7 @@ app.get('/health', async (req, res) => {
             database: mongoose.connection.name,
             workoutCount: workoutCount,
             connectionState: mongoose.connection.readyState,
-            version: '2.1.2-vercel'
+            version: '2.1.3-vercel-fixed'
         });
     } catch (error) {
         console.error('❌ Health check failed:', error);
@@ -461,6 +495,23 @@ app.use((req, res) => {
         });
     }
 });
+
+// FIXED: Initialize MongoDB connection only in development
+if (process.env.NODE_ENV !== 'production') {
+    connectMongoDB()
+        .then(() => {
+            console.log("✅ Initial MongoDB connection successful!");
+        })
+        .catch(err => {
+            console.error("❌ Initial MongoDB connection failed:", err.message);
+            console.log("\n🔧 Troubleshooting checklist:");
+            console.log("1. Verify MONGODB_URI environment variable is set correctly");
+            console.log("2. Check MongoDB Atlas IP whitelist includes 0.0.0.0/0 for Vercel");
+            console.log("3. Confirm database user has proper read/write permissions");
+            console.log("4. Ensure MongoDB Atlas cluster is running and not paused");
+            console.log("📱 Server will continue running but database features won't work until MongoDB is connected.");
+        });
+}
 
 // ===== SERVER STARTUP (LOCAL DEVELOPMENT ONLY) =====
 if (process.env.NODE_ENV !== 'production') {
