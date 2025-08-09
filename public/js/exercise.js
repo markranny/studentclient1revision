@@ -26,25 +26,32 @@ function getWorkoutId() {
   return localStorage.getItem("currentWorkoutId");
 }
 
-// Initialize workout
+// Initialize workout - Create new workout in MongoDB
 async function initExercise() {
   let id = getWorkoutId();
   if (!id) {
     try {
+      console.log('Creating new workout in MongoDB...');
       const workout = await API.createWorkout();
       if (workout && workout._id) {
         localStorage.setItem("currentWorkoutId", workout._id);
-        location.search = "?id=" + workout._id;
+        console.log('Workout created successfully:', workout._id);
+        // Update URL to show workout ID
+        const newUrl = `${window.location.pathname}?id=${workout._id}`;
+        window.history.replaceState({}, '', newUrl);
       } else {
-        console.error("Failed to create workout:", workout);
-        alert("Failed to create workout. Please try again.");
+        throw new Error("Failed to create workout");
       }
     } catch (error) {
       console.error("Error creating workout:", error);
-      alert("Error creating workout. Please check your MongoDB connection.");
+      alert("Error creating workout. Please check your MongoDB connection and try again.");
     }
+  } else {
+    console.log('Using existing workout:', id);
   }
 }
+
+// Initialize on page load
 initExercise();
 
 // Handle workout type change
@@ -85,7 +92,7 @@ function validateInputs() {
   }
 }
 
-// Handle form submission
+// Handle form submission - Add exercise to MongoDB
 async function handleFormSubmit(event) {
   event.preventDefault();
 
@@ -114,30 +121,49 @@ async function handleFormSubmit(event) {
     return;
   }
 
-  await API.addExercise(workoutData);
+  try {
+    console.log('Adding exercise to MongoDB:', workoutData);
+    
+    // Add exercise to MongoDB
+    await API.addExercise(workoutData);
+    console.log('Exercise added successfully to MongoDB');
 
-  // --- Render in new container ---
-  const newContainerContent = document.querySelector(".new-workout-exercises");
-  if (newContainerContent) {
+    // Also update localStorage for real-time UI updates
     let exercises = JSON.parse(localStorage.getItem("newWorkoutExercises") || "[]");
     exercises.push(workoutData);
     localStorage.setItem("newWorkoutExercises", JSON.stringify(exercises));
 
+    // Update new workout container display
+    updateNewWorkoutContainer(exercises);
+
+    // Clear form inputs
+    clearInputs();
+    
+    // Show success message
+    toast.classList.add("success");
+    
+  } catch (error) {
+    console.error("Error adding exercise:", error);
+    alert("Error adding exercise. Please check your MongoDB connection and try again.");
+  }
+}
+
+// Update the new workout container display
+function updateNewWorkoutContainer(exercises) {
+  const newContainerContent = document.querySelector(".new-workout-exercises");
+  if (newContainerContent) {
     newContainerContent.innerHTML = "";
     exercises.forEach(ex => {
       const div = document.createElement("div");
       div.classList.add("exercise-detail");
       if (ex.type === "resistance") {
-        div.textContent = `resistance - ${ex.name} - Duration: ${ex.duration || 0} min, Weight: ${ex.weight || 0} kg, Sets: ${ex.sets || 0}, Reps: ${ex.reps || 0}`;
+        div.textContent = `${ex.type} - ${ex.name} - Duration: ${ex.duration || 0} min, Weight: ${ex.weight || 0} kg, Sets: ${ex.sets || 0}, Reps: ${ex.reps || 0}`;
       } else {
-        div.textContent = `cardio - ${ex.name} - Duration: ${ex.duration || 0} min, Distance: ${ex.distance || 0} km`;
+        div.textContent = `${ex.type} - ${ex.name} - Duration: ${ex.duration || 0} min, Distance: ${ex.distance || 0} km`;
       }
       newContainerContent.appendChild(div);
     });
   }
-
-  clearInputs();
-  toast.classList.add("success");
 }
 
 // Handle toast animation
@@ -160,19 +186,114 @@ function clearInputs() {
   weightInput.value = "";
 }
 
+// Handle complete workout
+async function handleCompleteWorkout(event) {
+  event.preventDefault();
+  
+  const workoutId = getWorkoutId();
+  if (!workoutId) {
+    alert("No workout in progress.");
+    return;
+  }
+
+  try {
+    // Check if workout has exercises
+    const exercises = JSON.parse(localStorage.getItem("newWorkoutExercises") || "[]");
+    if (exercises.length === 0) {
+      alert("Please add at least one exercise before completing the workout.");
+      return;
+    }
+
+    console.log('Completing workout:', workoutId);
+    
+    // The workout and exercises should already be saved to MongoDB
+    // Just need to clean up localStorage and navigate
+    shouldNavigateAway = true;
+    
+    // Clear localStorage
+    localStorage.removeItem("currentWorkoutId");
+    localStorage.removeItem("newWorkoutExercises");
+    localStorage.removeItem("workoutStartTime");
+    
+    // Clear new workout container
+    const newContainerContent = document.querySelector(".new-workout-exercises");
+    if (newContainerContent) {
+      newContainerContent.innerHTML = '<div class="exercise-detail">Workout completed! Redirecting...</div>';
+    }
+    
+    // Notify other pages that workout data has been updated
+    localStorage.setItem("workoutUpdated", Date.now());
+    
+    // Show success toast and navigate
+    toast.classList.add("success");
+    
+  } catch (error) {
+    console.error("Error completing workout:", error);
+    alert("Error completing workout. Please try again.");
+  }
+}
+
 // Event listeners
-if (workoutTypeSelect) workoutTypeSelect.addEventListener("change", handleWorkoutTypeChange);
-if (completeButton) completeButton.addEventListener("click", function(event) {
-  shouldNavigateAway = true;
-  handleFormSubmit(event);
+if (workoutTypeSelect) {
+  workoutTypeSelect.addEventListener("change", handleWorkoutTypeChange);
+}
 
-  // --- Clear new workout container and notify stats/history ---
-  const newContainerContent = document.querySelector(".new-workout-exercises");
-  if (newContainerContent) newContainerContent.textContent = "No exercise added yet.";
+if (completeButton) {
+  completeButton.addEventListener("click", handleCompleteWorkout);
+}
 
-  localStorage.setItem("workoutUpdated", Date.now());
-  localStorage.removeItem("currentWorkoutId");
+if (addButton) {
+  addButton.addEventListener("click", handleFormSubmit);
+}
+
+if (toast) {
+  toast.addEventListener("animationend", handleToastAnimationEnd);
+}
+
+// Add input validation listeners
+document.querySelectorAll("input").forEach(el => {
+  el.addEventListener("input", validateInputs);
 });
-if (addButton) addButton.addEventListener("click", handleFormSubmit);
-toast.addEventListener("animationend", handleToastAnimationEnd);
-document.querySelectorAll("input").forEach(el => el.addEventListener("input", validateInputs));
+
+// Load existing exercises for current workout on page load
+window.addEventListener('DOMContentLoaded', async () => {
+  const workoutId = getWorkoutId();
+  if (workoutId) {
+    try {
+      // Try to get current workout from MongoDB to show existing exercises
+      const workout = await API.getWorkout(workoutId);
+      if (workout && workout.exercises) {
+        // Update localStorage to match MongoDB data
+        localStorage.setItem("newWorkoutExercises", JSON.stringify(workout.exercises));
+        updateNewWorkoutContainer(workout.exercises);
+      }
+    } catch (error) {
+      console.log('Could not load existing workout data:', error.message);
+      // This is okay - might be a new workout
+    }
+  }
+  
+  // Load any exercises from localStorage (for UI consistency)
+  const exercises = JSON.parse(localStorage.getItem("newWorkoutExercises") || "[]");
+  if (exercises.length > 0) {
+    updateNewWorkoutContainer(exercises);
+  }
+});
+
+// Handle page visibility change to sync localStorage with MongoDB
+document.addEventListener('visibilitychange', async () => {
+  if (!document.hidden) {
+    const workoutId = getWorkoutId();
+    if (workoutId) {
+      try {
+        const workout = await API.getWorkout(workoutId);
+        if (workout && workout.exercises) {
+          localStorage.setItem("newWorkoutExercises", JSON.stringify(workout.exercises));
+          updateNewWorkoutContainer(workout.exercises);
+        }
+      } catch (error) {
+        console.log('Could not sync workout data:', error.message);
+      }
+    }
+  }
+});

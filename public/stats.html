@@ -399,6 +399,38 @@
             animation: spin 1s linear infinite;
         }
 
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+        }
+
+        .empty-state p {
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-start-workout {
+            background: #4f46e5;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.2s;
+        }
+
+        .btn-start-workout:hover {
+            background: #4338ca;
+        }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -485,7 +517,7 @@
                             <path d="M16 8h4v16h-4z" fill="currentColor"/>
                         </svg>
                     </div>
-                    <div class="card-trend trend-up">
+                    <div class="card-trend trend-up" id="workoutsTrend" style="display: none;">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
                             <polyline points="23,6 13.5,15.5 8.5,10.5 1,18" stroke="currentColor" stroke-width="2"/>
                             <polyline points="17,6 23,6 23,12" stroke="currentColor" stroke-width="2"/>
@@ -495,7 +527,7 @@
                 </div>
                 <div class="card-value" id="totalWorkouts">0</div>
                 <div class="card-label">Total Workouts</div>
-                <div class="card-description">Completed sessions this month</div>
+                <div class="card-description">Completed sessions</div>
             </div>
 
             <div class="overview-card" style="--accent-color: #059669;">
@@ -506,7 +538,7 @@
                             <polyline points="12,6 12,12 16,14" stroke="currentColor" stroke-width="2"/>
                         </svg>
                     </div>
-                    <div class="card-trend trend-up">
+                    <div class="card-trend trend-up" id="timeTrend" style="display: none;">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
                             <polyline points="23,6 13.5,15.5 8.5,10.5 1,18" stroke="currentColor" stroke-width="2"/>
                             <polyline points="17,6 23,6 23,12" stroke="currentColor" stroke-width="2"/>
@@ -526,7 +558,7 @@
                             <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" fill="currentColor"/>
                         </svg>
                     </div>
-                    <div class="card-trend trend-up">
+                    <div class="card-trend trend-up" id="caloriesTrend" style="display: none;">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
                             <polyline points="23,6 13.5,15.5 8.5,10.5 1,18" stroke="currentColor" stroke-width="2"/>
                             <polyline points="17,6 23,6 23,12" stroke="currentColor" stroke-width="2"/>
@@ -536,7 +568,7 @@
                 </div>
                 <div class="card-value" id="caloriesBurned">0</div>
                 <div class="card-label">Calories Burned</div>
-                <div class="card-description">Estimated calories this week</div>
+                <div class="card-description">Estimated total calories</div>
             </div>
 
             <div class="overview-card" style="--accent-color: #f59e0b;">
@@ -546,7 +578,7 @@
                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/>
                         </svg>
                     </div>
-                    <div class="card-trend trend-up">
+                    <div class="card-trend trend-up" id="streakTrend" style="display: none;">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
                             <polyline points="23,6 13.5,15.5 8.5,10.5 1,18" stroke="currentColor" stroke-width="2"/>
                             <polyline points="17,6 23,6 23,12" stroke="currentColor" stroke-width="2"/>
@@ -564,7 +596,7 @@
             <div class="chart-card">
                 <div class="chart-header">
                     <h3 class="chart-title">Workout Duration Trends</h3>
-                    <p class="chart-description">Your workout duration over the last 7 sessions</p>
+                    <p class="chart-description">Your workout duration over time</p>
                 </div>
                 <div class="chart-container">
                     <canvas id="durationChart"></canvas>
@@ -626,81 +658,71 @@
                 </div>
                 <div class="insights-content" id="insights">
                     <div class="insight-item">
-                        <div class="insight-title">Consistency Boost</div>
-                        <div class="insight-description">You're 2 workouts away from your best weekly streak!</div>
-                    </div>
-                    <div class="insight-item">
-                        <div class="insight-title">Recovery Time</div>
-                        <div class="insight-description">Consider adding rest days between intense sessions.</div>
-                    </div>
-                    <div class="insight-item">
-                        <div class="insight-title">Progress Tracking</div>
-                        <div class="insight-description">Your average workout time has increased by 12%.</div>
+                        <div class="insight-title">Loading Insights...</div>
+                        <div class="insight-description">Analyzing your workout data to provide personalized recommendations.</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Include API Script -->
+    <script src="/js/api.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const API = {
-            async getAllWorkouts() {
-                return new Promise(resolve => {
-                    setTimeout(() => {
-                        const mockWorkouts = [];
-                        for (let i = 0; i < 15; i++) {
-                            mockWorkouts.push({
-                                _id: `workout_${i}`,
-                                day: new Date(Date.now() - (i * 86400000)),
-                                exercises: [
-                                    {
-                                        type: Math.random() > 0.5 ? 'resistance' : 'cardio',
-                                        name: ['Bench Press', 'Squats', 'Running', 'Cycling', 'Deadlift'][Math.floor(Math.random() * 5)],
-                                        duration: Math.floor(Math.random() * 30) + 15,
-                                        weight: Math.floor(Math.random() * 100) + 50,
-                                        reps: Math.floor(Math.random() * 10) + 8,
-                                        sets: Math.floor(Math.random() * 3) + 3,
-                                        distance: Math.floor(Math.random() * 5) + 1
-                                    },
-                                    {
-                                        type: Math.random() > 0.5 ? 'resistance' : 'cardio',
-                                        name: ['Push ups', 'Pull ups', 'Rowing', 'Treadmill', 'Burpees'][Math.floor(Math.random() * 5)],
-                                        duration: Math.floor(Math.random() * 25) + 10,
-                                        weight: Math.floor(Math.random() * 80) + 30,
-                                        reps: Math.floor(Math.random() * 12) + 6,
-                                        sets: Math.floor(Math.random() * 4) + 2,
-                                        distance: Math.floor(Math.random() * 8) + 2
-                                    }
-                                ]
-                            });
-                        }
-                        resolve(mockWorkouts);
-                    }, 1000);
-                });
-            }
-        };
-
         let workouts = [];
         let charts = {};
 
         async function initializeDashboard() {
             try {
+                // Check authentication
                 const user = JSON.parse(localStorage.getItem('user'));
                 if (!user) {
                     window.location.href = '/login.html';
                     return;
                 }
 
+                // Load workouts from MongoDB
                 workouts = await API.getAllWorkouts();
+                
+                if (workouts.length === 0) {
+                    showEmptyState();
+                    return;
+                }
+
                 updateOverviewStats();
                 initializeCharts();
                 loadRecentActivity();
                 updateProgressBars();
+                generateInsights();
                 
             } catch (error) {
                 console.error('Error initializing dashboard:', error);
+                showErrorState('Error loading workout data. Please check your MongoDB connection.');
             }
+        }
+
+        function showEmptyState() {
+            document.getElementById('recentActivity').innerHTML = `
+                <div class="empty-state">
+                    <h3>No workout data available</h3>
+                    <p>Start tracking your workouts to see analytics and insights here.</p>
+                    <a href="/excercise.html" class="btn-start-workout">Start First Workout</a>
+                </div>
+            `;
+            
+            // Hide charts
+            document.querySelector('.charts-section').style.display = 'none';
+        }
+
+        function showErrorState(message) {
+            document.getElementById('recentActivity').innerHTML = `
+                <div class="empty-state">
+                    <h3>Unable to load data</h3>
+                    <p>${message}</p>
+                    <button onclick="initializeDashboard()" class="btn-start-workout">Retry</button>
+                </div>
+            `;
         }
 
         function updateOverviewStats() {
@@ -709,6 +731,7 @@
                 sum + workout.exercises.reduce((exSum, ex) => exSum + (ex.duration || 0), 0), 0
             );
             
+            // Estimate calories (rough calculation: ~5 calories per minute of exercise)
             const caloriesBurned = Math.round(totalTime * 5);
             const streak = calculateStreak();
             
@@ -716,6 +739,14 @@
             document.getElementById('totalTime').textContent = `${totalTime}m`;
             document.getElementById('caloriesBurned').textContent = caloriesBurned.toLocaleString();
             document.getElementById('currentStreak').textContent = streak;
+
+            // Show trend indicators if there's enough data
+            if (workouts.length > 5) {
+                document.getElementById('workoutsTrend').style.display = 'flex';
+                document.getElementById('timeTrend').style.display = 'flex';
+                document.getElementById('caloriesTrend').style.display = 'flex';
+                document.getElementById('streakTrend').style.display = 'flex';
+            }
         }
 
         function calculateStreak() {
@@ -743,16 +774,18 @@
         }
 
         function initializeCharts() {
-            const last7Workouts = workouts.slice(0, 7).reverse();
+            // Use last 10 workouts for charts (more data points)
+            const recentWorkouts = workouts.slice(0, 10).reverse();
             
+            // Duration Chart
             const durationCtx = document.getElementById('durationChart').getContext('2d');
             charts.duration = new Chart(durationCtx, {
                 type: 'line',
                 data: {
-                    labels: last7Workouts.map(w => new Date(w.day).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
+                    labels: recentWorkouts.map(w => new Date(w.day).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
                     datasets: [{
                         label: 'Duration (minutes)',
-                        data: last7Workouts.map(w => 
+                        data: recentWorkouts.map(w => 
                             w.exercises.reduce((sum, ex) => sum + (ex.duration || 0), 0)
                         ),
                         borderColor: '#4f46e5',
@@ -786,6 +819,7 @@
                 }
             });
 
+            // Exercise Distribution Chart
             const exerciseTypes = {};
             workouts.forEach(workout => {
                 workout.exercises.forEach(ex => {
@@ -830,7 +864,7 @@
             
             if (recentWorkouts.length === 0) {
                 activityList.innerHTML = `
-                    <div style="text-align: center; padding: 2rem; color: #64748b;">
+                    <div class="empty-state">
                         <p>No recent activity. Start your first workout!</p>
                     </div>
                 `;
@@ -887,6 +921,7 @@
             document.getElementById('weeklyDetails').textContent = 
                 `${thisWeekWorkouts.length} of ${weeklyGoal} workouts completed this week`;
 
+            // Monthly Progress
             const thisMonthStart = new Date();
             thisMonthStart.setDate(1);
             thisMonthStart.setHours(0, 0, 0, 0);
@@ -895,7 +930,7 @@
             const thisMonthTime = thisMonthWorkouts.reduce((sum, workout) => 
                 sum + workout.exercises.reduce((exSum, ex) => exSum + (ex.duration || 0), 0), 0
             );
-            const monthlyGoal = 1200;
+            const monthlyGoal = 1200; // minutes
             const monthlyProgress = Math.min((thisMonthTime / monthlyGoal) * 100, 100);
             
             document.getElementById('monthlyProgress').textContent = `${Math.round(monthlyProgress)}%`;
@@ -904,14 +939,89 @@
                 `${thisMonthTime} of ${monthlyGoal} minutes completed this month`;
         }
 
+        function generateInsights() {
+            const insights = [];
+            const avgDuration = workouts.length > 0 ? 
+                workouts.reduce((sum, w) => sum + w.exercises.reduce((s, e) => s + (e.duration || 0), 0), 0) / workouts.length : 0;
+            
+            // Calculate insights based on actual data
+            const streak = calculateStreak();
+            if (streak > 3) {
+                insights.push({
+                    title: "Great Consistency!",
+                    description: `You're on a ${streak}-day workout streak. Keep it up!`
+                });
+            } else if (workouts.length > 5) {
+                insights.push({
+                    title: "Consistency Opportunity",
+                    description: "Try to maintain regular workout intervals for better results."
+                });
+            }
+
+            if (avgDuration > 45) {
+                insights.push({
+                    title: "Excellent Duration",
+                    description: `Your average workout is ${Math.round(avgDuration)} minutes. Great endurance!`
+                });
+            } else if (avgDuration > 0) {
+                insights.push({
+                    title: "Room for Growth",
+                    description: `Consider gradually increasing workout duration from ${Math.round(avgDuration)} minutes.`
+                });
+            }
+
+            // Exercise variety insight
+            const exerciseTypes = new Set();
+            workouts.forEach(w => w.exercises.forEach(e => exerciseTypes.add(e.type)));
+            
+            if (exerciseTypes.size > 1) {
+                insights.push({
+                    title: "Great Variety",
+                    description: "You're mixing cardio and resistance training effectively."
+                });
+            } else if (exerciseTypes.size === 1) {
+                const type = Array.from(exerciseTypes)[0];
+                const otherType = type === 'cardio' ? 'resistance training' : 'cardio';
+                insights.push({
+                    title: "Add Variety",
+                    description: `Consider incorporating ${otherType} into your routine.`
+                });
+            }
+
+            // Default insights if no data
+            if (insights.length === 0) {
+                insights.push(
+                    {
+                        title: "Start Your Journey",
+                        description: "Begin tracking workouts to get personalized insights."
+                    },
+                    {
+                        title: "Consistency is Key",
+                        description: "Regular exercise is more beneficial than intense but sporadic workouts."
+                    }
+                );
+            }
+
+            // Display insights
+            document.getElementById('insights').innerHTML = insights.map(insight => `
+                <div class="insight-item">
+                    <div class="insight-title">${insight.title}</div>
+                    <div class="insight-description">${insight.description}</div>
+                </div>
+            `).join('');
+        }
+
+        // Listen for updates from other pages
         window.addEventListener('storage', (e) => {
             if (e.key === 'workoutUpdated') {
                 initializeDashboard();
             }
         });
 
+        // Initialize dashboard when DOM loads
         document.addEventListener('DOMContentLoaded', initializeDashboard);
 
+        // Handle window resize for charts
         window.addEventListener('resize', () => {
             Object.values(charts).forEach(chart => {
                 if (chart) {

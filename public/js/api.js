@@ -1,18 +1,30 @@
 const API = {
-    // Get all workouts
+    // Get all workouts from MongoDB
     async getAllWorkouts() {
-        const res = await fetch("/api/workouts");
-        return await res.json();
+        try {
+            const res = await fetch("/api/workouts");
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+            }
+            return await res.json();
+        } catch (error) {
+            console.error("Error fetching workouts:", error);
+            throw error;
+        }
     },
 
-    // Get the last workout
+    // Get the last workout from MongoDB
     async getLastWorkout() {
-        const res = await fetch("/api/workouts");
-        const json = await res.json();
-        return json[0];
+        try {
+            const workouts = await this.getAllWorkouts();
+            return workouts.length > 0 ? workouts[0] : null;
+        } catch (error) {
+            console.error("Error fetching last workout:", error);
+            throw error;
+        }
     },
 
-    // Create a new workout
+    // Create a new workout in MongoDB
     async createWorkout(data = {}) {
         try {
             const res = await fetch("/api/workouts", {
@@ -33,7 +45,7 @@ const API = {
         }
     },
 
-    // Add exercise to a workout
+    // Add exercise to a workout in MongoDB
     async addExercise(data) {
         let id = localStorage.getItem("currentWorkoutId");
         if (!id) {
@@ -41,35 +53,66 @@ const API = {
         }
 
         if (!id) {
-            alert("No workout in progress. Please start a new workout from the home page.");
-            return;
+            throw new Error("No workout in progress. Please start a new workout from the home page.");
         }
 
-        const res = await fetch(`/api/workouts/${id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
-        });
-        return await res.json();
+        try {
+            const res = await fetch(`/api/workouts/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error || `HTTP ${res.status}`);
+            }
+
+            return await res.json();
+        } catch (error) {
+            console.error("Error adding exercise:", error);
+            throw error;
+        }
     },
 
-    // Delete a workout
+    // Delete a workout from MongoDB
     async deleteWorkout(id) {
-        const res = await fetch(`/api/workouts/${id}`, { method: "DELETE" });
-        return await res.json();
-    },
-
-    // --- New functions for history.js and stats.js ---
-    async getWorkouts() {
-        // Simply call getAllWorkouts
-        return this.getAllWorkouts();
-    },
-
-    async getWorkout(id) {
-        const res = await fetch(`/api/workouts/${id}`);
-        if (!res.ok) {
-            throw new Error(`Workout with ID ${id} not found`);
+        try {
+            const res = await fetch(`/api/workouts/${id}`, { 
+                method: "DELETE" 
+            });
+            
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error || `HTTP ${res.status}`);
+            }
+            
+            return await res.json();
+        } catch (error) {
+            console.error("Error deleting workout:", error);
+            throw error;
         }
-        return await res.json();
+    },
+
+    // Get single workout by ID from MongoDB
+    async getWorkout(id) {
+        try {
+            const res = await fetch(`/api/workouts/${id}`);
+            if (!res.ok) {
+                if (res.status === 404) {
+                    throw new Error(`Workout with ID ${id} not found`);
+                }
+                throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+            }
+            return await res.json();
+        } catch (error) {
+            console.error("Error fetching workout:", error);
+            throw error;
+        }
+    },
+
+    // Alias for compatibility
+    async getWorkouts() {
+        return this.getAllWorkouts();
     }
 };

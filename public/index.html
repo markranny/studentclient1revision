@@ -366,6 +366,27 @@
             justify-content: center;
         }
 
+        .loading-state {
+            text-align: center;
+            padding: 32px;
+            color: #64748b;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid #f1f5f9;
+            border-top: 3px solid #4f46e5;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         @media (max-width: 768px) {
             .nav-container {
                 flex-direction: column;
@@ -530,15 +551,9 @@
                 </div>
                 
                 <div class="workout-info" id="lastWorkoutInfo">
-                    <div class="empty-state">
-                        <div class="empty-icon">
-                            <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
-                                <path d="M8 16h4v8H8z" fill="currentColor"/>
-                                <path d="M28 16h4v8h-4z" fill="currentColor"/>
-                                <path d="M12 18h16v4H12z" fill="currentColor"/>
-                            </svg>
-                        </div>
-                        <p>No workouts yet. Start your first workout!</p>
+                    <div class="loading-state">
+                        <div class="spinner"></div>
+                        <p>Loading workout data...</p>
                     </div>
                 </div>
                 
@@ -573,34 +588,9 @@
         </div>
     </div>
 
+    <!-- Include API Script -->
+    <script src="/js/api.js"></script>
     <script>
-        const API = {
-            async getAllWorkouts() {
-                return new Promise(resolve => {
-                    setTimeout(() => {
-                        const mockWorkouts = [
-                            {
-                                _id: '1',
-                                day: new Date(Date.now() - 86400000),
-                                exercises: [
-                                    { type: 'resistance', name: 'Bench Press', duration: 30, weight: 80, sets: 3, reps: 10 },
-                                    { type: 'cardio', name: 'Treadmill', duration: 20, distance: 3 }
-                                ]
-                            },
-                            {
-                                _id: '2',
-                                day: new Date(Date.now() - 172800000),
-                                exercises: [
-                                    { type: 'resistance', name: 'Squats', duration: 25, weight: 60, sets: 4, reps: 12 }
-                                ]
-                            }
-                        ];
-                        resolve(mockWorkouts);
-                    }, 1000);
-                });
-            }
-        };
-
         function checkAuth() {
             const user = JSON.parse(localStorage.getItem('user'));
             if (!user) {
@@ -634,27 +624,35 @@
             try {
                 const workouts = await API.getAllWorkouts();
                 
+                // Update stats with real data
                 document.getElementById('totalWorkouts').textContent = workouts.length;
                 
+                // Calculate this week's workouts
                 const thisWeekStart = new Date();
                 thisWeekStart.setDate(thisWeekStart.getDate() - 7);
                 const thisWeekWorkouts = workouts.filter(w => new Date(w.day) > thisWeekStart);
                 document.getElementById('thisWeek').textContent = thisWeekWorkouts.length;
                 
+                // Calculate total training time
                 const totalMinutes = workouts.reduce((total, workout) => {
                     return total + workout.exercises.reduce((sum, ex) => sum + (ex.duration || 0), 0);
                 }, 0);
                 document.getElementById('totalTime').textContent = totalMinutes;
                 
+                // Calculate average workout duration
                 const avgTime = workouts.length > 0 ? Math.round(totalMinutes / workouts.length) : 0;
                 document.getElementById('avgWorkout').textContent = avgTime;
                 
+                // Load last workout details
                 if (workouts.length > 0) {
                     loadLastWorkout(workouts[0]);
+                } else {
+                    showEmptyLastWorkout();
                 }
                 
             } catch (error) {
                 console.error('Error loading workout stats:', error);
+                showErrorState();
             }
         }
 
@@ -662,6 +660,7 @@
             const container = document.getElementById('lastWorkoutInfo');
             
             if (!workout || !workout.exercises.length) {
+                showEmptyLastWorkout();
                 return;
             }
 
@@ -689,6 +688,38 @@
             `;
         }
 
+        function showEmptyLastWorkout() {
+            const container = document.getElementById('lastWorkoutInfo');
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+                            <path d="M8 16h4v8H8z" fill="currentColor"/>
+                            <path d="M28 16h4v8h-4z" fill="currentColor"/>
+                            <path d="M12 18h16v4H12z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <p>No workouts yet. Start your first workout!</p>
+                </div>
+            `;
+        }
+
+        function showErrorState() {
+            const container = document.getElementById('lastWorkoutInfo');
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                            <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" stroke-width="2"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <p>Error loading workout data. Check your MongoDB connection.</p>
+                </div>
+            `;
+        }
+
         function loadCurrentWorkout() {
             const exercises = JSON.parse(localStorage.getItem('newWorkoutExercises') || '[]');
             const container = document.getElementById('currentExercises');
@@ -705,8 +736,8 @@
             
             container.innerHTML = exercises.map(ex => {
                 const details = ex.type === 'resistance' 
-                    ? `${ex.weight}kg × ${ex.sets} sets × ${ex.reps} reps (${ex.duration} min)`
-                    : `${ex.distance}km in ${ex.duration} min`;
+                    ? `${ex.weight || 0}kg × ${ex.sets || 0} sets × ${ex.reps || 0} reps (${ex.duration || 0} min)`
+                    : `${ex.distance || 0}km in ${ex.duration || 0} min`;
                 
                 return `
                     <div class="exercise-item">
@@ -719,22 +750,32 @@
 
         async function completeWorkout() {
             const workoutId = localStorage.getItem('currentWorkoutId');
-            if (!workoutId) {
+            const exercises = JSON.parse(localStorage.getItem('newWorkoutExercises') || '[]');
+            
+            if (!workoutId || exercises.length === 0) {
+                showToast('No active workout to complete.');
                 return;
             }
 
             try {
+                // The workout should already exist in MongoDB with exercises added
+                // Just clear local storage and refresh stats
                 localStorage.removeItem('currentWorkoutId');
                 localStorage.removeItem('newWorkoutExercises');
                 localStorage.removeItem('workoutStartTime');
                 
-                loadWorkoutStats();
+                // Refresh stats and current workout display
+                await loadWorkoutStats();
                 loadCurrentWorkout();
                 
                 showToast('Workout completed successfully!');
                 
+                // Notify other pages
+                localStorage.setItem('workoutUpdated', Date.now());
+                
             } catch (error) {
                 console.error('Error completing workout:', error);
+                showToast('Error completing workout. Please try again.');
             }
         }
 
@@ -766,17 +807,17 @@
 
         function updateWelcomeMessage() {
             const hour = new Date().getHours();
-            const welcomeTitle = document.getElementById('welcomeTitle');
-            const userName = JSON.parse(localStorage.getItem('user')).name || 'User';
+            const userName = JSON.parse(localStorage.getItem('user'))?.name || 'User';
             
             let greeting;
             if (hour < 12) greeting = 'Good morning';
             else if (hour < 18) greeting = 'Good afternoon';
             else greeting = 'Good evening';
             
-            welcomeTitle.innerHTML = `${greeting}, <span id="userNameWelcome">${userName}</span>!`;
+            document.getElementById('welcomeTitle').innerHTML = `${greeting}, <span id="userNameWelcome">${userName}</span>!`;
         }
 
+        // Listen for storage events from other pages
         window.addEventListener('storage', (e) => {
             if (e.key === 'workoutUpdated') {
                 loadWorkoutStats();
@@ -786,16 +827,18 @@
             }
         });
 
-        document.addEventListener('DOMContentLoaded', () => {
+        // Initialize page when DOM loads
+        document.addEventListener('DOMContentLoaded', async () => {
             const user = checkAuth();
             if (user) {
                 initializeUser(user);
                 updateWelcomeMessage();
-                loadWorkoutStats();
+                await loadWorkoutStats();
                 loadCurrentWorkout();
             }
         });
 
+        // Add CSS animations
         const style = document.createElement('style');
         style.textContent = `
             @keyframes slideIn {
