@@ -8,6 +8,18 @@
   ],
   "routes": [
     {
+      "src": "/api/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "src": "/auth/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "src": "/health",
+      "dest": "server.js"
+    },
+    {
       "src": "/(.*)",
       "dest": "server.js"
     }
@@ -18,7 +30,7 @@
   "functions": {
     "server.js": {
       "maxDuration": 30,
-      "regions": ["hkg1", "sin1"]
+      "regions": ["hkg1", "sin1", "syd1"]
     }
   }
 }
