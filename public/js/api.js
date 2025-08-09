@@ -11,13 +11,13 @@ const API = {
                     'Content-Type': 'application/json',
                 },
                 // FIXED: Add timeout for serverless functions
-                signal: AbortSignal.timeout(25000) // 25 second timeout
+                signal: AbortSignal.timeout(30000) // 30 second timeout for Vercel
             });
             
             if (!res.ok) {
-                const errorText = await res.text();
+                const errorText = await res.text().catch(() => 'Unknown error');
                 console.error('❌ API Error:', res.status, errorText);
-                throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                throw new Error(`HTTP ${res.status}: ${res.statusText} - ${errorText}`);
             }
             
             const workouts = await res.json();
@@ -29,8 +29,10 @@ const API = {
             // FIXED: Better error handling for different scenarios
             if (error.name === 'AbortError') {
                 throw new Error('Request timeout - Server may be slow to respond');
-            } else if (error.message.includes('Failed to fetch')) {
+            } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
                 throw new Error('Network error - Check your internet connection');
+            } else if (error.message.includes('404')) {
+                throw new Error('API endpoint not found - Check deployment');
             }
             
             throw error;
@@ -60,7 +62,7 @@ const API = {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(workoutData),
-                signal: AbortSignal.timeout(25000)
+                signal: AbortSignal.timeout(30000)
             });
 
             if (!res.ok) {
@@ -102,7 +104,7 @@ const API = {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(exerciseData),
-                signal: AbortSignal.timeout(25000)
+                signal: AbortSignal.timeout(30000)
             });
 
             if (!res.ok) {
@@ -133,7 +135,7 @@ const API = {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data),
-                signal: AbortSignal.timeout(25000)
+                signal: AbortSignal.timeout(30000)
             });
 
             if (!res.ok) {
@@ -163,7 +165,7 @@ const API = {
             const res = await fetch(`${this.baseURL}/api/workouts/${id}`, { 
                 method: "DELETE",
                 headers: { "Content-Type": "application/json" },
-                signal: AbortSignal.timeout(25000)
+                signal: AbortSignal.timeout(30000)
             });
             
             if (!res.ok) {
@@ -193,7 +195,7 @@ const API = {
             const res = await fetch(`${this.baseURL}/api/workouts/${id}`, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' },
-                signal: AbortSignal.timeout(25000)
+                signal: AbortSignal.timeout(30000)
             });
             
             if (!res.ok) {
@@ -277,14 +279,33 @@ const API = {
             const res = await fetch(`${this.baseURL}/api/health`, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' },
-                signal: AbortSignal.timeout(15000) // Shorter timeout for health check
+                signal: AbortSignal.timeout(20000) // 20 second timeout for health check
             });
             
+            // Even if not OK, try to parse the response for more info
+            let data;
+            try {
+                data = await res.json();
+            } catch (parseError) {
+                data = { status: 'parse_error', message: 'Could not parse health response' };
+            }
+            
             if (!res.ok) {
+                console.warn('⚠️ Health check returned non-OK status:', res.status, data);
+                
+                // For 503, server is running but has issues (likely database)
+                if (res.status === 503) {
+                    return { 
+                        status: 'degraded', 
+                        message: 'Server running but database issues',
+                        details: data,
+                        httpStatus: res.status
+                    };
+                }
+                
                 throw new Error(`Health check failed: ${res.status} ${res.statusText}`);
             }
             
-            const data = await res.json();
             console.log('✅ API health check passed');
             return data;
         } catch (error) {
@@ -292,6 +313,10 @@ const API = {
             
             if (error.name === 'AbortError') {
                 return { status: 'timeout', message: 'Health check timeout' };
+            } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                return { status: 'unreachable', message: 'Server unreachable - Check deployment' };
+            } else if (error.message.includes('404')) {
+                return { status: 'endpoint_not_found', message: 'Health endpoint not found - Check server routes' };
             }
             
             return { status: 'error', message: error.message };
@@ -358,46 +383,80 @@ const API = {
 // FIXED: Initialize API when DOM loads
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🔄 API initialized for domain:', window.location.origin);
+    console.log('📍 Current URL:', window.location.href);
     
-    // Test API connection on page load
+    // Test API connection on page load with better error handling
     try {
         const health = await API.checkHealth();
+        
         if (health.status === 'healthy') {
-            console.log('✅ API connection verified');
+            console.log('✅ API connection verified - All systems operational');
+        } else if (health.status === 'degraded') {
+            console.warn('⚠️ API partially working - Database issues detected:', health.message);
+            console.warn('   This may cause workout data loading issues');
         } else {
-            console.warn('⚠️ API health check returned:', health.status);
+            console.error('❌ API health check failed:', health.status, health.message);
+            console.error('   Check Vercel deployment and server logs');
         }
     } catch (error) {
-        console.warn('⚠️ Initial API health check failed:', error.message);
+        console.error('❌ Initial API health check failed:', error.message);
+        console.error('   This may indicate deployment or routing issues');
     }
 });
 
 // Handle page visibility changes to reconnect if needed
 document.addEventListener('visibilitychange', async () => {
     if (!document.hidden) {
-        console.log('🔄 Page visible, checking API connection...');
+        console.log('🔄 Page visible again, checking API connection...');
         try {
-            await API.checkHealth();
+            const health = await API.checkHealth();
+            if (health.status === 'healthy') {
+                console.log('✅ API reconnection successful');
+            } else {
+                console.warn('⚠️ API reconnection issues:', health.status);
+            }
         } catch (error) {
             console.warn('⚠️ API reconnection check failed:', error.message);
         }
     }
 });
 
-// Global error handler for fetch failures
+// Enhanced global error handler
 window.addEventListener('error', (event) => {
-    if (event.error && event.error.message.includes('fetch')) {
+    if (event.error && (event.error.message.includes('fetch') || event.error.message.includes('NetworkError'))) {
         console.error('🌐 Network error detected:', event.error.message);
+        console.error('   Check internet connection and Vercel deployment status');
     }
 });
 
-// Expose API for debugging in console
+// Unhandled promise rejection handler
+window.addEventListener('unhandledrejection', (event) => {
+    if (event.reason && event.reason.message && event.reason.message.includes('Failed to fetch')) {
+        console.error('🌐 Unhandled fetch error:', event.reason.message);
+        console.error('   This usually indicates API endpoint or network issues');
+    }
+});
+
+// Enhanced debug tools
 if (typeof window !== 'undefined') {
     window.API_DEBUG = {
         async testConnection() {
             try {
+                console.log('🔍 Testing API connection...');
                 const health = await API.checkHealth();
-                console.log('🔍 API Connection Test:', health);
+                console.log('🔍 Health Check Result:', health);
+                
+                if (health.status === 'healthy') {
+                    console.log('✅ Server and database are working correctly');
+                } else if (health.status === 'degraded') {
+                    console.warn('⚠️ Server is running but database has issues');
+                    console.warn('   Details:', health.details);
+                } else if (health.status === 'endpoint_not_found') {
+                    console.error('❌ Health endpoint not found - Check server routes');
+                } else {
+                    console.error('❌ Server health check failed:', health.message);
+                }
+                
                 return health;
             } catch (error) {
                 console.error('🔍 API Connection Test Failed:', error);
@@ -407,6 +466,7 @@ if (typeof window !== 'undefined') {
 
         async testCreateWorkout() {
             try {
+                console.log('🔍 Testing workout creation...');
                 const workout = await API.startNewWorkout();
                 console.log('🔍 Test Workout Created:', workout);
                 return workout;
@@ -418,8 +478,9 @@ if (typeof window !== 'undefined') {
 
         async testGetWorkouts() {
             try {
+                console.log('🔍 Testing get workouts...');
                 const workouts = await API.getAllWorkouts();
-                console.log('🔍 Test Get Workouts:', workouts.length, 'workouts found');
+                console.log('🔍 Test Get Workouts - Found:', workouts.length, 'workouts');
                 return workouts;
             } catch (error) {
                 console.error('🔍 Test Get Workouts Failed:', error);
@@ -427,42 +488,77 @@ if (typeof window !== 'undefined') {
             }
         },
 
-        async runAllTests() {
-            console.log('🔍 Running all API tests...');
+        async testAllEndpoints() {
+            console.log('🔍 Testing all API endpoints...');
             
             const results = {
                 health: await this.testConnection(),
-                getWorkouts: await this.testGetWorkouts(),
-                createWorkout: await this.testCreateWorkout()
+                getWorkouts: await this.testGetWorkouts()
             };
 
+            // Only test workout creation if other tests pass
+            if (results.health.status === 'healthy' || results.health.status === 'degraded') {
+                results.createWorkout = await this.testCreateWorkout();
+            }
+
             console.log('🔍 All API Test Results:', results);
+            
+            // Summary
+            const healthyEndpoints = Object.keys(results).filter(key => 
+                results[key] && !results[key].error
+            ).length;
+            
+            console.log(`📊 Test Summary: ${healthyEndpoints}/${Object.keys(results).length} endpoints working`);
+            
+            return results;
+        },
+
+        // Quick diagnostics
+        async diagnose() {
+            console.log('🔧 Running API diagnostics...');
+            console.log('📍 Current domain:', window.location.origin);
+            console.log('📍 Full URL:', window.location.href);
+            console.log('📍 API base URL:', API.baseURL || 'relative (current domain)');
+            
+            const results = await this.testAllEndpoints();
+            
+            // Provide recommendations
+            if (results.health.error) {
+                console.log('💡 Recommendations:');
+                console.log('   1. Check if Vercel deployment is successful');
+                console.log('   2. Verify API routes are properly configured');
+                console.log('   3. Check server logs in Vercel dashboard');
+            } else if (results.health.status === 'degraded') {
+                console.log('💡 Recommendations:');
+                console.log('   1. Check MongoDB connection in server logs');
+                console.log('   2. Verify MONGODB_URI environment variable');
+                console.log('   3. Ensure MongoDB Atlas cluster is running');
+            }
+            
             return results;
         }
     };
     
-    console.log('🔧 API Debug tools available: window.API_DEBUG.runAllTests()');
+    console.log('🔧 Enhanced API Debug tools available:');
+    console.log('   - window.API_DEBUG.testConnection()');
+    console.log('   - window.API_DEBUG.testAllEndpoints()');
+    console.log('   - window.API_DEBUG.diagnose()');
 }
 
-// Export for Node.js environments
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = API;
-}
-
-// Auto-retry mechanism for failed requests
+// Auto-retry mechanism for failed requests with exponential backoff
 const originalFetch = window.fetch;
 window.fetch = async function(url, options = {}) {
-    const maxRetries = 2;
+    const maxRetries = 3;
     let lastError;
     
     for (let i = 0; i <= maxRetries; i++) {
         try {
             const response = await originalFetch(url, options);
             
-            // If it's a 503 or 500 error and we have retries left, wait and retry
-            if ((response.status === 503 || response.status === 500) && i < maxRetries) {
-                console.log(`🔄 Retrying request to ${url} (attempt ${i + 2})`);
-                await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1))); // Progressive delay
+            // If it's a 503, 500, or 502 error and we have retries left, wait and retry
+            if ((response.status === 503 || response.status === 500 || response.status === 502) && i < maxRetries) {
+                console.log(`🔄 Retrying request to ${url} (attempt ${i + 2}/${maxRetries + 1})`);
+                await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, i))); // Exponential backoff
                 continue;
             }
             
@@ -470,9 +566,13 @@ window.fetch = async function(url, options = {}) {
         } catch (error) {
             lastError = error;
             
-            if (i < maxRetries && (error.name === 'AbortError' || error.message.includes('fetch'))) {
-                console.log(`🔄 Retrying failed request to ${url} (attempt ${i + 2})`);
-                await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+            if (i < maxRetries && (
+                error.name === 'AbortError' || 
+                error.message.includes('fetch') || 
+                error.message.includes('NetworkError')
+            )) {
+                console.log(`🔄 Retrying failed request to ${url} (attempt ${i + 2}/${maxRetries + 1})`);
+                await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, i))); // Exponential backoff
                 continue;
             }
             
@@ -482,3 +582,8 @@ window.fetch = async function(url, options = {}) {
     
     throw lastError;
 };
+
+// Export for Node.js environments
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = API;
+}
