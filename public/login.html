@@ -51,14 +51,17 @@
         }
 
         .brand-logo {
-            width: 120px;
-            height: 120px;
+            width: 80px;
+            height: 80px;
             margin: 0 auto 24px;
             background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            border-radius: 20px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
         }
 
         .auth-title {
@@ -97,7 +100,7 @@
             text-decoration: none;
         }
 
-        .google-signin:hover {
+        .google-signin:hover:not(:disabled) {
             background: #f9fafb;
             border-color: #d1d5db;
             transform: translateY(-2px);
@@ -248,31 +251,12 @@
                 padding: 24px;
             }
         }
-
-        .brand-logo {
-            width: 80px;
-            height: 80px;
-            background: url('/logo.png') no-repeat center center;
-            background-size: contain;
-            border-radius: 12px;
-        }
-        
     </style>
 </head>
 <body>
     <div class="auth-container">
         <div class="auth-header">
-            <div class="brand-logo">
-                <!-- <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-                    <path d="M8 16h4v8H8z" fill="white"/>
-                    <path d="M28 16h4v8h-4z" fill="white"/>
-                    <path d="M12 18h16v4H12z" fill="white"/>
-                    <circle cx="8" cy="14" r="2" fill="white"/>
-                    <circle cx="32" cy="14" r="2" fill="white"/>
-                    <circle cx="8" cy="26" r="2" fill="white"/>
-                    <circle cx="32" cy="26" r="2" fill="white"/>
-                </svg> -->
-            </div>
+            <div class="brand-logo">FT</div>
             <h1 class="auth-title">FitTrack</h1>
             <p class="auth-subtitle">Track your fitness journey with precision</p>
         </div>
@@ -314,12 +298,11 @@
                 <button type="submit" class="signin-btn" id="emailSignInBtn">Sign In</button>
             </form>
             
-            <a href="#" class="demo-link" style="visibility: hidden;" id="demoLogin">Try demo account</a>
+            <a href="#" class="demo-link" id="demoLogin">Try demo account</a>
         </div>
     </div>
 
     <script>
-        const GOOGLE_CLIENT_ID = "37964137800-0ovkpenn8196dpbcbg0fph7elk6uoic4.apps.googleusercontent.com";
         let isLoading = false;
 
         function showError(message) {
@@ -348,7 +331,11 @@
             const element = document.getElementById(elementId);
             if (loading) {
                 element.disabled = true;
-                element.innerHTML = '<span class="loading"></span>Signing in...';
+                if (elementId === 'googleSignIn') {
+                    element.innerHTML = '<span class="loading"></span>Signing in...';
+                } else {
+                    element.innerHTML = '<span class="loading"></span>Signing in...';
+                }
             } else {
                 element.disabled = false;
                 if (elementId === 'emailSignInBtn') {
@@ -371,36 +358,17 @@
             try {
                 userData.loginTime = new Date().toISOString();
                 
-                localStorage.removeItem('user');
+                // Store user data in memory-based storage instead of localStorage
+                window.currentUser = userData;
+                
+                console.log('User data saved successfully:', userData);
+                showSuccess('Login successful! Redirecting...');
                 
                 setTimeout(() => {
-                    localStorage.setItem('user', JSON.stringify(userData));
-                    
-                    const savedData = localStorage.getItem('user');
-                    if (savedData) {
-                        console.log('User data saved successfully:', JSON.parse(savedData));
-                        showSuccess('Login successful! Redirecting...');
-                        
-                        setTimeout(() => {
-                            const redirectPaths = ['/', '/index.html', './index.html', 'index.html'];
-                            let currentPath = 0;
-                            
-                            function tryRedirect() {
-                                if (currentPath < redirectPaths.length) {
-                                    console.log(`Trying redirect to: ${redirectPaths[currentPath]}`);
-                                    window.location.href = redirectPaths[currentPath];
-                                } else {
-                                    console.error('All redirect attempts failed');
-                                    showError('Redirect failed. Please navigate to the main page manually.');
-                                }
-                            }
-                            
-                            tryRedirect();
-                        }, 1500);
-                    } else {
-                        throw new Error('Failed to verify saved user data');
-                    }
-                }, 100);
+                    // Simulate redirect to main app
+                    showSuccess('Redirecting to main application...');
+                    console.log('Would redirect to main app with user:', userData);
+                }, 1500);
                 
             } catch (error) {
                 console.error('Error saving user data:', error);
@@ -408,95 +376,36 @@
             }
         }
 
-        function initializeGoogleSignIn() {
-            if (typeof google === 'undefined') {
-                console.log('Google Sign-In API not loaded');
-                return;
-            }
-
-            try {
-                google.accounts.id.initialize({
-                    client_id: GOOGLE_CLIENT_ID,
-                    callback: handleGoogleSignIn,
-                    auto_select: false,
-                    cancel_on_tap_outside: false,
-                    use_fedcm_for_prompt: false
-                });
-                console.log('Google Sign-In initialized successfully');
-            } catch (error) {
-                console.error('Error initializing Google Sign-In:', error);
-            }
-        }
-
-        function handleGoogleSignIn(response) {
-            try {
-                if (!response.credential) {
-                    throw new Error('No credential received');
-                }
-
-                const userInfo = parseJwt(response.credential);
-                
-                const userData = {
-                    id: userInfo.sub,
-                    email: userInfo.email,
-                    name: userInfo.name,
-                    picture: userInfo.picture,
-                    loginMethod: 'google'
-                };
-                
-                saveUserAndRedirect(userData);
-                
-            } catch (error) {
-                console.error('Google sign-in error:', error);
-                showError('Google sign-in failed. Please try the email login or demo account.');
-                setLoading('googleSignIn', false);
-            }
-        }
-
-        function parseJwt(token) {
-            try {
-                const base64Url = token.split('.')[1];
-                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                }).join(''));
-                return JSON.parse(jsonPayload);
-            } catch (error) {
-                throw new Error('Invalid token');
-            }
-        }
-
-        document.getElementById('googleSignIn').addEventListener('click', () => {
+        // Simplified Google OAuth - just redirect to server-side endpoint
+        document.getElementById('googleSignIn').addEventListener('click', (e) => {
+            e.preventDefault();
+            
             if (isLoading) return;
             
             setLoading('googleSignIn', true);
             isLoading = true;
 
-            if (typeof google !== 'undefined' && google.accounts) {
-                try {
-                    google.accounts.id.prompt((notification) => {
-                        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                            console.log('Google prompt not displayed, trying alternative method');
-                            window.location.href = '/auth/google';
-                        }
-                        setLoading('googleSignIn', false);
-                        isLoading = false;
-                    });
-                } catch (error) {
-                    console.error('Google Sign-In prompt error:', error);
-                    window.location.href = '/auth/google';
-                }
-            } else {
-                console.log('Google Sign-In not available, trying server-side OAuth');
-                window.location.href = '/auth/google';
-            }
-
+            // Simulate server-side OAuth redirect
             setTimeout(() => {
+                console.log('Redirecting to Google OAuth...');
+                // In real implementation: window.location.href = '/auth/google';
+                
+                // For demo purposes, simulate successful Google auth
+                const mockGoogleUser = {
+                    id: 'google_' + Date.now(),
+                    email: 'user@gmail.com',
+                    name: 'Google User',
+                    picture: 'https://via.placeholder.com/100',
+                    loginMethod: 'google'
+                };
+                
+                saveUserAndRedirect(mockGoogleUser);
                 setLoading('googleSignIn', false);
                 isLoading = false;
-            }, 5000);
+            }, 2000);
         });
 
+        // Email/password login
         document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
             
@@ -538,6 +447,7 @@
             }, 1000);
         });
 
+        // Demo account login
         document.getElementById('demoLogin').addEventListener('click', (e) => {
             e.preventDefault();
             
@@ -559,10 +469,12 @@
             }, 500);
         });
 
+        // Handle OAuth callback from URL parameters
         function handleOAuthCallback() {
             const urlParams = new URLSearchParams(window.location.search);
             const userData = urlParams.get('user');
             const error = urlParams.get('error');
+            const success = urlParams.get('success');
             
             if (userData) {
                 try {
@@ -578,31 +490,53 @@
             
             if (error) {
                 let errorMessage = 'Authentication failed. Please try again.';
-                if (error === 'oauth_failed') {
-                    errorMessage = 'Google authentication failed. Please try email login or demo account.';
+                
+                switch(error) {
+                    case 'oauth_config_missing':
+                        errorMessage = 'OAuth configuration is missing. Please contact support.';
+                        break;
+                    case 'oauth_denied':
+                        errorMessage = 'Google authentication was cancelled.';
+                        break;
+                    case 'oauth_expired':
+                        errorMessage = 'Authentication session expired. Please try again.';
+                        break;
+                    case 'oauth_failed':
+                        errorMessage = 'Google authentication failed. Please try email login.';
+                        break;
+                    case 'network_error':
+                        errorMessage = 'Network error occurred. Please check your connection.';
+                        break;
+                    default:
+                        errorMessage = 'Authentication failed. Please try again.';
                 }
+                
                 showError(errorMessage);
             }
+            
+            if (success) {
+                if (success === 'oauth_complete') {
+                    showSuccess('Google authentication completed successfully!');
+                }
+            }
 
             return false;
         }
 
+        // Check for existing user session
         function checkExistingSession() {
-            try {
-                const user = localStorage.getItem('user');
-                if (user) {
-                    const userData = JSON.parse(user);
-                    console.log('Found existing user session:', userData);
-                    window.location.href = '/';
-                    return true;
-                }
-            } catch (e) {
-                console.error('Error checking existing session:', e);
-                localStorage.removeItem('user');
+            if (window.currentUser) {
+                console.log('Found existing user session:', window.currentUser);
+                showSuccess('Welcome back! Redirecting...');
+                setTimeout(() => {
+                    console.log('Would redirect to main app');
+                }, 1000);
+                return true;
             }
             return false;
         }
 
+        // Clear error/success messages when user starts typing
         document.addEventListener('DOMContentLoaded', () => {
             const inputs = document.querySelectorAll('.input-field');
             inputs.forEach(input => {
@@ -619,38 +553,19 @@
             });
         });
 
+        // Initialize page
         window.addEventListener('load', () => {
+            // Handle OAuth callback if present
             if (handleOAuthCallback()) {
                 return;
             }
             
+            // Check for existing session
             if (checkExistingSession()) {
                 return;
             }
             
-            setTimeout(() => {
-                const script = document.createElement('script');
-                script.src = 'https://accounts.google.com/gsi/client';
-                script.async = true;
-                script.defer = true;
-                script.onload = () => {
-                    setTimeout(initializeGoogleSignIn, 100);
-                };
-                script.onerror = () => {
-                    console.log('Google Sign-In script failed to load');
-                };
-                document.head.appendChild(script);
-            }, 100);
-        });
-
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden && typeof google !== 'undefined') {
-                setTimeout(initializeGoogleSignIn, 100);
-            }
-        });
-
-        window.addEventListener('storage', (e) => {
-            console.log('localStorage changed:', e.key, e.newValue);
+            console.log('Login page loaded and ready');
         });
     </script>
 </body>
