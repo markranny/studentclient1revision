@@ -1,4 +1,4 @@
-// Updated models/Workout.js with enhanced exercise types
+// Fixed models/Workout.js with complete exercise types
 const mongoose = require("mongoose");
 
 const exerciseSchema = new mongoose.Schema({
@@ -12,7 +12,7 @@ const exerciseSchema = new mongoose.Schema({
             "low_intensity_cardio", "moderate_intensity_cardio", "high_intensity_cardio", "hiit",
             // Resistance subcategories
             "bodyweight", "free_weights", "machines", "resistance_bands", "powerlifting", "olympic_lifting",
-            // Flexibility subcategories
+            // Flexibility subcategories - FIXED: Added missing types
             "static_stretching", "dynamic_stretching", "yoga", "pilates",
             // Balance subcategories
             "balance_training", "functional_movement", "tai_chi",
@@ -175,7 +175,7 @@ exerciseSchema.pre('save', function(next) {
             'powerlifting': 'resistance',
             'olympic_lifting': 'resistance',
             
-            // Flexibility types
+            // Flexibility types - FIXED: Added missing mappings
             'flexibility': 'flexibility',
             'static_stretching': 'flexibility',
             'dynamic_stretching': 'flexibility',

@@ -1,8 +1,4 @@
-// Enhanced Exercise Types Database for FitTrack
-// Based on research from fitness experts and health organizations
-
 const EXERCISE_TYPES = {
-  // Main Categories based on research
   CARDIO: {
     id: 'cardio',
     name: 'Cardio',
@@ -208,7 +204,6 @@ const EXERCISE_TYPES = {
   }
 };
 
-// Exercise intensity levels
 const INTENSITY_LEVELS = {
   LIGHT: {
     id: 'light',
@@ -240,7 +235,6 @@ const INTENSITY_LEVELS = {
   }
 };
 
-// Muscle groups targeted
 const MUSCLE_GROUPS = {
   CHEST: { id: 'chest', name: 'Chest', icon: '💪' },
   BACK: { id: 'back', name: 'Back', icon: '🔄' },
@@ -255,7 +249,6 @@ const MUSCLE_GROUPS = {
   FULL_BODY: { id: 'full_body', name: 'Full Body', icon: '🏃' }
 };
 
-// Equipment categories
 const EQUIPMENT_TYPES = {
   NONE: { id: 'none', name: 'No Equipment', icon: '🙅‍♂️' },
   DUMBBELLS: { id: 'dumbbells', name: 'Dumbbells', icon: '🏋️‍♂️' },
@@ -269,26 +262,21 @@ const EQUIPMENT_TYPES = {
   STABILITY_BALL: { id: 'stability_ball', name: 'Stability Ball', icon: '🏀' }
 };
 
-// Helper functions
 const ExerciseTypeHelper = {
-  // Get all main categories
   getMainCategories() {
     return Object.values(EXERCISE_TYPES);
   },
 
-  // Get subcategories for a main category
   getSubcategories(mainCategoryId) {
     const category = EXERCISE_TYPES[mainCategoryId.toUpperCase()];
     return category ? Object.values(category.subcategories) : [];
   },
 
-  // Get category by ID
   getCategoryById(categoryId) {
     for (const [key, category] of Object.entries(EXERCISE_TYPES)) {
       if (category.id === categoryId) {
         return category;
       }
-      // Check subcategories
       for (const [subKey, subcategory] of Object.entries(category.subcategories || {})) {
         if (subcategory.id === categoryId) {
           return { ...subcategory, parentCategory: category };
@@ -298,25 +286,21 @@ const ExerciseTypeHelper = {
     return null;
   },
 
-  // Get popular exercises for a category
   getPopularExercises(categoryId) {
     const category = this.getCategoryById(categoryId);
     return category?.examples || [];
   },
 
-  // Search exercises by keyword
   searchExercises(keyword) {
     const results = [];
     const searchTerm = keyword.toLowerCase();
 
     for (const [key, category] of Object.entries(EXERCISE_TYPES)) {
-      // Search in main category
       if (category.name.toLowerCase().includes(searchTerm) ||
           category.description.toLowerCase().includes(searchTerm)) {
         results.push({ type: 'category', data: category });
       }
 
-      // Search in subcategories
       for (const [subKey, subcategory] of Object.entries(category.subcategories || {})) {
         if (subcategory.name.toLowerCase().includes(searchTerm) ||
             subcategory.description.toLowerCase().includes(searchTerm)) {
@@ -326,7 +310,6 @@ const ExerciseTypeHelper = {
           });
         }
 
-        // Search in examples
         if (subcategory.examples) {
           const matchingExercises = subcategory.examples.filter(exercise =>
             exercise.toLowerCase().includes(searchTerm)
@@ -348,7 +331,6 @@ const ExerciseTypeHelper = {
     return results;
   },
 
-  // Get recommended progression for an exercise type
   getProgressionTips(categoryId) {
     const progressions = {
       bodyweight: [
@@ -386,7 +368,6 @@ const ExerciseTypeHelper = {
   }
 };
 
-// Export for use in the application
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     EXERCISE_TYPES,
@@ -397,7 +378,6 @@ if (typeof module !== 'undefined' && module.exports) {
   };
 }
 
-// Make available globally for browser usage
 if (typeof window !== 'undefined') {
   window.ExerciseDatabase = {
     EXERCISE_TYPES,

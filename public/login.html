@@ -321,7 +321,6 @@
         const GOOGLE_CLIENT_ID = "37964137800-0ovkpenn8196dpbcbg0fph7elk6uoic4.apps.googleusercontent.com";
         let isLoading = false;
 
-        // Utility Functions
         function showError(message) {
             const errorDiv = document.getElementById('errorMessage');
             const successDiv = document.getElementById('successMessage');
@@ -381,9 +380,7 @@
             }
         }
 
-        // Google OAuth Functions
         function initializeGoogleSignIn() {
-            // Check if Google API is available
             if (typeof google === 'undefined') {
                 console.log('Google Sign-In API not loaded');
                 return;
@@ -441,7 +438,6 @@
             }
         }
 
-        // Event Listeners
         document.getElementById('googleSignIn').addEventListener('click', () => {
             if (isLoading) return;
             
@@ -453,7 +449,6 @@
                     google.accounts.id.prompt((notification) => {
                         if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
                             console.log('Google prompt not displayed, trying alternative method');
-                            // Fallback to server-side OAuth
                             window.location.href = '/auth/google';
                         }
                         setLoading('googleSignIn', false);
@@ -461,16 +456,13 @@
                     });
                 } catch (error) {
                     console.error('Google Sign-In prompt error:', error);
-                    // Try server-side OAuth as fallback
                     window.location.href = '/auth/google';
                 }
             } else {
                 console.log('Google Sign-In not available, trying server-side OAuth');
-                // Try server-side OAuth as fallback
                 window.location.href = '/auth/google';
             }
 
-            // Reset loading state after timeout
             setTimeout(() => {
                 setLoading('googleSignIn', false);
                 isLoading = false;
@@ -503,7 +495,6 @@
             setLoading('emailSignInBtn', true);
             isLoading = true;
             
-            // Simulate API call delay
             setTimeout(() => {
                 const userData = {
                     id: Date.now().toString(),
@@ -534,14 +525,12 @@
                 loginMethod: 'demo'
             };
             
-            // Simulate loading delay
             setTimeout(() => {
                 saveUserAndRedirect(demoUser);
                 isLoading = false;
             }, 500);
         });
 
-        // Handle OAuth callback from server-side
         function handleOAuthCallback() {
             const urlParams = new URLSearchParams(window.location.search);
             const userData = urlParams.get('user');
@@ -569,7 +558,6 @@
             return false;
         }
 
-        // Clear messages when user starts typing
         document.addEventListener('DOMContentLoaded', () => {
             const inputs = document.querySelectorAll('.input-field');
             inputs.forEach(input => {
@@ -586,29 +574,23 @@
             });
         });
 
-        // Initialize on page load
         window.addEventListener('load', () => {
-            // Check if user is already logged in
             const user = localStorage.getItem('user');
             if (user) {
                 try {
-                    JSON.parse(user); // Validate stored user data
+                    JSON.parse(user); 
                     window.location.href = '/index.html';
                     return;
                 } catch (e) {
-                    // Invalid user data, clear it
                     localStorage.removeItem('user');
                 }
             }
             
-            // Handle OAuth callback if present
             if (handleOAuthCallback()) {
                 return;
             }
             
-            // Load Google Sign-In after a short delay
             setTimeout(() => {
-                // Create and load Google Sign-In script
                 const script = document.createElement('script');
                 script.src = 'https://accounts.google.com/gsi/client';
                 script.async = true;
@@ -623,10 +605,8 @@
             }, 100);
         });
 
-        // Handle page visibility changes
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden && typeof google !== 'undefined') {
-                // Re-initialize Google Sign-In when page becomes visible
                 setTimeout(initializeGoogleSignIn, 100);
             }
         });

@@ -453,6 +453,7 @@
                 <a href="#" class="nav-link active">Home</a>
                 <a href="/stats.html" class="nav-link">Analytics</a>
                 <a href="/history.html" class="nav-link">History</a>
+                <a href="/excercise.html" class="nav-link">Exercise</a>
             </div>
             
             <div class="nav-user">
@@ -586,7 +587,6 @@
         </div>
     </div>
 
-    <!-- Include API Script -->
     <script src="/js/api.js"></script>
     <script>
         function checkAuth() {
@@ -622,26 +622,21 @@
             try {
                 const workouts = await API.getAllWorkouts();
                 
-                // Update stats with real data
                 document.getElementById('totalWorkouts').textContent = workouts.length;
                 
-                // Calculate this week's workouts
                 const thisWeekStart = new Date();
                 thisWeekStart.setDate(thisWeekStart.getDate() - 7);
                 const thisWeekWorkouts = workouts.filter(w => new Date(w.day) > thisWeekStart);
                 document.getElementById('thisWeek').textContent = thisWeekWorkouts.length;
                 
-                // Calculate total training time
                 const totalMinutes = workouts.reduce((total, workout) => {
                     return total + workout.exercises.reduce((sum, ex) => sum + (ex.duration || 0), 0);
                 }, 0);
                 document.getElementById('totalTime').textContent = totalMinutes;
                 
-                // Calculate average workout duration
                 const avgTime = workouts.length > 0 ? Math.round(totalMinutes / workouts.length) : 0;
                 document.getElementById('avgWorkout').textContent = avgTime;
                 
-                // Load last workout details
                 if (workouts.length > 0) {
                     loadLastWorkout(workouts[0]);
                 } else {
@@ -756,19 +751,15 @@
             }
 
             try {
-                // The workout should already exist in MongoDB with exercises added
-                // Just clear local storage and refresh stats
                 localStorage.removeItem('currentWorkoutId');
                 localStorage.removeItem('newWorkoutExercises');
                 localStorage.removeItem('workoutStartTime');
                 
-                // Refresh stats and current workout display
                 await loadWorkoutStats();
                 loadCurrentWorkout();
                 
                 showToast('Workout completed successfully!');
                 
-                // Notify other pages
                 localStorage.setItem('workoutUpdated', Date.now());
                 
             } catch (error) {
@@ -815,7 +806,6 @@
             document.getElementById('welcomeTitle').innerHTML = `${greeting}, <span id="userNameWelcome">${userName}</span>!`;
         }
 
-        // Listen for storage events from other pages
         window.addEventListener('storage', (e) => {
             if (e.key === 'workoutUpdated') {
                 loadWorkoutStats();
@@ -825,7 +815,6 @@
             }
         });
 
-        // Initialize page when DOM loads
         document.addEventListener('DOMContentLoaded', async () => {
             const user = checkAuth();
             if (user) {
@@ -836,7 +825,6 @@
             }
         });
 
-        // Add CSS animations
         const style = document.createElement('style');
         style.textContent = `
             @keyframes slideIn {

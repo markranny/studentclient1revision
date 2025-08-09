@@ -36,7 +36,7 @@
             margin: 0 auto;
             padding: 0 24px;
             display: flex;
-            justify-content: space-between;
+            justify-content: between;
             align-items: center;
         }
 
@@ -65,6 +65,8 @@
             display: flex;
             align-items: center;
             gap: 32px;
+            flex: 1;
+            justify-content: center;
         }
 
         .nav-link {
@@ -80,6 +82,49 @@
         .nav-link.active {
             color: #4f46e5;
             background: #f1f5f9;
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .brand-logo {
+            width: 36px;
+            height: 36px;
+            background: url('/logo.png') no-repeat center center;
+            background-size: contain;
+            border-radius: 12px;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            color: #64748b;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .logout-btn:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
         }
 
         .main-container {
@@ -758,41 +803,46 @@
 </head>
 
 <body>
-    <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
             <a href="/index.html" class="nav-brand">
-                <div class="brand-icon">
-                    <svg width="20" height="20" viewBox="0 0 40 40" fill="none">
-                        <path d="M8 16h4v8H8z" fill="currentColor"/>
-                        <path d="M28 16h4v8h-4z" fill="currentColor"/>
-                        <path d="M12 18h16v4H12z" fill="currentColor"/>
-                        <circle cx="8" cy="14" r="2" fill="currentColor"/>
-                        <circle cx="32" cy="14" r="2" fill="currentColor"/>
-                        <circle cx="8" cy="26" r="2" fill="currentColor"/>
-                        <circle cx="32" cy="26" r="2" fill="currentColor"/>
-                    </svg>
-                </div>
+                <div class="brand-logo"></div>
                 FitTrack
             </a>
             
             <div class="nav-menu">
-                <a href="/index.html" class="nav-link">Home</a>
+                <a href="index.html" class="nav-link active">Home</a>
                 <a href="/stats.html" class="nav-link">Analytics</a>
-                <a href="/history.html" class="nav-link active">History</a>
+                <a href="/history.html" class="nav-link">History</a>
                 <a href="/excercise.html" class="nav-link">Exercise</a>
+            </div>
+            
+            <div class="nav-user">
+                <div class="user-avatar" id="userAvatar">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <span id="userName">User</span>
+                <button class="logout-btn" onclick="logout()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="display: inline; margin-right: 4px;">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <polyline points="16,17 21,12 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Logout
+                </button>
             </div>
         </div>
     </nav>
 
-    <!-- Main Container -->
     <div class="main-container">
         <div class="page-header">
             <h1 class="page-title">Workout History</h1>
             <p class="page-subtitle">Review your fitness journey and track your progress over time</p>
         </div>
 
-        <!-- Filters -->
         <div class="filters-card">
             <div class="filters-header">
                 <h3 class="filters-title">Filter Workouts</h3>
@@ -843,7 +893,6 @@
             </div>
         </div>
 
-        <!-- Summary Stats -->
         <div class="summary-stats" id="summaryStats">
             <div class="summary-card total">
                 <div class="summary-number" id="totalWorkoutsFiltered">0</div>
@@ -863,7 +912,6 @@
             </div>
         </div>
 
-        <!-- Workouts List -->
         <div class="workouts-list" id="workoutsList">
             <div class="loading">
                 <div class="spinner"></div>
@@ -871,13 +919,11 @@
         </div>
     </div>
 
-    <!-- Toast Notification -->
     <div class="toast" id="toast">
         <i class="fas fa-check-circle"></i>
         <span>Action completed successfully!</span>
     </div>
 
-    <!-- Delete Confirmation Modal -->
     <div class="delete-modal" id="deleteModal">
         <div class="modal-content">
             <div class="modal-icon">
@@ -892,17 +938,14 @@
         </div>
     </div>
 
-    <!-- Include API -->
     <script src="/js/api.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     
     <script>
-        // Global variables
         let allWorkouts = [];
         let filteredWorkouts = [];
         let workoutToDelete = null;
 
-        // Get exercise icon based on category
         function getExerciseIcon(category) {
             const icons = {
                 cardio: 'fas fa-heart',
@@ -915,25 +958,21 @@
             return icons[category] || 'fas fa-circle';
         }
 
-        // Initialize page
         async function initializePage() {
             try {
                 console.log('Initializing history page...');
                 
-                // Check authentication
                 const user = JSON.parse(localStorage.getItem('user') || 'null');
                 if (!user) {
                     window.location.href = '/login.html';
                     return;
                 }
                 
-                // Load workouts from MongoDB
                 allWorkouts = await API.getAllWorkouts();
                 filteredWorkouts = [...allWorkouts];
                 
                 console.log(`Loaded ${allWorkouts.length} workouts from MongoDB`);
                 
-                // Display workouts
                 displayWorkouts();
                 updateSummaryStats();
                 
@@ -943,7 +982,6 @@
             }
         }
 
-        // Display workouts
         function displayWorkouts() {
             const workoutsList = document.getElementById('workoutsList');
             
@@ -958,7 +996,6 @@
                 const date = moment(workout.day).format('MMMM Do, YYYY');
                 const timeAgo = moment(workout.day).fromNow();
                 
-                // Calculate workout stats
                 const categoryStats = {};
                 let totalWeight = 0;
                 let totalDistance = 0;
@@ -1049,7 +1086,6 @@
             }).join('');
         }
 
-        // Show empty state
         function showEmptyState() {
             const workoutsList = document.getElementById('workoutsList');
             workoutsList.innerHTML = `
@@ -1066,7 +1102,6 @@
             `;
         }
 
-        // Show error state
         function showErrorState(message) {
             const workoutsList = document.getElementById('workoutsList');
             workoutsList.innerHTML = `
@@ -1083,7 +1118,6 @@
             `;
         }
 
-        // Update summary statistics
         function updateSummaryStats() {
             const totalWorkouts = filteredWorkouts.length;
             const totalTime = filteredWorkouts.reduce((sum, workout) => 
@@ -1098,13 +1132,11 @@
             document.getElementById('avgDurationFiltered').textContent = avgDuration;
         }
 
-        // Apply filters
         function applyFilters() {
             const dateRange = document.getElementById('dateRange').value;
             const exerciseType = document.getElementById('exerciseType').value;
             const sortBy = document.getElementById('sortBy').value;
 
-            // Filter by date range
             let filtered = [...allWorkouts];
             
             if (dateRange !== 'all') {
@@ -1128,14 +1160,12 @@
                 }
             }
 
-            // Filter by exercise type
             if (exerciseType !== 'all') {
                 filtered = filtered.filter(workout => 
                     workout.exercises.some(ex => (ex.category || ex.type) === exerciseType)
                 );
             }
 
-            // Sort workouts
             filtered.sort((a, b) => {
                 const aDuration = a.exercises.reduce((sum, ex) => sum + (ex.duration || 0), 0);
                 const bDuration = b.exercises.reduce((sum, ex) => sum + (ex.duration || 0), 0);
@@ -1160,7 +1190,6 @@
             showToast(`Found ${filtered.length} workout${filtered.length !== 1 ? 's' : ''}`);
         }
 
-        // Clear filters
         function clearFilters() {
             document.getElementById('dateRange').value = 'all';
             document.getElementById('exerciseType').value = 'all';
@@ -1172,11 +1201,9 @@
             showToast('Filters cleared');
         }
 
-        // Repeat workout
         function repeatWorkout(workoutId) {
             const workout = allWorkouts.find(w => w._id === workoutId);
             if (workout) {
-                // Store exercises for the new workout
                 const exercisesToRepeat = workout.exercises.map(ex => ({
                     ...ex,
                     _id: undefined
@@ -1192,19 +1219,16 @@
             }
         }
 
-        // Show delete modal
         function showDeleteModal(workoutId) {
             workoutToDelete = workoutId;
             document.getElementById('deleteModal').classList.add('show');
         }
 
-        // Close delete modal
         function closeDeleteModal() {
             workoutToDelete = null;
             document.getElementById('deleteModal').classList.remove('show');
         }
 
-        // Confirm delete
         async function confirmDelete() {
             if (!workoutToDelete) return;
             
@@ -1231,7 +1255,6 @@
             }
         }
 
-        // Show toast notification
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
             const text = toast.querySelector('span');
@@ -1254,7 +1277,6 @@
             }, 3000);
         }
 
-        // Listen for storage events (workout updates from other tabs)
         window.addEventListener('storage', (e) => {
             if (e.key === 'workoutUpdated') {
                 console.log('Workout updated in another tab, refreshing data...');
@@ -1262,13 +1284,11 @@
             }
         });
 
-        // Listen for custom events (for same-tab updates)
         window.addEventListener('workoutDataUpdated', () => {
             console.log('Workout data updated, refreshing...');
             initializePage();
         });
 
-        // Close delete modal when clicking outside
         document.addEventListener('click', (e) => {
             const deleteModal = document.getElementById('deleteModal');
             if (e.target === deleteModal) {
@@ -1276,10 +1296,8 @@
             }
         });
 
-        // Initialize page when DOM is loaded
         document.addEventListener('DOMContentLoaded', initializePage);
 
-        // Handle ESC key to close modal
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeDeleteModal();

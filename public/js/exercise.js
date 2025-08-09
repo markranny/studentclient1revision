@@ -1,4 +1,3 @@
-// Fixed exercise.js with proper MongoDB integration and better error handling
 const workoutTypeSelect = document.querySelector("#type");
 const cardioForm = document.querySelector(".cardio-form");
 const resistanceForm = document.querySelector(".resistance-form");
@@ -18,9 +17,8 @@ let workoutType = null;
 let shouldNavigateAway = false;
 let currentWorkoutId = null;
 
-// API helper functions with better error handling
 const API = {
-    baseUrl: '/api', // Adjust if your API has a different base URL
+    baseUrl: '/api', 
     
     async request(url, options = {}) {
         try {
@@ -81,11 +79,9 @@ const API = {
     
     async completeCurrentWorkout() {
         if (currentWorkoutId) {
-            // Clean up localStorage
             localStorage.removeItem("currentWorkoutId");
             localStorage.removeItem("newWorkoutExercises");
             
-            // Trigger storage event for other tabs
             localStorage.setItem('workoutCompleted', Date.now().toString());
             setTimeout(() => localStorage.removeItem('workoutCompleted'), 100);
             
@@ -94,9 +90,7 @@ const API = {
     }
 };
 
-// Get current workout ID with proper fallback and validation
 function getWorkoutId() {
-    // First check URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     let id = urlParams.get('id');
     
@@ -105,10 +99,8 @@ function getWorkoutId() {
         return id;
     }
     
-    // Then check localStorage
     id = localStorage.getItem("currentWorkoutId");
     if (id && isValidMongoId(id)) {
-        // Update URL to reflect current workout
         const newUrl = `${window.location.pathname}?id=${id}`;
         window.history.replaceState({}, '', newUrl);
         return id;
@@ -117,12 +109,10 @@ function getWorkoutId() {
     return null;
 }
 
-// Validate MongoDB ObjectId format
 function isValidMongoId(id) {
     return /^[0-9a-fA-F]{24}$/.test(id);
 }
 
-// Initialize workout - Create new workout in MongoDB if needed
 async function initExercise() {
     try {
         currentWorkoutId = getWorkoutId();
@@ -145,11 +135,9 @@ async function initExercise() {
                 localStorage.setItem("currentWorkoutId", currentWorkoutId);
                 console.log('New workout created successfully:', currentWorkoutId);
                 
-                // Update URL to show workout ID
                 const newUrl = `${window.location.pathname}?id=${currentWorkoutId}`;
                 window.history.replaceState({}, '', newUrl);
                 
-                // Initialize empty exercises array
                 localStorage.setItem("newWorkoutExercises", JSON.stringify([]));
                 
                 showToast("New workout session created!", "success");
@@ -160,7 +148,6 @@ async function initExercise() {
             console.log('Using existing workout:', currentWorkoutId);
             
             try {
-                // Verify workout exists and load exercises
                 const workout = await API.getWorkout(currentWorkoutId);
                 if (workout && workout.exercises) {
                     localStorage.setItem("newWorkoutExercises", JSON.stringify(workout.exercises));
@@ -173,42 +160,36 @@ async function initExercise() {
                 }
             } catch (error) {
                 console.warn('Could not load existing workout, may have been deleted:', error.message);
-                // Clear invalid workout ID and create new one
                 localStorage.removeItem("currentWorkoutId");
                 localStorage.removeItem("newWorkoutExercises");
                 currentWorkoutId = null;
                 
-                // Update URL to remove invalid ID
                 const newUrl = window.location.pathname;
                 window.history.replaceState({}, '', newUrl);
                 
                 showToast("Previous workout not found, creating new one...", "warning");
-                return initExercise(); // Recursively call to create new workout
+                return initExercise(); 
             }
         }
         
-        // Update workout stats display
         updateWorkoutStatsDisplay();
         
     } catch (error) {
         console.error("Error initializing workout:", error);
         showToast(`Error creating workout: ${error.message}`, "error");
         
-        // Reset state on error
         currentWorkoutId = null;
         localStorage.removeItem("currentWorkoutId");
         localStorage.removeItem("newWorkoutExercises");
     }
 }
 
-// Update workout statistics display
 function updateWorkoutStatsDisplay() {
     try {
         const exercises = JSON.parse(localStorage.getItem("newWorkoutExercises") || "[]");
         const exerciseCount = exercises.length;
         const totalDuration = exercises.reduce((sum, ex) => sum + (parseInt(ex.duration) || 0), 0);
         
-        // Update counter displays if they exist
         const countElement = document.getElementById('exerciseCount');
         const durationElement = document.getElementById('totalDuration');
         const workoutIdElement = document.getElementById('workoutId');
@@ -216,10 +197,9 @@ function updateWorkoutStatsDisplay() {
         if (countElement) countElement.textContent = exerciseCount;
         if (durationElement) durationElement.textContent = `${totalDuration} min`;
         if (workoutIdElement && currentWorkoutId) {
-            workoutIdElement.textContent = currentWorkoutId.slice(-6); // Show last 6 chars
+            workoutIdElement.textContent = currentWorkoutId.slice(-6); 
         }
         
-        // Enable/disable complete button based on exercise count
         if (completeButton) {
             completeButton.disabled = exerciseCount === 0;
             completeButton.textContent = exerciseCount === 0 ? "Add exercises first" : "Complete Workout";
@@ -232,7 +212,6 @@ function updateWorkoutStatsDisplay() {
     }
 }
 
-// Handle workout type change
 function handleWorkoutTypeChange(event) {
     workoutType = event.target.value;
     console.log('Workout type changed to:', workoutType);
@@ -241,12 +220,10 @@ function handleWorkoutTypeChange(event) {
         if (workoutType === "cardio") {
             cardioForm.classList.remove("d-none");
             resistanceForm.classList.add("d-none");
-            // Focus on first cardio input
             if (cardioNameInput) cardioNameInput.focus();
         } else if (workoutType === "resistance") {
             resistanceForm.classList.remove("d-none");
             cardioForm.classList.add("d-none");
-            // Focus on first resistance input
             if (nameInput) nameInput.focus();
         } else {
             cardioForm.classList.add("d-none");
@@ -257,7 +234,6 @@ function handleWorkoutTypeChange(event) {
     validateInputs();
 }
 
-// Validate inputs with detailed feedback
 function validateInputs() {
     let isValid = false;
     let validationMessage = "";
@@ -298,7 +274,6 @@ function validateInputs() {
         validationMessage = "Please select an exercise type";
     }
 
-    // Enable/disable add button based on validation
     if (addButton) {
         addButton.disabled = !isValid;
         if (isValid) {
@@ -310,13 +285,11 @@ function validateInputs() {
         }
     }
     
-    // Complete button depends on having exercises
     const exercises = JSON.parse(localStorage.getItem("newWorkoutExercises") || "[]");
     if (completeButton) {
         completeButton.disabled = exercises.length === 0;
     }
     
-    // Update validation display if element exists
     const validationDisplay = document.getElementById('validationMessage');
     if (validationDisplay) {
         validationDisplay.textContent = validationMessage;
@@ -324,7 +297,6 @@ function validateInputs() {
     }
 }
 
-// Handle form submission - Add exercise to MongoDB
 async function handleFormSubmit(event) {
     event.preventDefault();
 
@@ -333,7 +305,6 @@ async function handleFormSubmit(event) {
         return;
     }
 
-    // Prepare exercise data with proper validation
     let workoutData = {};
     
     if (workoutType === "cardio") {
@@ -352,13 +323,13 @@ async function handleFormSubmit(event) {
         }
         
         workoutData = {
-            type: "cardio",
-            category: "cardio", // Ensure category is set
+            type: determineCardioType(name),
+            category: "cardio",
             name: name,
             duration: duration,
             distance: distance,
-            intensity: "moderate", // Default intensity
-            equipment: "cardio_equipment" // Default equipment
+            intensity: determineCardioIntensity(name, duration),
+            equipment: getCardioEquipment(name)
         };
         
     } else if (workoutType === "resistance") {
@@ -380,15 +351,107 @@ async function handleFormSubmit(event) {
         }
         
         workoutData = {
-            type: "resistance",
-            category: "resistance", // Ensure category is set
+            type: determineResistanceType(name, weight),
+            category: "resistance",
             name: name,
             weight: weight,
             sets: sets,
             reps: reps,
             duration: duration,
-            intensity: "moderate", // Default intensity
-            equipment: "free_weights" // Default equipment
+            intensity: determineResistanceIntensity(reps, weight),
+            equipment: getResistanceEquipment(name, weight),
+            muscleGroups: getMuscleGroups(name)
+        };
+        
+    } else if (workoutType === "flexibility") {
+        const name = document.querySelector('#flexibility-name')?.value.trim() || 
+                    cardioNameInput?.value.trim() || 
+                    nameInput?.value.trim();
+        const duration = parseInt(document.querySelector('#flexibility-duration')?.value || 
+                                durationInput?.value || 
+                                resistanceDurationInput?.value);
+        
+        if (!name || isNaN(duration) || duration <= 0) {
+            showToast("Please provide exercise name and duration for flexibility exercise", "error");
+            return;
+        }
+        
+        workoutData = {
+            type: determineFlexibilityType(name),
+            category: "flexibility",
+            name: name,
+            duration: duration,
+            intensity: "light",
+            equipment: "none",
+            stretchHoldTime: Math.floor(duration * 60 / 8) 
+        };
+        
+    } else if (workoutType === "recovery") {
+        const name = document.querySelector('#recovery-name')?.value.trim() || 
+                    cardioNameInput?.value.trim() || 
+                    nameInput?.value.trim() ||
+                    "Easy Walk"; 
+        const duration = parseInt(document.querySelector('#recovery-duration')?.value || 
+                                durationInput?.value || 
+                                resistanceDurationInput?.value ||
+                                1); 
+        
+        if (!name || isNaN(duration) || duration <= 0) {
+            showToast("Please provide exercise name and duration for recovery exercise", "error");
+            return;
+        }
+        
+        workoutData = {
+            type: determineRecoveryType(name),
+            category: "recovery",
+            name: name,
+            duration: duration,
+            intensity: "light",
+            equipment: getRecoveryEquipment(name)
+        };
+        
+    } else if (workoutType === "balance") {
+        const name = document.querySelector('#balance-name')?.value.trim() || 
+                    cardioNameInput?.value.trim() || 
+                    nameInput?.value.trim();
+        const duration = parseInt(document.querySelector('#balance-duration')?.value || 
+                                durationInput?.value || 
+                                resistanceDurationInput?.value);
+        
+        if (!name || isNaN(duration) || duration <= 0) {
+            showToast("Please provide exercise name and duration for balance exercise", "error");
+            return;
+        }
+        
+        workoutData = {
+            type: determineBalanceType(name),
+            category: "balance",
+            name: name,
+            duration: duration,
+            intensity: "moderate",
+            equipment: getBalanceEquipment(name)
+        };
+        
+    } else if (workoutType === "sports_specific") {
+        const name = document.querySelector('#sports-name')?.value.trim() || 
+                    cardioNameInput?.value.trim() || 
+                    nameInput?.value.trim();
+        const duration = parseInt(document.querySelector('#sports-duration')?.value || 
+                                durationInput?.value || 
+                                resistanceDurationInput?.value);
+        
+        if (!name || isNaN(duration) || duration <= 0) {
+            showToast("Please provide exercise name and duration for sports exercise", "error");
+            return;
+        }
+        
+        workoutData = {
+            type: determineSportsType(name),
+            category: "sports_specific",
+            name: name,
+            duration: duration,
+            intensity: determineSportsIntensity(name),
+            equipment: getSportsEquipment(name)
         };
         
     } else {
@@ -396,7 +459,6 @@ async function handleFormSubmit(event) {
         return;
     }
 
-    // Show loading state
     if (addButton) {
         addButton.disabled = true;
         addButton.textContent = "Adding...";
@@ -405,48 +467,306 @@ async function handleFormSubmit(event) {
     try {
         console.log('Adding exercise to MongoDB:', workoutData);
         
-        // Add exercise to MongoDB via API
         const updatedWorkout = await API.addExercise(workoutData);
         console.log('Exercise added successfully to MongoDB');
 
-        // Update localStorage with latest data from MongoDB
         if (updatedWorkout && updatedWorkout.exercises) {
             localStorage.setItem("newWorkoutExercises", JSON.stringify(updatedWorkout.exercises));
             updateNewWorkoutContainer(updatedWorkout.exercises);
             console.log(`Updated with ${updatedWorkout.exercises.length} exercises from server`);
         } else {
             console.warn('API did not return full workout data, updating manually');
-            // Fallback: add to localStorage manually if API doesn't return full workout
             const exercises = JSON.parse(localStorage.getItem("newWorkoutExercises") || "[]");
             exercises.push(workoutData);
             localStorage.setItem("newWorkoutExercises", JSON.stringify(exercises));
             updateNewWorkoutContainer(exercises);
         }
 
-        // Update stats and clear form
         updateWorkoutStatsDisplay();
         clearInputs();
         
-        // Show success message
-        const exerciseType = workoutType === 'cardio' ? 'cardio' : 'resistance';
-        showToast(`${workoutData.name} (${exerciseType}) added successfully!`, "success");
+        showToast(`${workoutData.name} (${workoutData.category}) added successfully!`, "success");
         
     } catch (error) {
         console.error("Error adding exercise:", error);
         showToast(`Error adding exercise: ${error.message}`, "error");
     } finally {
-        // Reset button state
         if (addButton) {
             addButton.disabled = false;
             addButton.textContent = "Add Another";
         }
         
-        // Re-validate form
         setTimeout(() => validateInputs(), 100);
     }
 }
 
-// Update the new workout container display with better formatting
+function determineCardioType(name) {
+    const nameLower = name.toLowerCase();
+    
+    if (nameLower.includes('hiit') || nameLower.includes('sprint') || nameLower.includes('interval')) {
+        return "hiit";
+    } else if (nameLower.includes('walk') || nameLower.includes('easy') || nameLower.includes('recovery')) {
+        return "low_intensity_cardio";
+    } else if (nameLower.includes('fast') || nameLower.includes('intense') || nameLower.includes('vigorous')) {
+        return "high_intensity_cardio";
+    } else {
+        return "moderate_intensity_cardio";
+    }
+}
+
+function determineResistanceType(name, weight) {
+    const nameLower = name.toLowerCase();
+    
+    if (weight === 0 || nameLower.includes('bodyweight') || nameLower.includes('push') || nameLower.includes('pull')) {
+        return "bodyweight";
+    } else if (nameLower.includes('machine') || nameLower.includes('cable')) {
+        return "machines";
+    } else if (nameLower.includes('band') || nameLower.includes('elastic')) {
+        return "resistance_bands";
+    } else if (nameLower.includes('deadlift') || nameLower.includes('squat') || nameLower.includes('bench')) {
+        return "powerlifting";
+    } else if (nameLower.includes('clean') || nameLower.includes('snatch') || nameLower.includes('jerk')) {
+        return "olympic_lifting";
+    } else {
+        return "free_weights";
+    }
+}
+
+function determineFlexibilityType(name) {
+    const nameLower = name.toLowerCase();
+    
+    if (nameLower.includes('yoga')) {
+        return "yoga";
+    } else if (nameLower.includes('pilates')) {
+        return "pilates";
+    } else if (nameLower.includes('dynamic') || nameLower.includes('warm')) {
+        return "dynamic_stretching";
+    } else {
+        return "static_stretching";
+    }
+}
+
+function determineRecoveryType(name) {
+    const nameLower = name.toLowerCase();
+    
+    if (nameLower.includes('meditat') || nameLower.includes('mindful')) {
+        return "meditation";
+    } else if (nameLower.includes('mobility') || nameLower.includes('foam') || nameLower.includes('roll')) {
+        return "mobility_work";
+    } else {
+        return "active_recovery";
+    }
+}
+
+function determineBalanceType(name) {
+    const nameLower = name.toLowerCase();
+    
+    if (nameLower.includes('tai chi') || nameLower.includes('taichi')) {
+        return "tai_chi";
+    } else if (nameLower.includes('functional') || nameLower.includes('movement')) {
+        return "functional_movement";
+    } else {
+        return "balance_training";
+    }
+}
+
+function determineSportsType(name) {
+    const nameLower = name.toLowerCase();
+    
+    if (nameLower.includes('plyometric') || nameLower.includes('jump') || nameLower.includes('explosive')) {
+        return "plyometrics";
+    } else if (nameLower.includes('agility') || nameLower.includes('ladder') || nameLower.includes('cone')) {
+        return "agility";
+    } else if (nameLower.includes('crossfit') || nameLower.includes('wod')) {
+        return "crossfit";
+    } else {
+        return "endurance";
+    }
+}
+
+function determineCardioIntensity(name, duration) {
+    const nameLower = name.toLowerCase();
+    
+    if (nameLower.includes('easy') || nameLower.includes('walk') || duration > 60) {
+        return "light";
+    } else if (nameLower.includes('vigorous') || nameLower.includes('sprint') || duration < 20) {
+        return "vigorous";
+    } else {
+        return "moderate";
+    }
+}
+
+function determineResistanceIntensity(reps, weight) {
+    if (reps <= 5 && weight > 50) {
+        return "maximum";
+    } else if (reps <= 8 || weight > 30) {
+        return "vigorous";
+    } else if (reps <= 15) {
+        return "moderate";
+    } else {
+        return "light";
+    }
+}
+
+function determineSportsIntensity(name) {
+    const nameLower = name.toLowerCase();
+    
+    if (nameLower.includes('sprint') || nameLower.includes('explosive') || nameLower.includes('max')) {
+        return "maximum";
+    } else if (nameLower.includes('intense') || nameLower.includes('vigorous')) {
+        return "vigorous";
+    } else {
+        return "moderate";
+    }
+}
+
+function getCardioEquipment(name) {
+    const nameLower = name.toLowerCase();
+    
+    if (nameLower.includes('treadmill') || nameLower.includes('bike') || nameLower.includes('elliptical') || 
+        nameLower.includes('rowing') || nameLower.includes('stair')) {
+        return "cardio_equipment";
+    } else {
+        return "none";
+    }
+}
+
+function getResistanceEquipment(name, weight) {
+    const nameLower = name.toLowerCase();
+    
+    if (weight === 0 || nameLower.includes('bodyweight')) {
+        return "none";
+    } else if (nameLower.includes('dumbbell')) {
+        return "dumbbells";
+    } else if (nameLower.includes('barbell')) {
+        return "barbell";
+    } else if (nameLower.includes('kettlebell')) {
+        return "kettlebell";
+    } else if (nameLower.includes('machine') || nameLower.includes('cable')) {
+        return "machines";
+    } else if (nameLower.includes('band')) {
+        return "resistance_bands";
+    } else {
+        return weight > 20 ? "barbell" : "dumbbells";
+    }
+}
+
+function getRecoveryEquipment(name) {
+    const nameLower = name.toLowerCase();
+    
+    if (nameLower.includes('foam') || nameLower.includes('roll')) {
+        return "medicine_ball"; 
+    } else {
+        return "none";
+    }
+}
+
+function getBalanceEquipment(name) {
+    const nameLower = name.toLowerCase();
+    
+    if (nameLower.includes('ball') || nameLower.includes('stability')) {
+        return "stability_ball";
+    } else {
+        return "none";
+    }
+}
+
+function getSportsEquipment(name) {
+    const nameLower = name.toLowerCase();
+    
+    if (nameLower.includes('medicine') || nameLower.includes('ball')) {
+        return "medicine_ball";
+    } else if (nameLower.includes('suspension') || nameLower.includes('trx')) {
+        return "suspension";
+    } else {
+        return "none";
+    }
+}
+
+function getMuscleGroups(name) {
+    const nameLower = name.toLowerCase();
+    const muscleGroups = [];
+    
+    if (nameLower.includes('chest') || nameLower.includes('bench') || nameLower.includes('press')) {
+        muscleGroups.push('chest');
+    }
+    if (nameLower.includes('back') || nameLower.includes('row') || nameLower.includes('pull')) {
+        muscleGroups.push('back');
+    }
+    if (nameLower.includes('shoulder') || nameLower.includes('overhead')) {
+        muscleGroups.push('shoulders');
+    }
+    if (nameLower.includes('bicep') || nameLower.includes('curl')) {
+        muscleGroups.push('biceps');
+    }
+    if (nameLower.includes('tricep') || nameLower.includes('extension')) {
+        muscleGroups.push('triceps');
+    }
+    if (nameLower.includes('squat') || nameLower.includes('quad')) {
+        muscleGroups.push('quadriceps');
+    }
+    if (nameLower.includes('deadlift') || nameLower.includes('hamstring')) {
+        muscleGroups.push('hamstrings');
+    }
+    if (nameLower.includes('glute') || nameLower.includes('hip')) {
+        muscleGroups.push('glutes');
+    }
+    if (nameLower.includes('calf') || nameLower.includes('raise')) {
+        muscleGroups.push('calves');
+    }
+    if (nameLower.includes('core') || nameLower.includes('ab') || nameLower.includes('plank')) {
+        muscleGroups.push('core');
+    }
+    
+    if (muscleGroups.length === 0) {
+        muscleGroups.push('full_body');
+    }
+    
+    return muscleGroups;
+}
+
+function getMuscleGroups(exerciseName) {
+    const nameLower = exerciseName.toLowerCase();
+    const muscleGroups = [];
+    
+    if (nameLower.includes('chest') || nameLower.includes('bench') || nameLower.includes('press')) {
+        muscleGroups.push('chest');
+    }
+    if (nameLower.includes('back') || nameLower.includes('row') || nameLower.includes('pull')) {
+        muscleGroups.push('back');
+    }
+    if (nameLower.includes('shoulder') || nameLower.includes('overhead')) {
+        muscleGroups.push('shoulders');
+    }
+    if (nameLower.includes('bicep') || nameLower.includes('curl')) {
+        muscleGroups.push('biceps');
+    }
+    if (nameLower.includes('tricep') || nameLower.includes('extension')) {
+        muscleGroups.push('triceps');
+    }
+    if (nameLower.includes('squat') || nameLower.includes('quad')) {
+        muscleGroups.push('quadriceps');
+    }
+    if (nameLower.includes('deadlift') || nameLower.includes('hamstring')) {
+        muscleGroups.push('hamstrings');
+    }
+    if (nameLower.includes('glute') || nameLower.includes('hip')) {
+        muscleGroups.push('glutes');
+    }
+    if (nameLower.includes('calf') || nameLower.includes('raise')) {
+        muscleGroups.push('calves');
+    }
+    if (nameLower.includes('core') || nameLower.includes('ab') || nameLower.includes('plank')) {
+        muscleGroups.push('core');
+    }
+    
+    if (muscleGroups.length === 0 || nameLower.includes('burpee') || nameLower.includes('thruster')) {
+        muscleGroups.push('full_body');
+    }
+    
+    return muscleGroups;
+}
+
 function updateNewWorkoutContainer(exercises) {
     const newContainerContent = document.querySelector(".new-workout-exercises");
     
@@ -455,7 +775,6 @@ function updateNewWorkoutContainer(exercises) {
         return;
     }
 
-    // Clear existing content
     newContainerContent.innerHTML = "";
     
     if (!exercises || exercises.length === 0) {
@@ -468,7 +787,6 @@ function updateNewWorkoutContainer(exercises) {
         return;
     }
 
-    // Add header with count
     const headerDiv = document.createElement("div");
     headerDiv.className = "exercise-header mb-3";
     headerDiv.innerHTML = `
@@ -477,7 +795,6 @@ function updateNewWorkoutContainer(exercises) {
     `;
     newContainerContent.appendChild(headerDiv);
 
-    // Add each exercise to display
     exercises.forEach((ex, index) => {
         const div = document.createElement("div");
         div.classList.add("exercise-detail", "mb-2");
@@ -523,7 +840,6 @@ function updateNewWorkoutContainer(exercises) {
         newContainerContent.appendChild(div);
     });
     
-    // Add summary footer
     const totalDuration = exercises.reduce((sum, ex) => sum + (parseInt(ex.duration) || 0), 0);
     const footerDiv = document.createElement("div");
     footerDiv.className = "exercise-footer mt-3 pt-2 border-top";
@@ -544,7 +860,6 @@ function updateNewWorkoutContainer(exercises) {
     console.log(`Updated exercise display with ${exercises.length} exercises`);
 }
 
-// Handle toast animation end
 function handleToastAnimationEnd() {
     if (toast) {
         toast.removeAttribute("class");
@@ -555,7 +870,6 @@ function handleToastAnimationEnd() {
     }
 }
 
-// Show toast notification with different types
 function showToast(message, type = "success") {
     if (!toast) {
         console.log(`Toast message (${type}): ${message}`);
@@ -565,7 +879,6 @@ function showToast(message, type = "success") {
     const text = toast.querySelector("span") || toast;
     text.textContent = message;
     
-    // Remove existing classes and set appropriate styling based on type
     toast.className = "toast";
     
     switch (type) {
@@ -584,10 +897,8 @@ function showToast(message, type = "success") {
             break;
     }
     
-    // Show toast
     toast.style.display = "block";
     
-    // Auto-hide after appropriate duration
     const duration = type === "error" ? 5000 : type === "warning" ? 4000 : 3000;
     setTimeout(() => {
         toast.style.display = "none";
@@ -597,7 +908,6 @@ function showToast(message, type = "success") {
     console.log(`Toast shown (${type}): ${message}`);
 }
 
-// Clear all form inputs and reset state
 function clearInputs() {
     const inputs = [
         cardioNameInput, nameInput, setsInput, distanceInput, 
@@ -607,23 +917,19 @@ function clearInputs() {
     inputs.forEach(input => {
         if (input) {
             input.value = "";
-            // Remove any error states
             input.classList.remove('is-invalid', 'is-valid');
         }
     });
     
-    // Reset workout type
     if (workoutTypeSelect) {
         workoutTypeSelect.value = "";
     }
     
     workoutType = null;
     
-    // Hide forms
     if (cardioForm) cardioForm.classList.add("d-none");
     if (resistanceForm) resistanceForm.classList.add("d-none");
     
-    // Clear validation message
     const validationDisplay = document.getElementById('validationMessage');
     if (validationDisplay) {
         validationDisplay.textContent = "Select an exercise type to begin";
@@ -633,7 +939,6 @@ function clearInputs() {
     console.log("Form inputs cleared and reset");
 }
 
-// Handle complete workout with comprehensive validation
 async function handleCompleteWorkout(event) {
     event.preventDefault();
     
@@ -642,14 +947,12 @@ async function handleCompleteWorkout(event) {
         return;
     }
 
-    // Show loading state
     if (completeButton) {
         completeButton.disabled = true;
         completeButton.innerHTML = '<span class="spinner-border spinner-border-sm mr-2"></span>Completing...';
     }
 
     try {
-        // Verify workout has exercises
         const workout = await API.getWorkout(currentWorkoutId);
         if (!workout || !workout.exercises || workout.exercises.length === 0) {
             showToast("Please add at least one exercise before completing the workout.", "warning");
@@ -658,13 +961,10 @@ async function handleCompleteWorkout(event) {
 
         console.log('Completing workout:', currentWorkoutId, 'with', workout.exercises.length, 'exercises');
         
-        // Update workout status and clean up
         await API.completeCurrentWorkout();
         
-        // Mark for navigation
         shouldNavigateAway = true;
         
-        // Update display with completion message
         const newContainerContent = document.querySelector(".new-workout-exercises");
         if (newContainerContent) {
             newContainerContent.innerHTML = `
@@ -683,10 +983,8 @@ async function handleCompleteWorkout(event) {
             `;
         }
         
-        // Show success and navigate
         showToast(`Workout completed! ${workout.exercises.length} exercises, ${workout.totalDuration || 0} minutes total.`, "success");
         
-        // Navigate after short delay to show completion message
         setTimeout(() => {
             window.location.href = "/index.html";
         }, 2500);
@@ -698,7 +996,6 @@ async function handleCompleteWorkout(event) {
         showToast(`Error completing workout: ${error.message}`, "error");
         shouldNavigateAway = false;
     } finally {
-        // Reset button if navigation didn't happen
         setTimeout(() => {
             if (completeButton && !shouldNavigateAway) {
                 completeButton.disabled = false;
@@ -708,7 +1005,6 @@ async function handleCompleteWorkout(event) {
     }
 }
 
-// Event listeners setup with error handling
 function setupEventListeners() {
     try {
         if (workoutTypeSelect) {
@@ -731,7 +1027,6 @@ function setupEventListeners() {
             console.log("Toast animation event listener added");
         }
 
-        // Add input validation listeners with debouncing
         const allInputs = document.querySelectorAll("input, select");
         allInputs.forEach(input => {
             let timeout;
@@ -744,7 +1039,6 @@ function setupEventListeners() {
             input.addEventListener("input", debouncedValidation);
             input.addEventListener("change", validateInputs);
             
-            // Add visual feedback for individual inputs
             input.addEventListener("blur", function() {
                 if (this.value.trim()) {
                     this.classList.add('is-valid');
@@ -753,9 +1047,7 @@ function setupEventListeners() {
             });
         });
         
-        // Add keyboard shortcuts
         document.addEventListener("keydown", function(event) {
-            // Ctrl/Cmd + Enter to add exercise (if form is valid)
             if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
                 event.preventDefault();
                 if (addButton && !addButton.disabled) {
@@ -763,7 +1055,6 @@ function setupEventListeners() {
                 }
             }
             
-            // Escape to clear form
             if (event.key === "Escape") {
                 clearInputs();
                 if (workoutTypeSelect) workoutTypeSelect.focus();
@@ -778,11 +1069,9 @@ function setupEventListeners() {
     }
 }
 
-// Handle connectivity issues
 function handleConnectionError() {
     showToast("Connection issue detected. Please check your internet connection.", "warning");
     
-    // Retry connection after delay
     setTimeout(async () => {
         try {
             if (currentWorkoutId) {
@@ -795,12 +1084,10 @@ function handleConnectionError() {
     }, 5000);
 }
 
-// Initialize on DOM content loaded
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("Exercise page loading...");
     
     try {
-        // Check authentication
         const user = JSON.parse(localStorage.getItem('user') || 'null');
         if (!user) {
             console.log("User not authenticated, redirecting to login");
@@ -813,19 +1100,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         console.log("User authenticated:", user.email || user.username || "Unknown");
         
-        // Check if API is available (assuming it's loaded via script tag)
         if (typeof API === 'undefined') {
-            // API is defined in this file, so this shouldn't happen
             console.log("Using internal API implementation");
         }
         
-        // Set up event listeners first
         setupEventListeners();
         
-        // Initialize workout with loading indicator
         const initPromise = initExercise();
         
-        // Show initial validation message
         const validationDisplay = document.getElementById('validationMessage');
         if (validationDisplay) {
             validationDisplay.textContent = "Select an exercise type to begin";
@@ -842,17 +1124,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// Handle page visibility changes to sync data
 document.addEventListener('visibilitychange', async () => {
     if (!document.hidden && currentWorkoutId) {
         try {
             console.log("Page became visible, syncing workout data...");
-            // Refresh workout data when page becomes visible
             const workout = await API.getWorkout(currentWorkoutId);
             if (workout && workout.exercises) {
                 const currentExercises = JSON.parse(localStorage.getItem("newWorkoutExercises") || "[]");
                 
-                // Only update if there are changes
                 if (workout.exercises.length !== currentExercises.length) {
                     localStorage.setItem("newWorkoutExercises", JSON.stringify(workout.exercises));
                     updateNewWorkoutContainer(workout.exercises);
@@ -869,7 +1148,6 @@ document.addEventListener('visibilitychange', async () => {
         } catch (error) {
             console.warn('Could not sync workout data on page focus:', error.message);
             if (error.message.includes('not found')) {
-                // Workout was deleted in another session
                 showToast("Workout was deleted in another session. Creating new workout...", "warning");
                 currentWorkoutId = null;
                 localStorage.removeItem("currentWorkoutId");
@@ -880,12 +1158,10 @@ document.addEventListener('visibilitychange', async () => {
     }
 });
 
-// Handle page unload - save any pending data
 window.addEventListener('beforeunload', (event) => {
     if (currentWorkoutId) {
         console.log('Page unloading with active workout:', currentWorkoutId);
         
-        // For development/testing, you might want to warn users
         if (process?.env?.NODE_ENV === 'development') {
             event.preventDefault();
             event.returnValue = 'You have an active workout. Are you sure you want to leave?';
@@ -893,7 +1169,6 @@ window.addEventListener('beforeunload', (event) => {
     }
 });
 
-// Listen for storage changes from other tabs/windows
 window.addEventListener('storage', (e) => {
     if (e.key === 'workoutCompleted') {
         console.log('Workout completed in another tab');
@@ -909,7 +1184,6 @@ window.addEventListener('storage', (e) => {
     }
 });
 
-// Handle online/offline status
 window.addEventListener('online', () => {
     console.log('Connection restored');
     showToast('Connection restored!', 'success');
@@ -920,7 +1194,6 @@ window.addEventListener('offline', () => {
     showToast('Connection lost. Changes will be saved when connection is restored.', 'warning');
 });
 
-// Export functions for testing/debugging (only in development)
 if (typeof window !== 'undefined') {
     window.ExercisePageDebug = {
         currentWorkoutId: () => currentWorkoutId,

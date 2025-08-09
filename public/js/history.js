@@ -20,7 +20,6 @@
             min-height: 100vh;
         }
 
-        /* Navigation */
         nav {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 1rem 0;
@@ -77,7 +76,6 @@
             transform: translateY(-2px);
         }
 
-        /* Hero Section */
         .hero {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -105,7 +103,6 @@
             z-index: 10;
         }
 
-        /* Filters Section */
         .filters-card {
             background: white;
             border-radius: 20px;
@@ -198,7 +195,6 @@
             color: white;
         }
 
-        /* Summary Stats */
         .summary-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -403,7 +399,6 @@
             color: white;
         }
 
-        /* Empty State */
         .empty-state {
             text-align: center;
             padding: 4rem 2rem;
@@ -447,7 +442,6 @@
             transform: translateY(-2px);
         }
 
-        /* Loading State */
         .loading {
             display: flex;
             justify-content: center;
@@ -469,7 +463,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Toast Notification */
         .toast {
             position: fixed;
             top: 20px;
@@ -489,7 +482,6 @@
             right: 20px;
         }
 
-        /* Error State */
         .error-state {
             text-align: center;
             padding: 4rem 2rem;
@@ -534,7 +526,6 @@
             transform: translateY(-2px);
         }
 
-        /* Debug Panel */
         .debug-panel {
             position: fixed;
             bottom: 20px;
@@ -554,7 +545,6 @@
             display: block;
         }
 
-        /* Responsive Design */
         @media (max-width: 768px) {
             .nav-container {
                 flex-direction: column;
@@ -620,7 +610,6 @@
 </head>
 
 <body>
-    <!-- Navigation -->
     <nav>
         <div class="nav-container">
             <a href="/index.html" class="nav-brand">
@@ -636,15 +625,12 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
     <div class="hero">
         <h1>Workout History</h1>
         <p>Review your fitness journey and track your progress over time</p>
     </div>
 
-    <!-- Main Container -->
     <div class="history-container">
-        <!-- Filters -->
         <div class="filters-card">
             <div class="filters-header">
                 <h3 class="filters-title">Filter Workouts</h3>
@@ -691,7 +677,6 @@
             </div>
         </div>
 
-        <!-- Summary Stats -->
         <div class="summary-stats" id="summaryStats">
             <div class="summary-card total">
                 <div class="summary-number" id="totalWorkoutsFiltered">0</div>
@@ -711,7 +696,6 @@
             </div>
         </div>
 
-        <!-- Workouts List -->
         <div class="workouts-list" id="workoutsList">
             <div class="loading">
                 <div class="spinner"></div>
@@ -719,12 +703,10 @@
         </div>
     </div>
 
-    <!-- Toast Notification -->
     <div class="toast" id="toast">
         <span>Action completed successfully!</span>
     </div>
 
-    <!-- Delete Confirmation Modal -->
     <div id="deleteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
         <div style="background: white; padding: 2rem; border-radius: 15px; max-width: 400px; text-align: center;">
             <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #f44336; margin-bottom: 1rem;"></i>
@@ -737,27 +719,20 @@
         </div>
     </div>
 
-    <!-- Debug Panel -->
     <div class="debug-panel" id="debugPanel">
         <div><strong>Debug Info:</strong></div>
         <div id="debugContent">Initializing...</div>
         <button onclick="toggleDebug()" style="margin-top: 0.5rem; padding: 0.25rem 0.5rem; background: #333; color: white; border: none; border-radius: 4px; cursor: pointer;">Hide Debug</button>
     </div>
 
-    <!-- Load Moment.js for date handling -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 
-    <!-- Enhanced API Script with Error Handling -->
     <script>
-        // Enhanced API with comprehensive error handling
         const API = {
-            // Base URL for API calls
             baseURL: window.location.origin,
             
-            // Debug mode
             debug: true,
             
-            // Log debug messages
             log(message, data = null) {
                 if (this.debug) {
                     console.log(`[API] ${message}`, data || '');
@@ -765,12 +740,10 @@
                 }
             },
             
-            // Update debug panel
             updateDebug(message) {
                 const debugContent = document.getElementById('debugContent');
                 if (debugContent) {
                     debugContent.innerHTML = `${debugContent.innerHTML}<br>${message}`;
-                    // Keep only last 10 messages
                     const lines = debugContent.innerHTML.split('<br>');
                     if (lines.length > 10) {
                         debugContent.innerHTML = lines.slice(-10).join('<br>');
@@ -778,7 +751,6 @@
                 }
             },
 
-            // Get all workouts from MongoDB
             async getAllWorkouts() {
                 try {
                     this.log('Fetching all workouts from MongoDB...');
@@ -788,8 +760,8 @@
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        // Add timeout
-                        signal: AbortSignal.timeout(10000) // 10 second timeout
+
+                        signal: AbortSignal.timeout(10000) 
                     });
                     
                     this.log(`Response status: ${response.status}`);
@@ -800,7 +772,7 @@
                             const errorData = await response.json();
                             errorMessage = errorData.error || errorMessage;
                         } catch (e) {
-                            // Response is not JSON, use status text
+                            
                         }
                         throw new Error(errorMessage);
                     }
@@ -808,7 +780,6 @@
                     const workouts = await response.json();
                     this.log(`Successfully loaded ${workouts.length} workouts`);
                     
-                    // Validate data structure
                     if (!Array.isArray(workouts)) {
                         throw new Error('Invalid response format: Expected array of workouts');
                     }
@@ -830,7 +801,6 @@
                 }
             },
 
-            // Delete a workout from MongoDB
             async deleteWorkout(id) {
                 try {
                     this.log(`Deleting workout: ${id}`);
@@ -844,7 +814,7 @@
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        signal: AbortSignal.timeout(5000) // 5 second timeout
+                        signal: AbortSignal.timeout(5000) 
                     });
                     
                     if (!response.ok) {
@@ -853,7 +823,6 @@
                             const errorData = await response.json();
                             errorMessage = errorData.error || errorMessage;
                         } catch (e) {
-                            // Response is not JSON, use status text
                         }
                         throw new Error(errorMessage);
                     }
@@ -869,12 +838,10 @@
             }
         };
 
-        // Global variables
         let allWorkouts = [];
         let filteredWorkouts = [];
         let workoutToDelete = null;
 
-        // Debug functions
         function toggleDebug() {
             const debugPanel = document.getElementById('debugPanel');
             if (debugPanel.classList.contains('show')) {
@@ -884,7 +851,6 @@
             }
         }
 
-        // Show debug panel on load if there are errors
         function showDebugOnError() {
             const debugPanel = document.getElementById('debugPanel');
             if (debugPanel) {
@@ -892,12 +858,10 @@
             }
         }
 
-        // Initialize page
         async function initializePage() {
             try {
                 API.log('Starting page initialization...');
                 
-                // Check authentication
                 const user = localStorage.getItem('user');
                 if (!user) {
                     API.log('No user found, redirecting to login');
@@ -915,12 +879,10 @@
                     return;
                 }
 
-                // Load workouts from MongoDB
                 API.log('Loading workouts from database...');
                 allWorkouts = await API.getAllWorkouts();
                 filteredWorkouts = [...allWorkouts];
                 
-                // Display workouts
                 displayWorkouts();
                 updateSummaryStats();
                 
@@ -934,7 +896,6 @@
             }
         }
 
-        // Display workouts
         function displayWorkouts() {
             const workoutsList = document.getElementById('workoutsList');
             
@@ -950,7 +911,6 @@
 
             try {
                 workoutsList.innerHTML = filteredWorkouts.map(workout => {
-                    // Validate workout data
                     if (!workout || !workout._id) {
                         API.log('Warning: Invalid workout data', workout);
                         return '';
@@ -960,7 +920,6 @@
                     const totalDuration = exercises.reduce((sum, ex) => sum + (ex.duration || 0), 0);
                     const exerciseCount = exercises.length;
                     
-                    // Safe date handling
                     let date = 'Unknown Date';
                     let timeAgo = 'Unknown';
                     
@@ -970,7 +929,6 @@
                                 date = moment(workout.day).format('MMMM Do, YYYY');
                                 timeAgo = moment(workout.day).fromNow();
                             } else {
-                                // Fallback if moment.js fails to load
                                 const workoutDate = new Date(workout.day);
                                 date = workoutDate.toLocaleDateString();
                                 timeAgo = 'Recently';
@@ -980,7 +938,6 @@
                         API.log('Date parsing error:', dateError.message);
                     }
                     
-                    // Calculate workout stats safely
                     const resistanceExercises = exercises.filter(ex => ex && ex.type === 'resistance');
                     const cardioExercises = exercises.filter(ex => ex && ex.type === 'cardio');
                     const totalWeight = resistanceExercises.reduce((sum, ex) => 
@@ -1070,7 +1027,6 @@
             }
         }
 
-        // Show empty state
         function showEmptyState(message = null) {
             const workoutsList = document.getElementById('workoutsList');
             if (!workoutsList) return;
@@ -1089,7 +1045,6 @@
             `;
         }
 
-        // Show error state
         function showErrorState(errorMessage) {
             const workoutsList = document.getElementById('workoutsList');
             if (!workoutsList) return;
@@ -1106,13 +1061,12 @@
             `;
         }
 
-        // Retry loading data
         async function retryLoadData() {
             API.log('Retrying data load...');
             showLoadingState();
             
             try {
-                await new Promise(resolve => setTimeout(resolve, 1000)); // Brief delay
+                await new Promise(resolve => setTimeout(resolve, 1000));
                 await initializePage();
             } catch (error) {
                 API.log(`Retry failed: ${error.message}`);
@@ -1120,7 +1074,6 @@
             }
         }
 
-        // Show loading state
         function showLoadingState() {
             const workoutsList = document.getElementById('workoutsList');
             if (!workoutsList) return;
@@ -1132,7 +1085,6 @@
             `;
         }
 
-        // Update summary statistics
         function updateSummaryStats() {
             try {
                 const totalWorkouts = filteredWorkouts.length;
@@ -1142,7 +1094,6 @@
                 const totalExercises = filteredWorkouts.reduce((sum, workout) => sum + (workout.exercises || []).length, 0);
                 const avgDuration = totalWorkouts > 0 ? Math.round(totalTime / totalWorkouts) : 0;
 
-                // Safely update DOM elements
                 const elements = {
                     'totalWorkoutsFiltered': totalWorkouts,
                     'totalTimeFiltered': totalTime,
@@ -1166,7 +1117,6 @@
             }
         }
 
-        // Apply filters
         function applyFilters() {
             try {
                 const dateRange = document.getElementById('dateRange')?.value || 'all';
@@ -1175,7 +1125,6 @@
 
                 API.log(`Applying filters: date=${dateRange}, type=${exerciseType}, sort=${sortBy}`);
 
-                // Filter by date range
                 let filtered = [...allWorkouts];
                 
                 if (dateRange !== 'all' && typeof moment !== 'undefined') {
@@ -1200,20 +1149,18 @@
                                 return moment(workout.day).isAfter(startDate);
                             } catch (e) {
                                 API.log(`Date filter error for workout ${workout._id}: ${e.message}`);
-                                return true; // Keep workout if date parsing fails
+                                return true;
                             }
                         });
                     }
                 }
 
-                // Filter by exercise type
                 if (exerciseType !== 'all') {
                     filtered = filtered.filter(workout => 
                         workout.exercises && workout.exercises.some(ex => ex && ex.type === exerciseType)
                     );
                 }
 
-                // Sort workouts
                 filtered.sort((a, b) => {
                     try {
                         const aDuration = (a.exercises || []).reduce((sum, ex) => sum + (ex.duration || 0), 0);
@@ -1250,7 +1197,6 @@
             }
         }
 
-        // Clear filters
         function clearFilters() {
             try {
                 ['dateRange', 'exerciseType', 'sortBy'].forEach(id => {
@@ -1273,14 +1219,12 @@
             }
         }
 
-        // Repeat workout
         function repeatWorkout(workoutId) {
             try {
                 API.log(`Repeating workout: ${workoutId}`);
                 
                 const workout = allWorkouts.find(w => w._id === workoutId);
                 if (workout && workout.exercises) {
-                    // Store exercises for the new workout
                     localStorage.setItem('repeatWorkoutExercises', JSON.stringify(workout.exercises));
                     showToast('Workout template saved! Redirecting to exercise page...');
                     
@@ -1297,7 +1241,6 @@
             }
         }
 
-        // Show delete modal
         function showDeleteModal(workoutId) {
             try {
                 workoutToDelete = workoutId;
@@ -1314,7 +1257,6 @@
             }
         }
 
-        // Close delete modal
         function closeDeleteModal() {
             workoutToDelete = null;
             const modal = document.getElementById('deleteModal');
@@ -1323,7 +1265,6 @@
             }
         }
 
-        // Confirm delete
         async function confirmDelete() {
             if (!workoutToDelete) return;
             
@@ -1332,18 +1273,15 @@
                 
                 await API.deleteWorkout(workoutToDelete);
                 
-                // Remove from arrays
                 allWorkouts = allWorkouts.filter(w => w._id !== workoutToDelete);
                 filteredWorkouts = filteredWorkouts.filter(w => w._id !== workoutToDelete);
                 
-                // Update display
                 displayWorkouts();
                 updateSummaryStats();
                 
                 showToast('Workout deleted successfully');
                 closeDeleteModal();
                 
-                // Notify other pages
                 localStorage.setItem('workoutUpdated', Date.now());
                 
                 API.log('Workout deleted successfully');
@@ -1355,7 +1293,6 @@
             }
         }
 
-        // Show toast notification
         function showToast(message, type = 'success') {
             try {
                 const toast = document.getElementById('toast');
@@ -1387,17 +1324,13 @@
         document.addEventListener('DOMContentLoaded', () => {
             API.log('DOM loaded, initializing page...');
             
-            // Check for moment.js
             if (typeof moment === 'undefined') {
                 API.log('Warning: Moment.js not loaded, using fallback date handling');
             }
             
-            // Initialize page
             initializePage();
             
-            // Add event listeners
             try {
-                // Modal click outside to close
                 const modal = document.getElementById('deleteModal');
                 if (modal) {
                     modal.addEventListener('click', (e) => {
@@ -1407,7 +1340,6 @@
                     });
                 }
                 
-                // Listen for updates from other pages
                 window.addEventListener('storage', (e) => {
                     if (e.key === 'workoutUpdated') {
                         API.log('Workout updated event received, refreshing...');
@@ -1415,7 +1347,6 @@
                     }
                 });
                 
-                // Keyboard shortcuts
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
                         toggleDebug();

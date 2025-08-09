@@ -34,7 +34,7 @@
             margin: 0 auto;
             padding: 0 24px;
             display: flex;
-            justify-content: space-between;
+            justify-content: between;
             align-items: center;
         }
 
@@ -63,6 +63,8 @@
             display: flex;
             align-items: center;
             gap: 32px;
+            flex: 1;
+            justify-content: center;
         }
 
         .nav-link {
@@ -78,6 +80,49 @@
         .nav-link.active {
             color: #4f46e5;
             background: #f1f5f9;
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .brand-logo {
+            width: 36px;
+            height: 36px;
+            background: url('/logo.png') no-repeat center center;
+            background-size: contain;
+            border-radius: 12px;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            color: #64748b;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .logout-btn:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
         }
 
         .main-container {
@@ -480,32 +525,40 @@
             background-size: contain;
             border-radius: 12px;
         }
-        
+
     </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="nav-container">
             <a href="/index.html" class="nav-brand">
-                <div class="brand-icon">
-                    <svg width="20" height="20" viewBox="0 0 40 40" fill="none">
-                        <path d="M8 16h4v8H8z" fill="currentColor"/>
-                        <path d="M28 16h4v8h-4z" fill="currentColor"/>
-                        <path d="M12 18h16v4H12z" fill="currentColor"/>
-                        <circle cx="8" cy="14" r="2" fill="currentColor"/>
-                        <circle cx="32" cy="14" r="2" fill="currentColor"/>
-                        <circle cx="8" cy="26" r="2" fill="currentColor"/>
-                        <circle cx="32" cy="26" r="2" fill="currentColor"/>
-                    </svg>
-                </div>
+                <div class="brand-logo"></div>
                 FitTrack
             </a>
             
             <div class="nav-menu">
-                <a href="/index.html" class="nav-link">Home</a>
-                <a href="/stats.html" class="nav-link active">Analytics</a>
+                <a href="index.html" class="nav-link active">Home</a>
+                <a href="/stats.html" class="nav-link">Analytics</a>
                 <a href="/history.html" class="nav-link">History</a>
                 <a href="/excercise.html" class="nav-link">Exercise</a>
+            </div>
+            
+            <div class="nav-user">
+                <div class="user-avatar" id="userAvatar">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <span id="userName">User</span>
+                <button class="logout-btn" onclick="logout()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="display: inline; margin-right: 4px;">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <polyline points="16,17 21,12 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Logout
+                </button>
             </div>
         </div>
     </nav>
@@ -675,7 +728,6 @@
         </div>
     </div>
 
-    <!-- Include API Script -->
     <script src="/js/api.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -684,14 +736,12 @@
 
         async function initializeDashboard() {
             try {
-                // Check authentication
                 const user = JSON.parse(localStorage.getItem('user'));
                 if (!user) {
                     window.location.href = '/login.html';
                     return;
                 }
 
-                // Load workouts from MongoDB
                 workouts = await API.getAllWorkouts();
                 
                 if (workouts.length === 0) {
@@ -720,7 +770,6 @@
                 </div>
             `;
             
-            // Hide charts
             document.querySelector('.charts-section').style.display = 'none';
         }
 
@@ -740,7 +789,6 @@
                 sum + workout.exercises.reduce((exSum, ex) => exSum + (ex.duration || 0), 0), 0
             );
             
-            // Estimate calories (rough calculation: ~5 calories per minute of exercise)
             const caloriesBurned = Math.round(totalTime * 5);
             const streak = calculateStreak();
             
@@ -749,7 +797,6 @@
             document.getElementById('caloriesBurned').textContent = caloriesBurned.toLocaleString();
             document.getElementById('currentStreak').textContent = streak;
 
-            // Show trend indicators if there's enough data
             if (workouts.length > 5) {
                 document.getElementById('workoutsTrend').style.display = 'flex';
                 document.getElementById('timeTrend').style.display = 'flex';
@@ -783,10 +830,8 @@
         }
 
         function initializeCharts() {
-            // Use last 10 workouts for charts (more data points)
             const recentWorkouts = workouts.slice(0, 10).reverse();
             
-            // Duration Chart
             const durationCtx = document.getElementById('durationChart').getContext('2d');
             charts.duration = new Chart(durationCtx, {
                 type: 'line',
@@ -828,7 +873,6 @@
                 }
             });
 
-            // Exercise Distribution Chart
             const exerciseTypes = {};
             workouts.forEach(workout => {
                 workout.exercises.forEach(ex => {
@@ -930,7 +974,6 @@
             document.getElementById('weeklyDetails').textContent = 
                 `${thisWeekWorkouts.length} of ${weeklyGoal} workouts completed this week`;
 
-            // Monthly Progress
             const thisMonthStart = new Date();
             thisMonthStart.setDate(1);
             thisMonthStart.setHours(0, 0, 0, 0);
@@ -939,7 +982,7 @@
             const thisMonthTime = thisMonthWorkouts.reduce((sum, workout) => 
                 sum + workout.exercises.reduce((exSum, ex) => exSum + (ex.duration || 0), 0), 0
             );
-            const monthlyGoal = 1200; // minutes
+            const monthlyGoal = 1200; 
             const monthlyProgress = Math.min((thisMonthTime / monthlyGoal) * 100, 100);
             
             document.getElementById('monthlyProgress').textContent = `${Math.round(monthlyProgress)}%`;
@@ -953,7 +996,6 @@
             const avgDuration = workouts.length > 0 ? 
                 workouts.reduce((sum, w) => sum + w.exercises.reduce((s, e) => s + (e.duration || 0), 0), 0) / workouts.length : 0;
             
-            // Calculate insights based on actual data
             const streak = calculateStreak();
             if (streak > 3) {
                 insights.push({
@@ -979,7 +1021,6 @@
                 });
             }
 
-            // Exercise variety insight
             const exerciseTypes = new Set();
             workouts.forEach(w => w.exercises.forEach(e => exerciseTypes.add(e.type)));
             
@@ -997,7 +1038,6 @@
                 });
             }
 
-            // Default insights if no data
             if (insights.length === 0) {
                 insights.push(
                     {
@@ -1011,7 +1051,6 @@
                 );
             }
 
-            // Display insights
             document.getElementById('insights').innerHTML = insights.map(insight => `
                 <div class="insight-item">
                     <div class="insight-title">${insight.title}</div>
@@ -1020,17 +1059,14 @@
             `).join('');
         }
 
-        // Listen for updates from other pages
         window.addEventListener('storage', (e) => {
             if (e.key === 'workoutUpdated') {
                 initializeDashboard();
             }
         });
 
-        // Initialize dashboard when DOM loads
         document.addEventListener('DOMContentLoaded', initializeDashboard);
 
-        // Handle window resize for charts
         window.addEventListener('resize', () => {
             Object.values(charts).forEach(chart => {
                 if (chart) {

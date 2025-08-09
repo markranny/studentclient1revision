@@ -76,7 +76,7 @@
     </style>
 </head>
 <body>
-    <h1>🔧 Workout App Debugging Tool</h1>
+    <h1>Workout App Debugging Tool</h1>
     
     <div class="debug-section">
         <h2>1. API Connection Test</h2>
@@ -154,7 +154,6 @@
     <script>
         let currentWorkoutId = null;
 
-        // Update form fields based on exercise type
         document.getElementById('test-exercise-type').addEventListener('change', function() {
             const type = this.value;
             const resistanceFields = document.getElementById('resistance-fields');
@@ -185,14 +184,14 @@
 
         async function testAPIConnection() {
             clearLog('api-output');
-            log('api-output', '🔄 Testing API connection...', 'info');
+            log('api-output', 'Testing API connection...', 'info');
             
             try {
                 const response = await fetch('/api/health');
                 const data = await response.json();
                 
                 if (response.ok) {
-                    log('api-output', '✅ API Health Check Success!', 'success');
+                    log('api-output', 'API Health Check Success!', 'success');
                     log('api-output', `Status: ${data.status}`, 'info');
                     log('api-output', `MongoDB: ${data.mongodb}`, 'info');
                     log('api-output', `Workout Count: ${data.workoutCount}`, 'info');
@@ -200,13 +199,13 @@
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
             } catch (error) {
-                log('api-output', `❌ API Connection Failed: ${error.message}`, 'error');
+                log('api-output', ` API Connection Failed: ${error.message}`, 'error');
             }
         }
 
         async function testCreateWorkout() {
             clearLog('workout-output');
-            log('workout-output', '🔄 Creating test workout...', 'info');
+            log('workout-output', ' Creating test workout...', 'info');
             
             try {
                 const workoutData = {
@@ -229,13 +228,13 @@
                 currentWorkoutId = workout._id;
                 localStorage.setItem('currentWorkoutId', currentWorkoutId);
                 
-                log('workout-output', '✅ Workout created successfully!', 'success');
+                log('workout-output', ' Workout created successfully!', 'success');
                 log('workout-output', `Workout ID: ${workout._id}`, 'info');
                 log('workout-output', `Date: ${new Date(workout.day).toLocaleString()}`, 'info');
                 log('workout-output', `Exercises: ${workout.exercises.length}`, 'info');
                 
             } catch (error) {
-                log('workout-output', `❌ Workout creation failed: ${error.message}`, 'error');
+                log('workout-output', ` Workout creation failed: ${error.message}`, 'error');
             }
         }
 
@@ -244,11 +243,11 @@
             
             const workoutId = currentWorkoutId || localStorage.getItem('currentWorkoutId');
             if (!workoutId) {
-                log('exercise-output', '❌ No workout ID found. Create a workout first!', 'error');
+                log('exercise-output', ' No workout ID found. Create a workout first!', 'error');
                 return;
             }
             
-            log('exercise-output', `🔄 Adding exercise to workout ${workoutId}...`, 'info');
+            log('exercise-output', ` Adding exercise to workout ${workoutId}...`, 'info');
             
             try {
                 const exerciseType = document.getElementById('test-exercise-type').value;
@@ -297,18 +296,18 @@
                 
                 const updatedWorkout = await response.json();
                 
-                log('exercise-output', '✅ Exercise added successfully!', 'success');
+                log('exercise-output', ' Exercise added successfully!', 'success');
                 log('exercise-output', `Total exercises: ${updatedWorkout.exercises.length}`, 'info');
                 log('exercise-output', `Last exercise: ${exerciseData.name} (${exerciseData.type})`, 'info');
                 
             } catch (error) {
-                log('exercise-output', `❌ Exercise addition failed: ${error.message}`, 'error');
+                log('exercise-output', ` Exercise addition failed: ${error.message}`, 'error');
             }
         }
 
         async function checkAllWorkouts() {
             clearLog('workouts-output');
-            log('workouts-output', '🔄 Fetching all workouts...', 'info');
+            log('workouts-output', ' Fetching all workouts...', 'info');
             
             try {
                 const response = await fetch('/api/workouts');
@@ -318,10 +317,10 @@
                 
                 const workouts = await response.json();
                 
-                log('workouts-output', `✅ Found ${workouts.length} workouts`, 'success');
+                log('workouts-output', ` Found ${workouts.length} workouts`, 'success');
                 
                 if (workouts.length === 0) {
-                    log('workouts-output', '📝 No workouts found in database', 'warning');
+                    log('workouts-output', ' No workouts found in database', 'warning');
                     log('workouts-output', 'This explains why your app shows no data!', 'warning');
                 } else {
                     workouts.forEach((workout, index) => {
@@ -339,15 +338,14 @@
                 }
                 
             } catch (error) {
-                log('workouts-output', `❌ Failed to fetch workouts: ${error.message}`, 'error');
+                log('workouts-output', ` Failed to fetch workouts: ${error.message}`, 'error');
             }
         }
 
         function checkCurrentState() {
             clearLog('state-output');
-            log('state-output', '🔄 Checking current state...', 'info');
+            log('state-output', ' Checking current state...', 'info');
             
-            // Check localStorage
             const currentId = localStorage.getItem('currentWorkoutId');
             const exercises = localStorage.getItem('newWorkoutExercises');
             const startTime = localStorage.getItem('workoutStartTime');
@@ -357,12 +355,10 @@
             log('state-output', `New Workout Exercises: ${exercises || 'Not set'}`, 'info');
             log('state-output', `Workout Start Time: ${startTime || 'Not set'}`, 'info');
             
-            // Check URL parameters
             const urlParams = new URLSearchParams(window.location.search);
             const urlId = urlParams.get('id');
             log('state-output', `URL Workout ID: ${urlId || 'Not set'}`, 'info');
             
-            // Check current page
             log('state-output', `Current Page: ${window.location.pathname}`, 'info');
             
             if (exercises) {
@@ -377,24 +373,21 @@
 
         function resetEverything() {
             clearLog('reset-output');
-            log('reset-output', '🔄 Resetting all data...', 'warning');
+            log('reset-output', ' Resetting all data...', 'warning');
             
-            // Clear localStorage
             localStorage.removeItem('currentWorkoutId');
             localStorage.removeItem('newWorkoutExercises');
             localStorage.removeItem('workoutStartTime');
             localStorage.removeItem('workoutUpdated');
             
-            // Reset current workout ID
             currentWorkoutId = null;
             
-            log('reset-output', '✅ localStorage cleared', 'success');
-            log('reset-output', '✅ Current workout ID reset', 'success');
-            log('reset-output', '📝 You can now start fresh!', 'info');
+            log('reset-output', ' localStorage cleared', 'success');
+            log('reset-output', ' Current workout ID reset', 'success');
+            log('reset-output', ' You can now start fresh!', 'info');
             log('reset-output', 'Go to /exercise.html to create a new workout', 'info');
         }
 
-        // Auto-run API test on page load
         window.addEventListener('DOMContentLoaded', function() {
             setTimeout(testAPIConnection, 1000);
         });
