@@ -38,19 +38,23 @@ const MONGO_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/workout"
 
 console.log("🔗 Attempting to connect to MongoDB...");
 console.log("📝 Connection type:", MONGO_URI.includes("localhost") ? "Local MongoDB" : "MongoDB Atlas");
+console.log("🔧 MongoDB URI (masked):", MONGO_URI.replace(/\/\/.*@/, "//***:***@"));
 
 // Enhanced MongoDB connection options
 const mongooseOptions = {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
-    socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
-    bufferCommands: false, // Disable mongoose buffering
-    maxPoolSize: 10, // Maintain up to 10 socket connections
-    minPoolSize: 5, // Maintain a minimum of 5 socket connections
-    maxIdleTimeMS: 30000, // Close connections after 30s of inactivity
+    serverSelectionTimeoutMS: 10000, // Increased timeout for Vercel
+    socketTimeoutMS: 45000,
+    bufferCommands: false,
+    maxPoolSize: 10,
+    minPoolSize: 5,
+    maxIdleTimeMS: 30000,
+    retryWrites: true,
+    w: 'majority'
 };
 
+// Connect to MongoDB
 mongoose.connect(MONGO_URI, mongooseOptions)
     .then(() => {
         console.log("✅ MongoDB connected successfully!");
@@ -65,15 +69,21 @@ mongoose.connect(MONGO_URI, mongooseOptions)
     })
     .catch(err => {
         console.error("❌ MongoDB connection error:", err.message);
+        console.error("❌ Full error details:", err);
+        console.log("\n🔧 Environment Variables Check:");
+        console.log("   MONGODB_URI exists:", !!process.env.MONGODB_URI);
+        console.log("   MONGODB_URI length:", process.env.MONGODB_URI?.length || 0);
+        
         console.log("\n🔧 Troubleshooting steps:");
-        console.log("1. For local MongoDB:");
+        console.log("1. For Vercel deployment:");
+        console.log("   - Add MONGODB_URI to Vercel environment variables");
+        console.log("   - Format: mongodb+srv://username:password@cluster.mongodb.net/workout");
+        console.log("   - Ensure IP whitelist includes 0.0.0.0/0 for Vercel");
+        console.log("   - Verify database user has read/write permissions");
+        console.log("\n2. For local development:");
         console.log("   - Install MongoDB: https://docs.mongodb.com/manual/installation/");
-        console.log("   - Start MongoDB service: mongod or brew services start mongodb/brew/mongodb-community");
-        console.log("   - Verify connection: mongo or mongosh");
-        console.log("\n2. For MongoDB Atlas:");
-        console.log("   - Set MONGODB_URI environment variable");
-        console.log("   - Example: MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/workout");
-        console.log("   - Verify network access and database user permissions");
+        console.log("   - Start MongoDB service: mongod");
+        console.log("   - Or use MongoDB Atlas with local .env file");
         console.log("\n📱 Server will continue running but database features won't work until MongoDB is connected.");
     });
 
@@ -103,47 +113,103 @@ process.on('SIGINT', async () => {
     }
 });
 
+// Environment variable validation
+const validateOAuthConfig = () => {
+    const requiredVars = ['GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET'];
+    const missing = requiredVars.filter(varName => !process.env[varName]);
+    
+    if (missing.length > 0) {
+        console.error('❌ Missing required OAuth environment variables:', missing);
+        console.log('\n🔧 Please set the following environment variables:');
+        missing.forEach(varName => {
+            console.log(`   ${varName}=your_${varName.toLowerCase()}_here`);
+        });
+        return false;
+    }
+    return true;
+};
+
+// Enhanced Google OAuth Routes
 app.get('/auth/google', (req, res) => {
     console.log('🔐 Google OAuth login request received');
     
-    if (!process.env.GOOGLE_CLIENT_ID) {
-        console.error('❌ GOOGLE_CLIENT_ID environment variable not set');
+    if (!validateOAuthConfig()) {
+        console.error('❌ OAuth configuration incomplete');
         return res.redirect('/login.html?error=oauth_config_missing');
     }
     
-    const redirectUri = process.env.GOOGLE_OAUTH_REDIRECT_URI || `http://localhost:${PORT}/auth/callback`;
+    // Determine the correct redirect URI based on environment
+    let redirectUri;
+    if (process.env.NODE_ENV === 'production' && process.env.GOOGLE_OAUTH_REDIRECT_URI) {
+        redirectUri = process.env.GOOGLE_OAUTH_REDIRECT_URI;
+    } else {
+        // For development, use localhost
+        redirectUri = `http://localhost:${PORT}/auth/callback`;
+    }
+    
+    console.log('🔄 Using redirect URI:', redirectUri);
+    
     const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
         `client_id=${process.env.GOOGLE_CLIENT_ID}&` +
         `redirect_uri=${encodeURIComponent(redirectUri)}&` +
         `response_type=code&` +
         `scope=openid%20email%20profile&` +
         `access_type=offline&` +
-        `prompt=consent`;
+        `prompt=consent&` +
+        `state=fittrack_login`; // Add state parameter for security
     
     console.log('🔄 Redirecting to Google OAuth...');
     res.redirect(googleAuthUrl);
 });
 
 app.get('/auth/callback', async (req, res) => {
-    const { code, error } = req.query;
+    const { code, error, state } = req.query;
     
     console.log('🔐 OAuth callback received');
+    console.log('📝 Callback details:', { 
+        hasCode: !!code, 
+        error: error || 'none', 
+        state: state || 'none' 
+    });
     
     if (error) {
-        console.error('❌ OAuth error:', error);
-        return res.redirect('/login.html?error=oauth_failed');
+        console.error('❌ OAuth error from Google:', error);
+        let errorMessage = 'oauth_failed';
+        
+        if (error === 'access_denied') {
+            errorMessage = 'oauth_denied';
+        } else if (error === 'invalid_request') {
+            errorMessage = 'oauth_invalid';
+        }
+        
+        return res.redirect(`/login.html?error=${errorMessage}`);
     }
     
     if (!code) {
         console.error('❌ No authorization code received');
-        return res.redirect('/login.html?error=oauth_failed');
+        return res.redirect('/login.html?error=oauth_no_code');
+    }
+    
+    // Verify state parameter (basic CSRF protection)
+    if (state !== 'fittrack_login') {
+        console.error('❌ Invalid state parameter');
+        return res.redirect('/login.html?error=oauth_invalid_state');
     }
     
     try {
         console.log('🔄 Exchanging authorization code for access token...');
         
-        const redirectUri = process.env.GOOGLE_OAUTH_REDIRECT_URI || `http://localhost:${PORT}/auth/callback`;
+        // Determine redirect URI (same logic as the initial request)
+        let redirectUri;
+        if (process.env.NODE_ENV === 'production' && process.env.GOOGLE_OAUTH_REDIRECT_URI) {
+            redirectUri = process.env.GOOGLE_OAUTH_REDIRECT_URI;
+        } else {
+            redirectUri = `http://localhost:${PORT}/auth/callback`;
+        }
         
+        console.log('🔄 Using redirect URI for token exchange:', redirectUri);
+        
+        // Exchange authorization code for access token
         const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
             method: 'POST',
             headers: {
@@ -159,14 +225,27 @@ app.get('/auth/callback', async (req, res) => {
         });
         
         if (!tokenResponse.ok) {
-            const errorText = await tokenResponse.text();
-            console.error('❌ Token exchange failed:', tokenResponse.status, errorText);
+            const errorData = await tokenResponse.json().catch(() => null);
+            console.error('❌ Token exchange failed:', tokenResponse.status, errorData);
+            
+            if (tokenResponse.status === 400 && errorData?.error === 'invalid_grant') {
+                console.error('❌ Authorization code expired or invalid');
+                return res.redirect('/login.html?error=oauth_expired');
+            }
+            
             throw new Error(`Token exchange failed: ${tokenResponse.status} ${tokenResponse.statusText}`);
         }
         
         const tokens = await tokenResponse.json();
         console.log('✅ Token exchange successful');
         
+        if (!tokens.access_token) {
+            console.error('❌ No access token in response');
+            throw new Error('No access token received');
+        }
+        
+        // Get user information from Google
+        console.log('🔄 Fetching user information from Google...');
         const userResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
             headers: {
                 Authorization: `Bearer ${tokens.access_token}`,
@@ -182,23 +261,51 @@ app.get('/auth/callback', async (req, res) => {
         const userInfo = await userResponse.json();
         console.log('✅ User info retrieved for:', userInfo.email);
         
+        // Validate user info
+        if (!userInfo.email || !userInfo.id) {
+            console.error('❌ Incomplete user info from Google');
+            throw new Error('Incomplete user information received');
+        }
+        
+        // Create user data object
         const userData = {
             id: userInfo.id,
             email: userInfo.email,
-            name: userInfo.name,
-            picture: userInfo.picture,
+            name: userInfo.name || userInfo.email.split('@')[0],
+            picture: userInfo.picture || null,
             loginMethod: 'google',
-            loginTime: new Date().toISOString()
+            loginTime: new Date().toISOString(),
+            verified: userInfo.verified_email || false
         };
         
+        // Encode user data for URL transmission
         const userDataEncoded = Buffer.from(JSON.stringify(userData)).toString('base64');
-        console.log('✅ OAuth authentication successful, redirecting to login page');
-        res.redirect(`/login.html?user=${userDataEncoded}`);
+        console.log('✅ OAuth authentication successful for:', userData.email);
+        
+        // Redirect to login page with success data
+        res.redirect(`/login.html?success=oauth_complete&user=${userDataEncoded}`);
         
     } catch (error) {
         console.error('❌ OAuth callback error:', error.message);
-        res.redirect('/login.html?error=oauth_failed');
+        console.error('❌ Full error:', error);
+        
+        // Provide more specific error messages
+        let errorCode = 'oauth_failed';
+        if (error.message.includes('ENOTFOUND') || error.message.includes('network')) {
+            errorCode = 'network_error';
+        } else if (error.message.includes('timeout')) {
+            errorCode = 'oauth_timeout';
+        } else if (error.message.includes('invalid_grant')) {
+            errorCode = 'oauth_expired';
+        }
+        
+        res.redirect(`/login.html?error=${errorCode}`);
     }
+});
+
+app.use('/auth/*', (req, res, next) => {
+    console.log(`❌ Unhandled auth route: ${req.method} ${req.url}`);
+    res.redirect('/login.html?error=auth_route_not_found');
 });
 
 // API Routes - Load before HTML routes
@@ -215,7 +322,9 @@ app.get('/health', (req, res) => {
         status: 'healthy',
         timestamp: new Date().toISOString(),
         server: 'FitTrack API Server',
-        mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+        mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+        environment: process.env.NODE_ENV || 'development',
+        mongoUri: process.env.MONGODB_URI ? 'configured' : 'missing'
     });
 });
 
