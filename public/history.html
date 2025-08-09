@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100;300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <title>FitTrack - Workout History</title>
     <style>
@@ -15,122 +15,119 @@
         }
 
         body {
-            font-family: 'Lexend', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
         }
 
-        /* Navigation */
-        nav {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 1rem 0;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        .navbar {
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 16px 0;
             position: sticky;
             top: 0;
             z-index: 100;
+            backdrop-filter: blur(8px);
         }
 
         .nav-container {
             max-width: 1200px;
             margin: 0 auto;
+            padding: 0 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 2rem;
         }
 
         .nav-brand {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            color: white;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #4f46e5;
             text-decoration: none;
-            font-size: 1.5rem;
-            font-weight: 600;
         }
 
-        .nav-brand i {
-            font-size: 2rem;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 0.5rem;
-            border-radius: 50%;
-        }
-
-        .nav-links {
+        .brand-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            border-radius: 12px;
             display: flex;
             align-items: center;
-            gap: 2rem;
+            justify-content: center;
+            color: white;
         }
 
-        .nav-links a {
-            color: white;
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .nav-link {
+            color: #64748b;
             text-decoration: none;
             font-weight: 500;
-            transition: all 0.3s ease;
-            padding: 0.5rem 1rem;
-            border-radius: 25px;
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
         }
 
-        .nav-links a:hover,
-        .nav-links a.active {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
+        .nav-link:hover,
+        .nav-link.active {
+            color: #4f46e5;
+            background: #f1f5f9;
         }
 
-        /* Hero Section */
-        .hero {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 3rem 0;
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        .page-header {
             text-align: center;
+            margin-bottom: 32px;
         }
 
-        .hero h1 {
-            font-size: 2.5rem;
+        .page-title {
+            font-size: 32px;
             font-weight: 700;
-            margin-bottom: 0.5rem;
+            color: #1e293b;
+            margin-bottom: 8px;
         }
 
-        .hero p {
-            font-size: 1.1rem;
-            opacity: 0.9;
+        .page-subtitle {
+            color: #64748b;
+            font-size: 18px;
         }
 
-        /* Main Container */
-        .history-container {
-            max-width: 1000px;
-            margin: -2rem auto 0;
-            padding: 0 2rem 3rem;
-            position: relative;
-            z-index: 10;
-        }
-
-        /* Filters Section */
         .filters-card {
             background: white;
             border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
+            padding: 32px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f1f5f9;
+            margin-bottom: 32px;
         }
 
         .filters-header {
-            display: flex;
-            align-items: center;
-            justify-content: between;
-            margin-bottom: 1.5rem;
+            margin-bottom: 24px;
         }
 
         .filters-title {
-            font-size: 1.3rem;
+            font-size: 20px;
             font-weight: 600;
-            color: #333;
+            color: #1e293b;
         }
 
         .filters-row {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
+            gap: 16px;
             align-items: end;
         }
 
@@ -140,189 +137,213 @@
         }
 
         .filter-group label {
-            margin-bottom: 0.5rem;
-            color: #333;
+            margin-bottom: 8px;
+            color: #374151;
             font-weight: 500;
-            font-size: 0.9rem;
+            font-size: 14px;
         }
 
         .filter-group select,
         .filter-group input {
-            padding: 0.75rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-family: 'Lexend', sans-serif;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            background: #ffffff;
+            transition: all 0.2s ease;
         }
 
         .filter-group select:focus,
         .filter-group input:focus {
             outline: none;
-            border-color: #4CAF50;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
         }
 
         .filter-buttons {
             display: flex;
-            gap: 0.75rem;
+            gap: 12px;
         }
 
         .btn-filter {
-            padding: 0.75rem 1.5rem;
+            padding: 12px 20px;
             border: none;
-            border-radius: 10px;
-            font-family: 'Lexend', sans-serif;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            font-size: 14px;
         }
 
         .btn-primary {
-            background: #4CAF50;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             color: white;
         }
 
         .btn-primary:hover {
-            background: #45a049;
             transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
         }
 
         .btn-secondary {
             background: transparent;
-            color: #4CAF50;
-            border: 2px solid #4CAF50;
+            color: #4f46e5;
+            border: 2px solid #4f46e5;
         }
 
         .btn-secondary:hover {
-            background: #4CAF50;
+            background: #4f46e5;
             color: white;
         }
 
-        /* Summary Stats */
         .summary-stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
         }
 
         .summary-card {
             background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
+            border-radius: 20px;
+            padding: 24px;
             text-align: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-            border-top: 4px solid var(--accent-color, #4CAF50);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f1f5f9;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--accent-color);
         }
 
         .summary-number {
-            font-size: 2rem;
+            font-size: 28px;
             font-weight: 700;
-            color: var(--accent-color, #4CAF50);
-            margin-bottom: 0.25rem;
+            color: var(--accent-color);
+            margin-bottom: 8px;
         }
 
         .summary-label {
-            color: #666;
+            color: #64748b;
             font-weight: 500;
-            font-size: 0.9rem;
+            font-size: 14px;
         }
 
-        .summary-card.total { --accent-color: #4CAF50; }
-        .summary-card.duration { --accent-color: #2196F3; }
-        .summary-card.exercises { --accent-color: #FF9800; }
-        .summary-card.avg { --accent-color: #9C27B0; }
+        .summary-card.total { --accent-color: #4f46e5; }
+        .summary-card.duration { --accent-color: #059669; }
+        .summary-card.exercises { --accent-color: #dc2626; }
+        .summary-card.avg { --accent-color: #f59e0b; }
 
-        /* Workout List */
         .workouts-list {
-            space-y: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
         }
 
         .workout-item {
             background: white;
             border-radius: 20px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f1f5f9;
             overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
         }
 
         .workout-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 25px -3px rgba(0, 0, 0, 0.1);
         }
 
         .workout-header {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             color: white;
-            padding: 1.5rem 2rem;
+            padding: 24px 32px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .workout-date {
-            font-size: 1.2rem;
+            font-size: 20px;
             font-weight: 600;
         }
 
         .workout-duration {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 8px;
             font-weight: 500;
+            opacity: 0.9;
         }
 
         .workout-body {
-            padding: 2rem;
+            padding: 32px;
         }
 
         .workout-summary {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+            gap: 16px;
+            margin-bottom: 24px;
         }
 
         .summary-item {
             text-align: center;
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 10px;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 12px;
         }
 
         .summary-item-value {
-            font-size: 1.5rem;
+            font-size: 20px;
             font-weight: 700;
-            color: #333;
-            margin-bottom: 0.25rem;
+            color: #1e293b;
+            margin-bottom: 4px;
         }
 
         .summary-item-label {
-            color: #666;
-            font-size: 0.85rem;
+            color: #64748b;
+            font-size: 12px;
             font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .exercises-list {
-            margin-top: 1.5rem;
+            margin-top: 24px;
         }
 
         .exercises-header {
             font-weight: 600;
-            color: #333;
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
+            color: #1e293b;
+            margin-bottom: 16px;
+            font-size: 16px;
         }
 
         .exercise-item {
             display: flex;
             align-items: center;
-            padding: 1rem;
-            background: #f8f9fa;
+            padding: 16px;
+            background: #f8fafc;
             border-radius: 12px;
-            margin-bottom: 0.75rem;
+            margin-bottom: 12px;
             border-left: 4px solid var(--exercise-color);
+            transition: all 0.2s ease;
+        }
+
+        .exercise-item:hover {
+            background: #f1f5f9;
+            transform: translateX(4px);
         }
 
         .exercise-item:last-child {
@@ -330,23 +351,40 @@
         }
 
         .exercise-item.resistance {
-            --exercise-color: #4CAF50;
+            --exercise-color: #4f46e5;
         }
 
         .exercise-item.cardio {
-            --exercise-color: #2196F3;
+            --exercise-color: #059669;
+        }
+
+        .exercise-item.flexibility {
+            --exercise-color: #dc2626;
+        }
+
+        .exercise-item.balance {
+            --exercise-color: #f59e0b;
+        }
+
+        .exercise-item.sports_specific {
+            --exercise-color: #7c3aed;
+        }
+
+        .exercise-item.recovery {
+            --exercise-color: #64748b;
         }
 
         .exercise-icon {
-            width: 40px;
-            height: 40px;
+            width: 48px;
+            height: 48px;
             background: var(--exercise-color);
-            border-radius: 10px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            margin-right: 1rem;
+            margin-right: 16px;
+            font-size: 18px;
         }
 
         .exercise-details {
@@ -355,99 +393,115 @@
 
         .exercise-name {
             font-weight: 600;
-            color: #333;
-            margin-bottom: 0.25rem;
+            color: #1e293b;
+            margin-bottom: 4px;
+            font-size: 16px;
         }
 
         .exercise-stats {
-            color: #666;
-            font-size: 0.9rem;
+            color: #64748b;
+            font-size: 14px;
         }
 
         .workout-actions {
             display: flex;
-            gap: 0.75rem;
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid #e0e0e0;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #f1f5f9;
         }
 
         .btn-action {
-            padding: 0.5rem 1rem;
+            flex: 1;
+            padding: 12px 20px;
             border: none;
-            border-radius: 8px;
-            font-family: 'Lexend', sans-serif;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .btn-repeat {
-            background: #4CAF50;
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
             color: white;
         }
 
         .btn-repeat:hover {
-            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(5, 150, 105, 0.3);
         }
 
         .btn-delete {
             background: transparent;
-            color: #f44336;
-            border: 1px solid #f44336;
+            color: #dc2626;
+            border: 2px solid #dc2626;
         }
 
         .btn-delete:hover {
-            background: #f44336;
+            background: #dc2626;
             color: white;
         }
 
-        /* Empty State */
         .empty-state {
             text-align: center;
-            padding: 4rem 2rem;
+            padding: 64px 32px;
             background: white;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f1f5f9;
         }
 
-        .empty-state i {
-            font-size: 4rem;
-            color: #e0e0e0;
-            margin-bottom: 1rem;
+        .empty-state-icon {
+            width: 80px;
+            height: 80px;
+            background: #f1f5f9;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 32px;
+            color: #64748b;
         }
 
         .empty-state h3 {
-            color: #666;
-            margin-bottom: 0.5rem;
+            color: #1e293b;
+            margin-bottom: 8px;
+            font-size: 20px;
         }
 
         .empty-state p {
-            color: #999;
-            margin-bottom: 2rem;
+            color: #64748b;
+            margin-bottom: 32px;
         }
 
         .btn-start-workout {
-            background: #4CAF50;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             color: white;
-            padding: 1rem 2rem;
+            padding: 14px 28px;
             border: none;
             border-radius: 12px;
-            font-family: 'Lexend', sans-serif;
+            font-family: 'Inter', sans-serif;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             text-decoration: none;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .btn-start-workout:hover {
-            background: #45a049;
             transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
         }
 
-        /* Loading State */
         .loading {
             display: flex;
             justify-content: center;
@@ -456,10 +510,10 @@
         }
 
         .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #4CAF50;
+            width: 48px;
+            height: 48px;
+            border: 4px solid #f1f5f9;
+            border-top: 4px solid #4f46e5;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -469,20 +523,22 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Toast Notification */
         .toast {
             position: fixed;
             top: 20px;
             right: -400px;
-            background: #4CAF50;
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
             color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             z-index: 1000;
-            font-family: 'Lexend', sans-serif;
+            font-family: 'Inter', sans-serif;
             font-weight: 500;
             transition: right 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .toast.show {
@@ -490,64 +546,158 @@
         }
 
         .toast.error {
-            background: #f44336;
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
         }
 
-        /* Error State */
         .error-state {
             text-align: center;
-            padding: 3rem 2rem;
+            padding: 64px 32px;
             background: white;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 2px solid #fecaca;
         }
 
-        .error-state i {
-            font-size: 4rem;
-            color: #f44336;
-            margin-bottom: 1rem;
+        .error-state-icon {
+            width: 80px;
+            height: 80px;
+            background: #fef2f2;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 32px;
+            color: #dc2626;
         }
 
         .error-state h3 {
-            color: #666;
-            margin-bottom: 0.5rem;
+            color: #dc2626;
+            margin-bottom: 8px;
+            font-size: 20px;
         }
 
         .error-state p {
-            color: #999;
-            margin-bottom: 2rem;
+            color: #64748b;
+            margin-bottom: 32px;
         }
 
         .btn-retry {
-            background: #4CAF50;
+            background: #dc2626;
             color: white;
-            padding: 1rem 2rem;
+            padding: 14px 28px;
             border: none;
             border-radius: 12px;
-            font-family: 'Lexend', sans-serif;
+            font-family: 'Inter', sans-serif;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .btn-retry:hover {
-            background: #45a049;
+            background: #b91c1c;
+            transform: translateY(-2px);
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .nav-container {
-                flex-direction: column;
-                gap: 1rem;
-                padding: 0 1rem;
-            }
+        .delete-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
 
-            .history-container {
-                padding: 0 1rem 3rem;
+        .delete-modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 32px;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-icon {
+            width: 64px;
+            height: 64px;
+            background: #fef2f2;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 24px;
+            color: #dc2626;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .modal-description {
+            color: #64748b;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .btn-modal {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .btn-modal-cancel {
+            background: #f8fafc;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-modal-cancel:hover {
+            background: #f1f5f9;
+        }
+
+        .btn-modal-confirm {
+            background: #dc2626;
+            color: white;
+            border: none;
+        }
+
+        .btn-modal-confirm:hover {
+            background: #b91c1c;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 24px 16px;
             }
 
             .filters-card {
-                padding: 1.5rem;
+                padding: 24px;
             }
 
             .filters-row {
@@ -560,12 +710,12 @@
 
             .workout-header {
                 flex-direction: column;
-                gap: 1rem;
+                gap: 16px;
                 text-align: center;
             }
 
             .workout-body {
-                padding: 1.5rem;
+                padding: 24px;
             }
 
             .workout-summary {
@@ -575,11 +725,15 @@
             .exercise-item {
                 flex-direction: column;
                 text-align: center;
-                gap: 0.75rem;
+                gap: 12px;
             }
 
             .exercise-icon {
                 margin-right: 0;
+            }
+
+            .workout-actions {
+                flex-direction: column;
             }
         }
 
@@ -592,8 +746,12 @@
                 grid-template-columns: 1fr;
             }
 
-            .hero h1 {
-                font-size: 2rem;
+            .page-title {
+                font-size: 24px;
+            }
+
+            .page-subtitle {
+                font-size: 16px;
             }
         }
     </style>
@@ -601,29 +759,39 @@
 
 <body>
     <!-- Navigation -->
-    <nav>
+    <nav class="navbar">
         <div class="nav-container">
             <a href="/index.html" class="nav-brand">
-                <i class="fas fa-dumbbell"></i>
+                <div class="brand-icon">
+                    <svg width="20" height="20" viewBox="0 0 40 40" fill="none">
+                        <path d="M8 16h4v8H8z" fill="currentColor"/>
+                        <path d="M28 16h4v8h-4z" fill="currentColor"/>
+                        <path d="M12 18h16v4H12z" fill="currentColor"/>
+                        <circle cx="8" cy="14" r="2" fill="currentColor"/>
+                        <circle cx="32" cy="14" r="2" fill="currentColor"/>
+                        <circle cx="8" cy="26" r="2" fill="currentColor"/>
+                        <circle cx="32" cy="26" r="2" fill="currentColor"/>
+                    </svg>
+                </div>
                 FitTrack
             </a>
             
-            <div class="nav-links">
-                <a href="/index.html">Home</a>
-                <a href="/stats.html">Dashboard</a>
-                <a href="/history.html" class="active">History</a>
+            <div class="nav-menu">
+                <a href="/index.html" class="nav-link">Home</a>
+                <a href="/stats.html" class="nav-link">Analytics</a>
+                <a href="/history.html" class="nav-link active">History</a>
+                <a href="/excercise.html" class="nav-link">Exercise</a>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <div class="hero">
-        <h1>Workout History</h1>
-        <p>Review your fitness journey and track your progress over time</p>
-    </div>
-
     <!-- Main Container -->
-    <div class="history-container">
+    <div class="main-container">
+        <div class="page-header">
+            <h1 class="page-title">Workout History</h1>
+            <p class="page-subtitle">Review your fitness journey and track your progress over time</p>
+        </div>
+
         <!-- Filters -->
         <div class="filters-card">
             <div class="filters-header">
@@ -647,6 +815,10 @@
                         <option value="all">All Types</option>
                         <option value="resistance">Resistance</option>
                         <option value="cardio">Cardio</option>
+                        <option value="flexibility">Flexibility</option>
+                        <option value="balance">Balance</option>
+                        <option value="sports_specific">Sports Specific</option>
+                        <option value="recovery">Recovery</option>
                     </select>
                 </div>
                 
@@ -701,18 +873,21 @@
 
     <!-- Toast Notification -->
     <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
         <span>Action completed successfully!</span>
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <div id="deleteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
-        <div style="background: white; padding: 2rem; border-radius: 15px; max-width: 400px; text-align: center;">
-            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #f44336; margin-bottom: 1rem;"></i>
-            <h3 style="margin-bottom: 1rem;">Delete Workout?</h3>
-            <p style="margin-bottom: 2rem; color: #666;">This action cannot be undone. Are you sure you want to delete this workout?</p>
-            <div style="display: flex; gap: 1rem; justify-content: center;">
-                <button onclick="closeDeleteModal()" style="padding: 0.75rem 1.5rem; border: 1px solid #ddd; background: white; border-radius: 8px; cursor: pointer;">Cancel</button>
-                <button onclick="confirmDelete()" style="padding: 0.75rem 1.5rem; border: none; background: #f44336; color: white; border-radius: 8px; cursor: pointer;">Delete</button>
+    <div class="delete-modal" id="deleteModal">
+        <div class="modal-content">
+            <div class="modal-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3 class="modal-title">Delete Workout?</h3>
+            <p class="modal-description">This action cannot be undone. Are you sure you want to delete this workout?</p>
+            <div class="modal-actions">
+                <button class="btn-modal btn-modal-cancel" onclick="closeDeleteModal()">Cancel</button>
+                <button class="btn-modal btn-modal-confirm" onclick="confirmDelete()">Delete</button>
             </div>
         </div>
     </div>
@@ -727,10 +902,30 @@
         let filteredWorkouts = [];
         let workoutToDelete = null;
 
+        // Get exercise icon based on category
+        function getExerciseIcon(category) {
+            const icons = {
+                cardio: 'fas fa-heart',
+                resistance: 'fas fa-dumbbell',
+                flexibility: 'fas fa-tree',
+                balance: 'fas fa-balance-scale',
+                sports_specific: 'fas fa-running',
+                recovery: 'fas fa-leaf'
+            };
+            return icons[category] || 'fas fa-circle';
+        }
+
         // Initialize page
         async function initializePage() {
             try {
                 console.log('Initializing history page...');
+                
+                // Check authentication
+                const user = JSON.parse(localStorage.getItem('user') || 'null');
+                if (!user) {
+                    window.location.href = '/login.html';
+                    return;
+                }
                 
                 // Load workouts from MongoDB
                 allWorkouts = await API.getAllWorkouts();
@@ -764,12 +959,20 @@
                 const timeAgo = moment(workout.day).fromNow();
                 
                 // Calculate workout stats
-                const resistanceExercises = workout.exercises.filter(ex => ex.type === 'resistance');
-                const cardioExercises = workout.exercises.filter(ex => ex.type === 'cardio');
-                const totalWeight = resistanceExercises.reduce((sum, ex) => 
-                    sum + ((ex.weight || 0) * (ex.reps || 0) * (ex.sets || 1)), 0
-                );
-                const totalDistance = cardioExercises.reduce((sum, ex) => sum + (ex.distance || 0), 0);
+                const categoryStats = {};
+                let totalWeight = 0;
+                let totalDistance = 0;
+                
+                workout.exercises.forEach(ex => {
+                    const category = ex.category || ex.type || 'other';
+                    categoryStats[category] = (categoryStats[category] || 0) + 1;
+                    
+                    if (category === 'resistance') {
+                        totalWeight += ((ex.weight || 0) * (ex.reps || 0) * (ex.sets || 1));
+                    } else if (category === 'cardio') {
+                        totalDistance += (ex.distance || 0);
+                    }
+                });
 
                 return `
                     <div class="workout-item">
@@ -788,15 +991,15 @@
                                     <div class="summary-item-label">Exercises</div>
                                 </div>
                                 <div class="summary-item">
-                                    <div class="summary-item-value">${resistanceExercises.length}</div>
+                                    <div class="summary-item-value">${categoryStats.resistance || 0}</div>
                                     <div class="summary-item-label">Resistance</div>
                                 </div>
                                 <div class="summary-item">
-                                    <div class="summary-item-value">${cardioExercises.length}</div>
+                                    <div class="summary-item-value">${categoryStats.cardio || 0}</div>
                                     <div class="summary-item-label">Cardio</div>
                                 </div>
                                 <div class="summary-item">
-                                    <div class="summary-item-value">${totalWeight}kg</div>
+                                    <div class="summary-item-value">${Math.round(totalWeight)}kg</div>
                                     <div class="summary-item-label">Weight Lifted</div>
                                 </div>
                             </div>
@@ -804,22 +1007,31 @@
                             ${workout.exercises.length > 0 ? `
                                 <div class="exercises-list">
                                     <div class="exercises-header">Exercises Performed</div>
-                                    ${workout.exercises.map(exercise => `
-                                        <div class="exercise-item ${exercise.type}">
-                                            <div class="exercise-icon">
-                                                <i class="fas fa-${exercise.type === 'resistance' ? 'dumbbell' : 'heart'}"></i>
-                                            </div>
-                                            <div class="exercise-details">
-                                                <div class="exercise-name">${exercise.name}</div>
-                                                <div class="exercise-stats">
-                                                    ${exercise.type === 'resistance' ? 
-                                                        `${exercise.weight || 0}kg × ${exercise.sets || 1} sets × ${exercise.reps || 0} reps • ${exercise.duration || 0} min` :
-                                                        `${exercise.distance || 0}km in ${exercise.duration || 0} minutes`
-                                                    }
+                                    ${workout.exercises.map(exercise => {
+                                        const category = exercise.category || exercise.type || 'other';
+                                        const exerciseName = exercise.name || 'Unknown Exercise';
+                                        
+                                        let exerciseStats = '';
+                                        if (category === 'resistance') {
+                                            exerciseStats = `${exercise.weight || 0}kg × ${exercise.sets || 0} sets × ${exercise.reps || 0} reps • ${exercise.duration || 0} min`;
+                                        } else if (category === 'cardio') {
+                                            exerciseStats = `${exercise.distance || 0}km in ${exercise.duration || 0} minutes`;
+                                        } else {
+                                            exerciseStats = `Duration: ${exercise.duration || 0} minutes`;
+                                        }
+                                        
+                                        return `
+                                            <div class="exercise-item ${category}">
+                                                <div class="exercise-icon">
+                                                    <i class="${getExerciseIcon(category)}"></i>
+                                                </div>
+                                                <div class="exercise-details">
+                                                    <div class="exercise-name">${exerciseName}</div>
+                                                    <div class="exercise-stats">${exerciseStats}</div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    `).join('')}
+                                        `;
+                                    }).join('')}
                                 </div>
                             ` : ''}
                             
@@ -842,10 +1054,14 @@
             const workoutsList = document.getElementById('workoutsList');
             workoutsList.innerHTML = `
                 <div class="empty-state">
-                    <i class="fas fa-dumbbell"></i>
+                    <div class="empty-state-icon">
+                        <i class="fas fa-dumbbell"></i>
+                    </div>
                     <h3>No workouts found</h3>
                     <p>Start your fitness journey by creating your first workout!</p>
-                    <a href="/excercise.html" class="btn-start-workout"><i class="fas fa-plus"></i> Start First Workout</a>
+                    <a href="/excercise.html" class="btn-start-workout">
+                        <i class="fas fa-plus"></i> Start First Workout
+                    </a>
                 </div>
             `;
         }
@@ -855,11 +1071,13 @@
             const workoutsList = document.getElementById('workoutsList');
             workoutsList.innerHTML = `
                 <div class="error-state">
-                    <i class="fas fa-exclamation-triangle"></i>
+                    <div class="error-state-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
                     <h3>Error Loading Workouts</h3>
                     <p>${message}</p>
                     <button class="btn-retry" onclick="initializePage()">
-                        <i class="fas fa-refresh"></i> Try Again
+                        <i class="fas fa-sync-alt"></i> Try Again
                     </button>
                 </div>
             `;
@@ -913,7 +1131,7 @@
             // Filter by exercise type
             if (exerciseType !== 'all') {
                 filtered = filtered.filter(workout => 
-                    workout.exercises.some(ex => ex.type === exerciseType)
+                    workout.exercises.some(ex => (ex.category || ex.type) === exerciseType)
                 );
             }
 
@@ -961,13 +1179,10 @@
                 // Store exercises for the new workout
                 const exercisesToRepeat = workout.exercises.map(ex => ({
                     ...ex,
-                    // Remove any ID fields to treat as new exercises
                     _id: undefined
                 }));
                 
-                // Store in localStorage for exercise page to pick up
-                const existingExercises = JSON.parse(localStorage.getItem('newWorkoutExercises') || '[]');
-                localStorage.setItem('newWorkoutExercises', JSON.stringify([...existingExercises, ...exercisesToRepeat]));
+                localStorage.setItem('newWorkoutExercises', JSON.stringify(exercisesToRepeat));
                 
                 showToast('Workout template saved! Redirecting to exercise page...');
                 
@@ -980,13 +1195,13 @@
         // Show delete modal
         function showDeleteModal(workoutId) {
             workoutToDelete = workoutId;
-            document.getElementById('deleteModal').style.display = 'flex';
+            document.getElementById('deleteModal').classList.add('show');
         }
 
         // Close delete modal
         function closeDeleteModal() {
             workoutToDelete = null;
-            document.getElementById('deleteModal').style.display = 'none';
+            document.getElementById('deleteModal').classList.remove('show');
         }
 
         // Confirm delete
@@ -996,21 +1211,17 @@
             try {
                 console.log('Deleting workout:', workoutToDelete);
                 
-                // Delete from MongoDB via API
                 await API.deleteWorkout(workoutToDelete);
                 
-                // Remove from local arrays
                 allWorkouts = allWorkouts.filter(w => w._id !== workoutToDelete);
                 filteredWorkouts = filteredWorkouts.filter(w => w._id !== workoutToDelete);
                 
-                // Update display
                 displayWorkouts();
                 updateSummaryStats();
                 
                 showToast('Workout deleted successfully');
                 closeDeleteModal();
                 
-                // Notify other pages about the update
                 localStorage.setItem('workoutUpdated', Date.now().toString());
                 
             } catch (error) {
@@ -1023,13 +1234,17 @@
         // Show toast notification
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
-            toast.querySelector('span').textContent = message;
+            const text = toast.querySelector('span');
+            const icon = toast.querySelector('i');
             
-            // Reset classes
-            toast.className = 'toast';
+            text.textContent = message;
             
-            if (type === 'error') {
+            if (type === 'success') {
+                toast.classList.remove('error');
+                icon.className = 'fas fa-check-circle';
+            } else if (type === 'error') {
                 toast.classList.add('error');
+                icon.className = 'fas fa-exclamation-circle';
             }
             
             toast.classList.add('show');
@@ -1070,38 +1285,6 @@
                 closeDeleteModal();
             }
         });
-
-        // Debug function for testing
-        window.historyPageDebug = {
-            async refreshData() {
-                console.log('🔄 Refreshing workout data...');
-                await initializePage();
-            },
-            
-            getFilteredWorkouts() {
-                console.log('📊 Filtered workouts:', filteredWorkouts);
-                return filteredWorkouts;
-            },
-            
-            getAllWorkouts() {
-                console.log('📊 All workouts:', allWorkouts);
-                return allWorkouts;
-            },
-            
-            async testAPI() {
-                console.log('🧪 Testing API connection...');
-                try {
-                    const workouts = await API.getAllWorkouts();
-                    console.log('✅ API test successful:', workouts.length, 'workouts found');
-                    return workouts;
-                } catch (error) {
-                    console.error('❌ API test failed:', error);
-                    return null;
-                }
-            }
-        };
-
-        console.log('✅ History page initialized. Use historyPageDebug for testing.');
     </script>
 </body>
 </html>

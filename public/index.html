@@ -101,6 +101,14 @@
             font-size: 14px;
         }
 
+        .brand-logo {
+            width: 36px;
+            height: 36px;
+            background: url('/logo.png') no-repeat center center;
+            background-size: contain;
+            border-radius: 12px;
+        }
+
         .logout-btn {
             padding: 8px 16px;
             background: transparent;
@@ -436,18 +444,8 @@
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <a href="#" class="nav-brand">
-                <div class="brand-icon">
-                    <svg width="20" height="20" viewBox="0 0 40 40" fill="none">
-                        <path d="M8 16h4v8H8z" fill="currentColor"/>
-                        <path d="M28 16h4v8h-4z" fill="currentColor"/>
-                        <path d="M12 18h16v4H12z" fill="currentColor"/>
-                        <circle cx="8" cy="14" r="2" fill="currentColor"/>
-                        <circle cx="32" cy="14" r="2" fill="currentColor"/>
-                        <circle cx="8" cy="26" r="2" fill="currentColor"/>
-                        <circle cx="32" cy="26" r="2" fill="currentColor"/>
-                    </svg>
-                </div>
+            <a href="/index.html" class="nav-brand">
+                <div class="brand-logo"></div>
                 FitTrack
             </a>
             
