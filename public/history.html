@@ -489,6 +489,51 @@
             right: 20px;
         }
 
+        .toast.error {
+            background: #f44336;
+        }
+
+        /* Error State */
+        .error-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .error-state i {
+            font-size: 4rem;
+            color: #f44336;
+            margin-bottom: 1rem;
+        }
+
+        .error-state h3 {
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .error-state p {
+            color: #999;
+            margin-bottom: 2rem;
+        }
+
+        .btn-retry {
+            background: #4CAF50;
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Lexend', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-retry:hover {
+            background: #45a049;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .nav-container {
@@ -660,7 +705,7 @@
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <div id="deleteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;">
+    <div id="deleteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
         <div style="background: white; padding: 2rem; border-radius: 15px; max-width: 400px; text-align: center;">
             <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #f44336; margin-bottom: 1rem;"></i>
             <h3 style="margin-bottom: 1rem;">Delete Workout?</h3>
@@ -672,64 +717,11 @@
         </div>
     </div>
 
+    <!-- Include API -->
+    <script src="/js/api.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    
     <script>
-        // Mock API for demo purposes
-        const API = {
-            async getAllWorkouts() {
-                return new Promise(resolve => {
-                    setTimeout(() => {
-                        const mockWorkouts = [];
-                        for (let i = 0; i < 20; i++) {
-                            const exerciseTypes = ['resistance', 'cardio'];
-                            const exerciseNames = {
-                                resistance: ['Bench Press', 'Squats', 'Deadlift', 'Push ups', 'Pull ups'],
-                                cardio: ['Running', 'Cycling', 'Rowing', 'Treadmill', 'Elliptical']
-                            };
-                            
-                            const exercises = [];
-                            const numExercises = Math.floor(Math.random() * 4) + 1;
-                            
-                            for (let j = 0; j < numExercises; j++) {
-                                const type = exerciseTypes[Math.floor(Math.random() * exerciseTypes.length)];
-                                const names = exerciseNames[type];
-                                const exercise = {
-                                    type,
-                                    name: names[Math.floor(Math.random() * names.length)],
-                                    duration: Math.floor(Math.random() * 30) + 10
-                                };
-                                
-                                if (type === 'resistance') {
-                                    exercise.weight = Math.floor(Math.random() * 100) + 20;
-                                    exercise.sets = Math.floor(Math.random() * 4) + 2;
-                                    exercise.reps = Math.floor(Math.random() * 10) + 6;
-                                } else {
-                                    exercise.distance = Math.floor(Math.random() * 10) + 1;
-                                }
-                                
-                                exercises.push(exercise);
-                            }
-                            
-                            mockWorkouts.push({
-                                _id: `workout_${i}`,
-                                day: new Date(Date.now() - (i * Math.random() * 7 * 24 * 60 * 60 * 1000)),
-                                exercises
-                            });
-                        }
-                        resolve(mockWorkouts.sort((a, b) => new Date(b.day) - new Date(a.day)));
-                    }, 1000);
-                });
-            },
-
-            async deleteWorkout(id) {
-                return new Promise(resolve => {
-                    setTimeout(() => {
-                        resolve({ success: true });
-                    }, 500);
-                });
-            }
-        };
-
         // Global variables
         let allWorkouts = [];
         let filteredWorkouts = [];
@@ -738,16 +730,13 @@
         // Initialize page
         async function initializePage() {
             try {
-                // Check authentication
-                const user = JSON.parse(localStorage.getItem('user'));
-                if (!user) {
-                    window.location.href = '/login.html';
-                    return;
-                }
-
-                // Load workouts
+                console.log('Initializing history page...');
+                
+                // Load workouts from MongoDB
                 allWorkouts = await API.getAllWorkouts();
                 filteredWorkouts = [...allWorkouts];
+                
+                console.log(`Loaded ${allWorkouts.length} workouts from MongoDB`);
                 
                 // Display workouts
                 displayWorkouts();
@@ -755,7 +744,7 @@
                 
             } catch (error) {
                 console.error('Error initializing page:', error);
-                showEmptyState('Error loading workouts. Please try again.');
+                showErrorState('Failed to load workouts. Please check your connection and try again.');
             }
         }
 
@@ -812,25 +801,27 @@
                                 </div>
                             </div>
                             
-                            <div class="exercises-list">
-                                <div class="exercises-header">Exercises Performed</div>
-                                ${workout.exercises.map(exercise => `
-                                    <div class="exercise-item ${exercise.type}">
-                                        <div class="exercise-icon">
-                                            <i class="fas fa-${exercise.type === 'resistance' ? 'dumbbell' : 'heart'}"></i>
-                                        </div>
-                                        <div class="exercise-details">
-                                            <div class="exercise-name">${exercise.name}</div>
-                                            <div class="exercise-stats">
-                                                ${exercise.type === 'resistance' ? 
-                                                    `${exercise.weight}kg × ${exercise.sets} sets × ${exercise.reps} reps • ${exercise.duration} min` :
-                                                    `${exercise.distance}km in ${exercise.duration} minutes`
-                                                }
+                            ${workout.exercises.length > 0 ? `
+                                <div class="exercises-list">
+                                    <div class="exercises-header">Exercises Performed</div>
+                                    ${workout.exercises.map(exercise => `
+                                        <div class="exercise-item ${exercise.type}">
+                                            <div class="exercise-icon">
+                                                <i class="fas fa-${exercise.type === 'resistance' ? 'dumbbell' : 'heart'}"></i>
+                                            </div>
+                                            <div class="exercise-details">
+                                                <div class="exercise-name">${exercise.name}</div>
+                                                <div class="exercise-stats">
+                                                    ${exercise.type === 'resistance' ? 
+                                                        `${exercise.weight || 0}kg × ${exercise.sets || 1} sets × ${exercise.reps || 0} reps • ${exercise.duration || 0} min` :
+                                                        `${exercise.distance || 0}km in ${exercise.duration || 0} minutes`
+                                                    }
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                `).join('')}
-                            </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
                             
                             <div class="workout-actions">
                                 <button class="btn-action btn-repeat" onclick="repeatWorkout('${workout._id}')">
@@ -847,14 +838,29 @@
         }
 
         // Show empty state
-        function showEmptyState(message = null) {
+        function showEmptyState() {
             const workoutsList = document.getElementById('workoutsList');
             workoutsList.innerHTML = `
                 <div class="empty-state">
                     <i class="fas fa-dumbbell"></i>
-                    <h3>${message || 'No workouts found'}</h3>
-                    <p>${message ? 'Please try adjusting your filters or try again later.' : 'Start your fitness journey by creating your first workout!'}</p>
-                    ${!message ? '<a href="/excercise.html" class="btn-start-workout"><i class="fas fa-plus"></i> Start First Workout</a>' : ''}
+                    <h3>No workouts found</h3>
+                    <p>Start your fitness journey by creating your first workout!</p>
+                    <a href="/excercise.html" class="btn-start-workout"><i class="fas fa-plus"></i> Start First Workout</a>
+                </div>
+            `;
+        }
+
+        // Show error state
+        function showErrorState(message) {
+            const workoutsList = document.getElementById('workoutsList');
+            workoutsList.innerHTML = `
+                <div class="error-state">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Error Loading Workouts</h3>
+                    <p>${message}</p>
+                    <button class="btn-retry" onclick="initializePage()">
+                        <i class="fas fa-refresh"></i> Try Again
+                    </button>
                 </div>
             `;
         }
@@ -889,13 +895,13 @@
                 
                 switch (dateRange) {
                     case 'week':
-                        startDate = now.subtract(1, 'week');
+                        startDate = now.clone().subtract(1, 'week');
                         break;
                     case 'month':
-                        startDate = now.subtract(1, 'month');
+                        startDate = now.clone().subtract(1, 'month');
                         break;
                     case '3months':
-                        startDate = now.subtract(3, 'months');
+                        startDate = now.clone().subtract(3, 'months');
                         break;
                 }
                 
@@ -953,7 +959,16 @@
             const workout = allWorkouts.find(w => w._id === workoutId);
             if (workout) {
                 // Store exercises for the new workout
-                localStorage.setItem('repeatWorkoutExercises', JSON.stringify(workout.exercises));
+                const exercisesToRepeat = workout.exercises.map(ex => ({
+                    ...ex,
+                    // Remove any ID fields to treat as new exercises
+                    _id: undefined
+                }));
+                
+                // Store in localStorage for exercise page to pick up
+                const existingExercises = JSON.parse(localStorage.getItem('newWorkoutExercises') || '[]');
+                localStorage.setItem('newWorkoutExercises', JSON.stringify([...existingExercises, ...exercisesToRepeat]));
+                
                 showToast('Workout template saved! Redirecting to exercise page...');
                 
                 setTimeout(() => {
@@ -979,9 +994,12 @@
             if (!workoutToDelete) return;
             
             try {
+                console.log('Deleting workout:', workoutToDelete);
+                
+                // Delete from MongoDB via API
                 await API.deleteWorkout(workoutToDelete);
                 
-                // Remove from arrays
+                // Remove from local arrays
                 allWorkouts = allWorkouts.filter(w => w._id !== workoutToDelete);
                 filteredWorkouts = filteredWorkouts.filter(w => w._id !== workoutToDelete);
                 
@@ -992,12 +1010,13 @@
                 showToast('Workout deleted successfully');
                 closeDeleteModal();
                 
-                // Notify other pages
-                localStorage.setItem('workoutUpdated', Date.now());
+                // Notify other pages about the update
+                localStorage.setItem('workoutUpdated', Date.now().toString());
                 
             } catch (error) {
                 console.error('Error deleting workout:', error);
                 showToast('Error deleting workout. Please try again.', 'error');
+                closeDeleteModal();
             }
         }
 
@@ -1006,10 +1025,11 @@
             const toast = document.getElementById('toast');
             toast.querySelector('span').textContent = message;
             
+            // Reset classes
+            toast.className = 'toast';
+            
             if (type === 'error') {
-                toast.style.background = '#f44336';
-            } else {
-                toast.style.background = '#4CAF50';
+                toast.classList.add('error');
             }
             
             toast.classList.add('show');
@@ -1019,19 +1039,69 @@
             }, 3000);
         }
 
+        // Listen for storage events (workout updates from other tabs)
         window.addEventListener('storage', (e) => {
             if (e.key === 'workoutUpdated') {
+                console.log('Workout updated in another tab, refreshing data...');
                 initializePage();
             }
         });
 
-        document.addEventListener('DOMContentLoaded', initializePage);
+        // Listen for custom events (for same-tab updates)
+        window.addEventListener('workoutDataUpdated', () => {
+            console.log('Workout data updated, refreshing...');
+            initializePage();
+        });
 
-        document.getElementById('deleteModal').addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) {
+        // Close delete modal when clicking outside
+        document.addEventListener('click', (e) => {
+            const deleteModal = document.getElementById('deleteModal');
+            if (e.target === deleteModal) {
                 closeDeleteModal();
             }
         });
+
+        // Initialize page when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initializePage);
+
+        // Handle ESC key to close modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeDeleteModal();
+            }
+        });
+
+        // Debug function for testing
+        window.historyPageDebug = {
+            async refreshData() {
+                console.log('🔄 Refreshing workout data...');
+                await initializePage();
+            },
+            
+            getFilteredWorkouts() {
+                console.log('📊 Filtered workouts:', filteredWorkouts);
+                return filteredWorkouts;
+            },
+            
+            getAllWorkouts() {
+                console.log('📊 All workouts:', allWorkouts);
+                return allWorkouts;
+            },
+            
+            async testAPI() {
+                console.log('🧪 Testing API connection...');
+                try {
+                    const workouts = await API.getAllWorkouts();
+                    console.log('✅ API test successful:', workouts.length, 'workouts found');
+                    return workouts;
+                } catch (error) {
+                    console.error('❌ API test failed:', error);
+                    return null;
+                }
+            }
+        };
+
+        console.log('✅ History page initialized. Use historyPageDebug for testing.');
     </script>
 </body>
 </html>

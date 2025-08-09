@@ -350,6 +350,35 @@
             100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
+        .exercises-preview {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px solid #e2e8f0;
+        }
+
+        .exercises-preview h3 {
+            color: #1e293b;
+            margin-bottom: 16px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .exercise-item {
+            background: white;
+            padding: 12px 16px;
+            margin: 8px 0;
+            border-radius: 12px;
+            border-left: 4px solid #4f46e5;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .exercise-item strong {
+            color: #1e293b;
+        }
+
         @media (max-width: 768px) {
             .main-container {
                 padding: 24px 16px;
@@ -396,7 +425,7 @@
                 <a href="/index.html" class="nav-link">Home</a>
                 <a href="/stats.html" class="nav-link">Analytics</a>
                 <a href="/history.html" class="nav-link">History</a>
-                <a href="/excercise.html" class="nav-link active">Exercise</a>
+                <a href="/exercise.html" class="nav-link active">Exercise</a>
             </div>
         </div>
     </nav>
@@ -500,6 +529,11 @@
                     </div>
                 </div>
 
+                <div class="exercises-preview" id="exercisesPreview" style="display: none;">
+                    <h3>Current Workout Exercises:</h3>
+                    <div id="exercisesList"></div>
+                </div>
+
                 <div class="form-actions">
                     <button type="button" class="btn btn-primary" id="addExerciseBtn" disabled>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -526,11 +560,54 @@
         <span>Exercise added successfully!</span>
     </div>
 
+    <!-- Load API before main script -->
+    <script src="/js/api.js"></script>
     <script>
         let workoutStartTime = Date.now();
         let sessionTimer;
+        let currentWorkoutId = null;
+
+        // Initialize workout session
+        async function initializeWorkout() {
+            try {
+                // Check if there's already a workout in progress
+                currentWorkoutId = localStorage.getItem('currentWorkoutId');
+                
+                if (!currentWorkoutId) {
+                    console.log('Starting new workout session...');
+                    const workout = await API.startNewWorkout();
+                    currentWorkoutId = workout._id;
+                    console.log('New workout created:', currentWorkoutId);
+                } else {
+                    console.log('Resuming existing workout:', currentWorkoutId);
+                    try {
+                        // Verify the workout still exists in MongoDB
+                        await API.getWorkout(currentWorkoutId);
+                    } catch (error) {
+                        console.log('Existing workout not found, creating new one...');
+                        const workout = await API.startNewWorkout();
+                        currentWorkoutId = workout._id;
+                    }
+                }
+                
+                // Load existing exercises and update display
+                await updateWorkoutStats();
+                
+            } catch (error) {
+                console.error('Error initializing workout:', error);
+                showToast('Error starting workout. Please check your connection.', 'error');
+            }
+        }
 
         function startSessionTimer() {
+            const savedStartTime = localStorage.getItem('workoutStartTime');
+            if (savedStartTime) {
+                workoutStartTime = parseInt(savedStartTime);
+            } else {
+                workoutStartTime = Date.now();
+                localStorage.setItem('workoutStartTime', workoutStartTime.toString());
+            }
+
             sessionTimer = setInterval(() => {
                 const elapsed = Math.floor((Date.now() - workoutStartTime) / 1000);
                 const minutes = Math.floor(elapsed / 60);
@@ -540,16 +617,63 @@
             }, 1000);
         }
 
-        function updateWorkoutStats() {
-            const exercises = JSON.parse(localStorage.getItem('newWorkoutExercises') || '[]');
-            const exerciseCount = exercises.length;
-            const totalDuration = exercises.reduce((sum, ex) => sum + (ex.duration || 0), 0);
+        async function updateWorkoutStats() {
+            try {
+                if (!currentWorkoutId) return;
+                
+                const workout = await API.getWorkout(currentWorkoutId);
+                const exercises = workout.exercises || [];
+                const exerciseCount = exercises.length;
+                const totalDuration = exercises.reduce((sum, ex) => sum + (ex.duration || 0), 0);
+                
+                document.getElementById('exerciseCount').textContent = exerciseCount;
+                document.getElementById('totalDuration').textContent = `${totalDuration} min`;
+                
+                // Enable/disable complete button
+                const completeBtn = document.getElementById('completeWorkoutBtn');
+                completeBtn.disabled = exerciseCount === 0;
+                
+                // Update exercises preview
+                updateExercisesPreview(exercises);
+                
+            } catch (error) {
+                console.error('Error updating workout stats:', error);
+                document.getElementById('exerciseCount').textContent = '0';
+                document.getElementById('totalDuration').textContent = '0 min';
+            }
+        }
+
+        function updateExercisesPreview(exercises) {
+            const preview = document.getElementById('exercisesPreview');
+            const list = document.getElementById('exercisesList');
             
-            document.getElementById('exerciseCount').textContent = exerciseCount;
-            document.getElementById('totalDuration').textContent = `${totalDuration} min`;
+            if (exercises.length === 0) {
+                preview.style.display = 'none';
+                return;
+            }
             
-            const completeBtn = document.getElementById('completeWorkoutBtn');
-            completeBtn.disabled = exerciseCount === 0;
+            preview.style.display = 'block';
+            list.innerHTML = '';
+            
+            exercises.forEach((exercise, index) => {
+                const item = document.createElement('div');
+                item.className = 'exercise-item';
+                
+                if (exercise.type === 'resistance') {
+                    item.innerHTML = `
+                        <strong>${exercise.name}</strong> - 
+                        ${exercise.weight}kg × ${exercise.sets} sets × ${exercise.reps} reps 
+                        (${exercise.duration} min)
+                    `;
+                } else if (exercise.type === 'cardio') {
+                    item.innerHTML = `
+                        <strong>${exercise.name}</strong> - 
+                        ${exercise.distance}km in ${exercise.duration} min
+                    `;
+                }
+                
+                list.appendChild(item);
+            });
         }
 
         document.getElementById('exerciseType').addEventListener('change', function() {
@@ -574,7 +698,7 @@
             let isValid = false;
             
             if (type === 'resistance') {
-                const name = document.getElementById('resistanceName').value;
+                const name = document.getElementById('resistanceName').value.trim();
                 const weight = document.getElementById('weight').value;
                 const sets = document.getElementById('sets').value;
                 const reps = document.getElementById('reps').value;
@@ -582,7 +706,7 @@
                 
                 isValid = name && weight && sets && reps && duration;
             } else if (type === 'cardio') {
-                const name = document.getElementById('cardioName').value;
+                const name = document.getElementById('cardioName').value.trim();
                 const distance = document.getElementById('distance').value;
                 const duration = document.getElementById('cardioDuration').value;
                 
@@ -600,6 +724,11 @@
             const btn = this;
             const type = document.getElementById('exerciseType').value;
             
+            if (!currentWorkoutId) {
+                showToast('No workout session active. Please refresh the page.', 'error');
+                return;
+            }
+            
             btn.classList.add('btn-loading');
             btn.disabled = true;
             
@@ -608,7 +737,7 @@
             if (type === 'resistance') {
                 exerciseData = {
                     ...exerciseData,
-                    name: document.getElementById('resistanceName').value,
+                    name: document.getElementById('resistanceName').value.trim(),
                     weight: parseFloat(document.getElementById('weight').value),
                     sets: parseInt(document.getElementById('sets').value),
                     reps: parseInt(document.getElementById('reps').value),
@@ -617,38 +746,34 @@
             } else if (type === 'cardio') {
                 exerciseData = {
                     ...exerciseData,
-                    name: document.getElementById('cardioName').value,
+                    name: document.getElementById('cardioName').value.trim(),
                     distance: parseFloat(document.getElementById('distance').value),
                     duration: parseInt(document.getElementById('cardioDuration').value)
                 };
             }
 
             try {
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                const exercises = JSON.parse(localStorage.getItem('newWorkoutExercises') || '[]');
-                exercises.push(exerciseData);
-                localStorage.setItem('newWorkoutExercises', JSON.stringify(exercises));
+                console.log('Adding exercise:', exerciseData);
+                await API.addExercise(exerciseData);
                 
                 showToast('Exercise added successfully!', 'success');
                 resetForm();
-                updateWorkoutStats();
+                await updateWorkoutStats();
                 
             } catch (error) {
                 console.error('Error adding exercise:', error);
                 showToast('Error adding exercise. Please try again.', 'error');
             } finally {
                 btn.classList.remove('btn-loading');
-                btn.disabled = true;
+                validateForm(); // Re-enable button if form is valid
             }
         });
 
         document.getElementById('completeWorkoutBtn').addEventListener('click', async function() {
             const btn = this;
-            const exerciseCount = JSON.parse(localStorage.getItem('newWorkoutExercises') || '[]').length;
             
-            if (exerciseCount === 0) {
-                showToast('Please add at least one exercise before completing the workout.', 'error');
+            if (!currentWorkoutId) {
+                showToast('No workout session active.', 'error');
                 return;
             }
             
@@ -656,13 +781,17 @@
             btn.disabled = true;
             
             try {
-                await new Promise(resolve => setTimeout(resolve, 1500));
+                // Verify workout has exercises
+                const workout = await API.getWorkout(currentWorkoutId);
+                if (!workout.exercises || workout.exercises.length === 0) {
+                    showToast('Please add at least one exercise before completing the workout.', 'error');
+                    btn.classList.remove('btn-loading');
+                    btn.disabled = false;
+                    return;
+                }
                 
-                localStorage.removeItem('currentWorkoutId');
-                localStorage.removeItem('newWorkoutExercises');
-                localStorage.removeItem('workoutStartTime');
-                
-                localStorage.setItem('workoutUpdated', Date.now());
+                console.log('Completing workout:', currentWorkoutId);
+                await API.completeCurrentWorkout();
                 
                 showToast('Workout completed successfully!', 'success');
                 
@@ -707,25 +836,10 @@
             }, 3000);
         }
 
-        async function initializeWorkout() {
-            let workoutId = localStorage.getItem('currentWorkoutId');
-            
-            if (!workoutId) {
-                try {
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    workoutId = 'workout_' + Date.now();
-                    localStorage.setItem('currentWorkoutId', workoutId);
-                } catch (error) {
-                    console.error('Error creating workout:', error);
-                    showToast('Error creating workout. Please check your connection.', 'error');
-                }
-            }
-            
-            return workoutId;
-        }
-
+        // Initialize on page load
         document.addEventListener('DOMContentLoaded', async () => {
-            const user = JSON.parse(localStorage.getItem('user'));
+            // Check authentication
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
             if (!user) {
                 window.location.href = '/login.html';
                 return;
@@ -733,28 +847,25 @@
             
             await initializeWorkout();
             startSessionTimer();
-            updateWorkoutStats();
-            
-            const savedStartTime = localStorage.getItem('workoutStartTime');
-            if (savedStartTime) {
-                workoutStartTime = parseInt(savedStartTime);
-            } else {
+        });
+
+        // Handle page visibility changes
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                clearInterval(sessionTimer);
                 localStorage.setItem('workoutStartTime', workoutStartTime.toString());
+            } else {
+                startSessionTimer();
+                updateWorkoutStats(); // Refresh data when page becomes visible
             }
         });
 
+        // Save state before page unload
         window.addEventListener('beforeunload', () => {
             localStorage.setItem('workoutStartTime', workoutStartTime.toString());
         });
 
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                clearInterval(sessionTimer);
-            } else {
-                startSessionTimer();
-            }
-        });
-
+        // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                 const addBtn = document.getElementById('addExerciseBtn');
@@ -767,50 +878,6 @@
                 resetForm();
             }
         });
-
-        function saveFormData() {
-            const formData = {
-                type: document.getElementById('exerciseType').value,
-                resistanceName: document.getElementById('resistanceName').value,
-                weight: document.getElementById('weight').value,
-                sets: document.getElementById('sets').value,
-                reps: document.getElementById('reps').value,
-                resistanceDuration: document.getElementById('resistanceDuration').value,
-                cardioName: document.getElementById('cardioName').value,
-                distance: document.getElementById('distance').value,
-                cardioDuration: document.getElementById('cardioDuration').value
-            };
-            
-            localStorage.setItem('exerciseFormData', JSON.stringify(formData));
-        }
-
-        function restoreFormData() {
-            const savedData = localStorage.getItem('exerciseFormData');
-            if (savedData) {
-                const formData = JSON.parse(savedData);
-                
-                Object.keys(formData).forEach(key => {
-                    const element = document.getElementById(key);
-                    if (element && formData[key]) {
-                        element.value = formData[key];
-                    }
-                });
-                
-                if (formData.type) {
-                    document.getElementById('exerciseType').dispatchEvent(new Event('change'));
-                }
-            }
-        }
-
-        document.querySelectorAll('input, select').forEach(input => {
-            input.addEventListener('input', saveFormData);
-        });
-
-        document.getElementById('addExerciseBtn').addEventListener('click', () => {
-            localStorage.removeItem('exerciseFormData');
-        });
-
-        window.addEventListener('load', restoreFormData);
     </script>
 </body>
 </html>
