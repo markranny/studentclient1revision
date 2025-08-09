@@ -3,6 +3,7 @@ const express = require("express");
 const logger = require("morgan");
 const mongoose = require("mongoose");
 const path = require("path");
+const cors = require("cors");
 
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -13,10 +14,40 @@ console.log("📅", new Date().toISOString());
 console.log("🔧 Node.js version:", process.version);
 console.log("🌐 Environment:", process.env.NODE_ENV || "development");
 
+// CORS Configuration - This is crucial for OAuth
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        
+        const allowedOrigins = [
+            'http://localhost:3000',
+            'http://127.0.0.1:3000',
+            'https://fit-tracker-alpha.vercel.app',
+            process.env.FRONTEND_URL
+        ].filter(Boolean);
+        
+        console.log('🌐 CORS check - Origin:', origin, 'Allowed:', allowedOrigins.includes(origin));
+        
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        } else {
+            console.log('❌ CORS blocked origin:', origin);
+            return callback(new Error('Not allowed by CORS'), false);
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+};
+
+// Apply CORS before other middleware
+app.use(cors(corsOptions));
+
 // Middleware setup
 app.use(logger("dev"));
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json({ limit: '10mb' })); // Increased limit for larger payloads
+app.use(express.json({ limit: '10mb' }));
 app.use(express.static("public"));
 
 // Security headers
@@ -24,12 +55,22 @@ app.use((req, res, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('X-XSS-Protection', '1; mode=block');
+    
+    // Important: Set proper CORS headers for OAuth
+    if (req.headers.origin) {
+        res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+    }
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    
     next();
 });
 
 // Request logging middleware
 app.use((req, res, next) => {
     console.log(`📡 ${req.method} ${req.url} - ${req.ip} - ${new Date().toISOString()}`);
+    if (req.query && Object.keys(req.query).length > 0) {
+        console.log('📝 Query params:', req.query);
+    }
     next();
 });
 
@@ -39,25 +80,21 @@ const MONGO_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/workout"
 console.log("🔗 Attempting to connect to MongoDB...");
 console.log("📝 Connection type:", MONGO_URI.includes("localhost") ? "Local MongoDB" : "MongoDB Atlas");
 
-// Enhanced MongoDB connection options
 const mongooseOptions = {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
-    socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
-    bufferCommands: false, // Disable mongoose buffering
-    maxPoolSize: 10, // Maintain up to 10 socket connections
-    minPoolSize: 5, // Maintain a minimum of 5 socket connections
-    maxIdleTimeMS: 30000, // Close connections after 30s of inactivity
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+    bufferCommands: false,
+    maxPoolSize: 10,
+    minPoolSize: 5,
+    maxIdleTimeMS: 30000,
 };
 
 mongoose.connect(MONGO_URI, mongooseOptions)
     .then(() => {
         console.log("✅ MongoDB connected successfully!");
         console.log("🗄️  Database:", mongoose.connection.name);
-        console.log("🔌 Connection state:", mongoose.connection.readyState === 1 ? "Connected" : "Connecting");
-        
-        // Test the connection with a simple query
         return mongoose.connection.db.admin().ping();
     })
     .then(() => {
@@ -66,14 +103,8 @@ mongoose.connect(MONGO_URI, mongooseOptions)
     .catch(err => {
         console.error("❌ MongoDB connection error:", err.message);
         console.log("\n🔧 Troubleshooting steps:");
-        console.log("1. For local MongoDB:");
-        console.log("   - Install MongoDB: https://docs.mongodb.com/manual/installation/");
-        console.log("   - Start MongoDB service: mongod or brew services start mongodb/brew/mongodb-community");
-        console.log("   - Verify connection: mongo or mongosh");
-        console.log("\n2. For MongoDB Atlas:");
-        console.log("   - Set MONGODB_URI environment variable");
-        console.log("   - Example: MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/workout");
-        console.log("   - Verify network access and database user permissions");
+        console.log("1. For local MongoDB: brew services start mongodb/brew/mongodb-community");
+        console.log("2. For MongoDB Atlas: Set MONGODB_URI environment variable");
         console.log("\n📱 Server will continue running but database features won't work until MongoDB is connected.");
     });
 
@@ -88,19 +119,6 @@ mongoose.connection.on('error', (err) => {
 
 mongoose.connection.on('disconnected', () => {
     console.log('🔌 Mongoose disconnected from MongoDB');
-});
-
-// Handle app termination
-process.on('SIGINT', async () => {
-    console.log('\n🛑 Received SIGINT, shutting down gracefully...');
-    try {
-        await mongoose.connection.close();
-        console.log('✅ MongoDB connection closed');
-        process.exit(0);
-    } catch (err) {
-        console.error('❌ Error during shutdown:', err);
-        process.exit(1);
-    }
 });
 
 /* app.get('/auth/google', (req, res) => {
