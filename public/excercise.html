@@ -48,15 +48,12 @@
             text-decoration: none;
         }
 
-        .brand-icon {
+        .brand-logo {
             width: 36px;
             height: 36px;
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            background: url('/logo.png') no-repeat center center;
+            background-size: contain;
             border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
         }
 
         .nav-menu {
@@ -81,7 +78,7 @@
         }
 
         .main-container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 32px 24px;
         }
@@ -140,6 +137,7 @@
             padding: 32px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             border: 1px solid #f1f5f9;
+            margin-bottom: 24px;
         }
 
         .form-header {
@@ -171,7 +169,8 @@
         }
 
         .form-select,
-        .form-input {
+        .form-input,
+        .form-textarea {
             width: 100%;
             padding: 16px;
             border: 2px solid #e2e8f0;
@@ -179,22 +178,15 @@
             font-size: 16px;
             background: #ffffff;
             transition: all 0.2s ease;
-            appearance: none;
             font-family: 'Inter', sans-serif;
         }
 
         .form-select:focus,
-        .form-input:focus {
+        .form-input:focus,
+        .form-textarea:focus {
             outline: none;
             border-color: #4f46e5;
             box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-
-        .form-select {
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23374151' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 16px center;
-            background-size: 20px;
         }
 
         .form-row {
@@ -203,17 +195,90 @@
             gap: 16px;
         }
 
-        .exercise-type-card {
+        .category-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .category-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .category-card:hover {
+            border-color: #4f46e5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+        }
+
+        .category-card.selected {
+            border-color: #4f46e5;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e0e7ff 100%);
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .category-icon {
+            font-size: 24px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+        }
+
+        .category-name {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 18px;
+        }
+
+        .category-description {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .subcategory-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .subcategory-chip {
+            background: #e2e8f0;
+            color: #64748b;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .exercise-type-form {
             display: none;
             background: #f8fafc;
             border: 2px solid #e2e8f0;
             border-radius: 16px;
-            padding: 20px;
+            padding: 24px;
             margin: 24px 0;
             animation: fadeIn 0.3s ease-out;
         }
 
-        .exercise-type-card.active {
+        .exercise-type-form.active {
             display: block;
             border-color: #4f46e5;
             background: linear-gradient(135deg, #f1f5f9 0%, #e0e7ff 100%);
@@ -250,6 +315,34 @@
         .type-label {
             font-weight: 600;
             color: #4f46e5;
+        }
+
+        .intensity-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .intensity-option {
+            padding: 12px 8px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .intensity-option:hover {
+            border-color: #4f46e5;
+        }
+
+        .intensity-option.selected {
+            border-color: #4f46e5;
+            background: #4f46e5;
+            color: white;
         }
 
         .form-actions {
@@ -298,6 +391,83 @@
         .btn-success:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(5, 150, 105, 0.3);
+        }
+
+        .exercises-preview {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin: 24px 0;
+            border: 2px solid #e2e8f0;
+        }
+
+        .exercises-preview h3 {
+            color: #1e293b;
+            margin-bottom: 16px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .exercise-item {
+            background: #f8fafc;
+            padding: 16px;
+            margin: 12px 0;
+            border-radius: 12px;
+            border-left: 4px solid #4f46e5;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .exercise-item strong {
+            color: #1e293b;
+        }
+
+        .exercise-item .category-badge {
+            display: inline-block;
+            background: #4f46e5;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .popular-exercises {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .popular-exercises h4 {
+            color: #1e293b;
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .exercise-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .exercise-suggestion {
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .exercise-suggestion:hover {
+            background: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
         }
 
         .toast {
@@ -350,35 +520,6 @@
             100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
-        .exercises-preview {
-            background: #f8fafc;
-            border-radius: 16px;
-            padding: 20px;
-            margin: 20px 0;
-            border: 2px solid #e2e8f0;
-        }
-
-        .exercises-preview h3 {
-            color: #1e293b;
-            margin-bottom: 16px;
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .exercise-item {
-            background: white;
-            padding: 12px 16px;
-            margin: 8px 0;
-            border-radius: 12px;
-            border-left: 4px solid #4f46e5;
-            font-size: 14px;
-            color: #64748b;
-        }
-
-        .exercise-item strong {
-            color: #1e293b;
-        }
-
         @media (max-width: 768px) {
             .main-container {
                 padding: 24px 16px;
@@ -400,6 +541,14 @@
             .form-actions {
                 flex-direction: column;
             }
+
+            .category-selector {
+                grid-template-columns: 1fr;
+            }
+
+            .intensity-selector {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
@@ -407,17 +556,7 @@
     <nav class="navbar">
         <div class="nav-container">
             <a href="/index.html" class="nav-brand">
-                <div class="brand-icon">
-                    <svg width="20" height="20" viewBox="0 0 40 40" fill="none">
-                        <path d="M8 16h4v8H8z" fill="currentColor"/>
-                        <path d="M28 16h4v8h-4z" fill="currentColor"/>
-                        <path d="M12 18h16v4H12z" fill="currentColor"/>
-                        <circle cx="8" cy="14" r="2" fill="currentColor"/>
-                        <circle cx="32" cy="14" r="2" fill="currentColor"/>
-                        <circle cx="8" cy="26" r="2" fill="currentColor"/>
-                        <circle cx="32" cy="26" r="2" fill="currentColor"/>
-                    </svg>
-                </div>
+                <div class="brand-logo"></div>
                 FitTrack
             </a>
             
@@ -455,102 +594,474 @@
 
         <div class="form-card">
             <div class="form-header">
-                <h2 class="form-title">Add New Exercise</h2>
-                <p class="form-description">Select exercise type and enter the details</p>
+                <h2 class="form-title">Choose Exercise Category</h2>
+                <p class="form-description">Select the type of exercise you want to add</p>
             </div>
 
-            <form id="exerciseForm">
+            <div class="category-selector">
+                <div class="category-card" data-category="cardio">
+                    <div class="category-header">
+                        <div class="category-icon">❤️</div>
+                        <div class="category-name">Cardio</div>
+                    </div>
+                    <div class="category-description">Aerobic exercises that improve cardiovascular health</div>
+                    <div class="subcategory-chips">
+                        <span class="subcategory-chip">Running</span>
+                        <span class="subcategory-chip">HIIT</span>
+                        <span class="subcategory-chip">Cycling</span>
+                        <span class="subcategory-chip">Swimming</span>
+                    </div>
+                </div>
+
+                <div class="category-card" data-category="resistance">
+                    <div class="category-header">
+                        <div class="category-icon">💪</div>
+                        <div class="category-name">Resistance Training</div>
+                    </div>
+                    <div class="category-description">Exercises that build muscle strength and endurance</div>
+                    <div class="subcategory-chips">
+                        <span class="subcategory-chip">Bodyweight</span>
+                        <span class="subcategory-chip">Free Weights</span>
+                        <span class="subcategory-chip">Machines</span>
+                        <span class="subcategory-chip">Powerlifting</span>
+                    </div>
+                </div>
+
+                <div class="category-card" data-category="flexibility">
+                    <div class="category-header">
+                        <div class="category-icon">🧘</div>
+                        <div class="category-name">Flexibility & Mobility</div>
+                    </div>
+                    <div class="category-description">Exercises that improve range of motion and muscle elasticity</div>
+                    <div class="subcategory-chips">
+                        <span class="subcategory-chip">Yoga</span>
+                        <span class="subcategory-chip">Stretching</span>
+                        <span class="subcategory-chip">Pilates</span>
+                    </div>
+                </div>
+
+                <div class="category-card" data-category="balance">
+                    <div class="category-header">
+                        <div class="category-icon">⚖️</div>
+                        <div class="category-name">Balance & Stability</div>
+                    </div>
+                    <div class="category-description">Exercises that improve balance, coordination, and stability</div>
+                    <div class="subcategory-chips">
+                        <span class="subcategory-chip">Balance Training</span>
+                        <span class="subcategory-chip">Tai Chi</span>
+                        <span class="subcategory-chip">Functional</span>
+                    </div>
+                </div>
+
+                <div class="category-card" data-category="sports_specific">
+                    <div class="category-header">
+                        <div class="category-icon">🏃</div>
+                        <div class="category-name">Sports-Specific</div>
+                    </div>
+                    <div class="category-description">Training tailored to specific sports or activities</div>
+                    <div class="subcategory-chips">
+                        <span class="subcategory-chip">Plyometrics</span>
+                        <span class="subcategory-chip">Agility</span>
+                        <span class="subcategory-chip">CrossFit</span>
+                    </div>
+                </div>
+
+                <div class="category-card" data-category="recovery">
+                    <div class="category-header">
+                        <div class="category-icon">😌</div>
+                        <div class="category-name">Recovery & Regeneration</div>
+                    </div>
+                    <div class="category-description">Activities focused on recovery and muscle regeneration</div>
+                    <div class="subcategory-chips">
+                        <span class="subcategory-chip">Active Recovery</span>
+                        <span class="subcategory-chip">Mobility</span>
+                        <span class="subcategory-chip">Meditation</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form id="exerciseForm">
+            <!-- Cardio Form -->
+            <div class="exercise-type-form" id="cardioForm">
+                <div class="type-indicator">
+                    <div class="type-icon">❤️</div>
+                    <span class="type-label">Cardio Exercise</span>
+                </div>
+
                 <div class="form-group">
-                    <label class="form-label" for="exerciseType">Exercise Type</label>
-                    <select id="exerciseType" class="form-select" required>
-                        <option value="" disabled selected>Choose exercise type</option>
-                        <option value="resistance">Resistance Training</option>
-                        <option value="cardio">Cardio Exercise</option>
+                    <label class="form-label" for="cardioType">Exercise Type</label>
+                    <select id="cardioType" class="form-select" required>
+                        <option value="" disabled selected>Choose cardio type</option>
+                        <option value="low_intensity_cardio">Low Intensity Cardio</option>
+                        <option value="moderate_intensity_cardio">Moderate Intensity Cardio</option>
+                        <option value="high_intensity_cardio">High Intensity Cardio</option>
+                        <option value="hiit">HIIT (High Intensity Interval Training)</option>
                     </select>
                 </div>
 
-                <div class="exercise-type-card" id="resistanceCard">
-                    <div class="type-indicator">
-                        <svg class="type-icon" viewBox="0 0 24 24" fill="none">
-                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
-                            <line x1="8" y1="21" x2="16" y2="21" stroke="currentColor" stroke-width="2"/>
-                            <line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" stroke-width="2"/>
-                        </svg>
-                        <span class="type-label">Resistance Training</span>
-                    </div>
+                <div class="form-group">
+                    <label class="form-label" for="cardioName">Exercise Name</label>
+                    <input type="text" id="cardioName" class="form-input" placeholder="e.g., Running, Cycling, Swimming" required>
+                </div>
 
+                <div class="form-group">
+                    <label class="form-label">Intensity Level</label>
+                    <div class="intensity-selector">
+                        <div class="intensity-option" data-intensity="light">Light</div>
+                        <div class="intensity-option" data-intensity="moderate">Moderate</div>
+                        <div class="intensity-option" data-intensity="vigorous">Vigorous</div>
+                        <div class="intensity-option" data-intensity="maximum">Maximum</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label" for="resistanceName">Exercise Name</label>
-                        <input type="text" id="resistanceName" class="form-input" placeholder="e.g., Bench Press" required>
+                        <label class="form-label" for="cardioDistance">Distance (km)</label>
+                        <input type="number" id="cardioDistance" class="form-input" placeholder="0" min="0" step="0.1" required>
                     </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label" for="weight">Weight (kg)</label>
-                            <input type="number" id="weight" class="form-input" placeholder="0" min="0" step="0.5" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="sets">Sets</label>
-                            <input type="number" id="sets" class="form-input" placeholder="0" min="1" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="reps">Reps per Set</label>
-                            <input type="number" id="reps" class="form-input" placeholder="0" min="1" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="resistanceDuration">Duration (min)</label>
-                            <input type="number" id="resistanceDuration" class="form-input" placeholder="0" min="1" required>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="exercise-type-card" id="cardioCard">
-                    <div class="type-indicator">
-                        <svg class="type-icon" viewBox="0 0 24 24" fill="none">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="2" fill="currentColor"/>
-                        </svg>
-                        <span class="type-label">Cardio Exercise</span>
-                    </div>
-
                     <div class="form-group">
-                        <label class="form-label" for="cardioName">Exercise Name</label>
-                        <input type="text" id="cardioName" class="form-input" placeholder="e.g., Running" required>
+                        <label class="form-label" for="cardioDuration">Duration (min)</label>
+                        <input type="number" id="cardioDuration" class="form-input" placeholder="0" min="1" required>
                     </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label" for="distance">Distance (km)</label>
-                            <input type="number" id="distance" class="form-input" placeholder="0" min="0" step="0.1" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="cardioDuration">Duration (min)</label>
-                            <input type="number" id="cardioDuration" class="form-input" placeholder="0" min="1" required>
-                        </div>
+                    <div class="form-group">
+                        <label class="form-label" for="cardioCalories">Calories Burned</label>
+                        <input type="number" id="cardioCalories" class="form-input" placeholder="Optional" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="cardioHeartRate">Avg Heart Rate</label>
+                        <input type="number" id="cardioHeartRate" class="form-input" placeholder="Optional" min="50" max="220">
                     </div>
                 </div>
 
-                <div class="exercises-preview" id="exercisesPreview" style="display: none;">
-                    <h3>Current Workout Exercises:</h3>
-                    <div id="exercisesList"></div>
+                <div class="popular-exercises" id="cardioSuggestions">
+                    <h4>Popular Cardio Exercises</h4>
+                    <div class="exercise-suggestions">
+                        <span class="exercise-suggestion" data-name="Running">Running</span>
+                        <span class="exercise-suggestion" data-name="Cycling">Cycling</span>
+                        <span class="exercise-suggestion" data-name="Swimming">Swimming</span>
+                        <span class="exercise-suggestion" data-name="Jump Rope">Jump Rope</span>
+                        <span class="exercise-suggestion" data-name="Elliptical">Elliptical</span>
+                        <span class="exercise-suggestion" data-name="Rowing">Rowing</span>
+                        <span class="exercise-suggestion" data-name="Burpees">Burpees</span>
+                        <span class="exercise-suggestion" data-name="Mountain Climbers">Mountain Climbers</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resistance Form -->
+            <div class="exercise-type-form" id="resistanceForm">
+                <div class="type-indicator">
+                    <div class="type-icon">💪</div>
+                    <span class="type-label">Resistance Training</span>
                 </div>
 
-                <div class="form-actions">
-                    <button type="button" class="btn btn-primary" id="addExerciseBtn" disabled>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                            <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                            <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                        Add Exercise
-                    </button>
-                    <button type="button" class="btn btn-success" id="completeWorkoutBtn" disabled>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                            <polyline points="20,6 9,17 4,12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        Complete Workout
-                    </button>
+                <div class="form-group">
+                    <label class="form-label" for="resistanceType">Exercise Type</label>
+                    <select id="resistanceType" class="form-select" required>
+                        <option value="" disabled selected>Choose resistance type</option>
+                        <option value="bodyweight">Bodyweight Training</option>
+                        <option value="free_weights">Free Weights</option>
+                        <option value="machines">Weight Machines</option>
+                        <option value="resistance_bands">Resistance Bands</option>
+                        <option value="powerlifting">Powerlifting</option>
+                        <option value="olympic_lifting">Olympic Weightlifting</option>
+                    </select>
                 </div>
-            </form>
-        </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="resistanceName">Exercise Name</label>
+                    <input type="text" id="resistanceName" class="form-input" placeholder="e.g., Bench Press, Push-ups, Squats" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Intensity Level</label>
+                    <div class="intensity-selector">
+                        <div class="intensity-option" data-intensity="light">Light</div>
+                        <div class="intensity-option" data-intensity="moderate">Moderate</div>
+                        <div class="intensity-option" data-intensity="vigorous">Vigorous</div>
+                        <div class="intensity-option" data-intensity="maximum">Maximum</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="resistanceWeight">Weight (kg)</label>
+                        <input type="number" id="resistanceWeight" class="form-input" placeholder="0" min="0" step="0.5" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="resistanceSets">Sets</label>
+                        <input type="number" id="resistanceSets" class="form-input" placeholder="0" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="resistanceReps">Reps per Set</label>
+                        <input type="number" id="resistanceReps" class="form-input" placeholder="0" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="resistanceDuration">Duration (min)</label>
+                        <input type="number" id="resistanceDuration" class="form-input" placeholder="0" min="1" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="resistanceRest">Rest Between Sets (sec)</label>
+                        <input type="number" id="resistanceRest" class="form-input" placeholder="60" min="0" value="60">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="resistanceEquipment">Equipment</label>
+                        <select id="resistanceEquipment" class="form-select">
+                            <option value="none">No Equipment</option>
+                            <option value="dumbbells">Dumbbells</option>
+                            <option value="barbell">Barbell</option>
+                            <option value="kettlebell">Kettlebell</option>
+                            <option value="resistance_bands">Resistance Bands</option>
+                            <option value="machines">Machines</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="popular-exercises" id="resistanceSuggestions">
+                    <h4>Popular Resistance Exercises</h4>
+                    <div class="exercise-suggestions">
+                        <span class="exercise-suggestion" data-name="Push-ups">Push-ups</span>
+                        <span class="exercise-suggestion" data-name="Squats">Squats</span>
+                        <span class="exercise-suggestion" data-name="Bench Press">Bench Press</span>
+                        <span class="exercise-suggestion" data-name="Deadlift">Deadlift</span>
+                        <span class="exercise-suggestion" data-name="Pull-ups">Pull-ups</span>
+                        <span class="exercise-suggestion" data-name="Overhead Press">Overhead Press</span>
+                        <span class="exercise-suggestion" data-name="Lunges">Lunges</span>
+                        <span class="exercise-suggestion" data-name="Planks">Planks</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flexibility Form -->
+            <div class="exercise-type-form" id="flexibilityForm">
+                <div class="type-indicator">
+                    <div class="type-icon">🧘</div>
+                    <span class="type-label">Flexibility & Mobility</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="flexibilityType">Exercise Type</label>
+                    <select id="flexibilityType" class="form-select" required>
+                        <option value="" disabled selected>Choose flexibility type</option>
+                        <option value="static_stretching">Static Stretching</option>
+                        <option value="dynamic_stretching">Dynamic Stretching</option>
+                        <option value="yoga">Yoga</option>
+                        <option value="pilates">Pilates</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="flexibilityName">Exercise Name</label>
+                    <input type="text" id="flexibilityName" class="form-input" placeholder="e.g., Hatha Yoga, Hamstring Stretch" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="flexibilityDuration">Duration (min)</label>
+                        <input type="number" id="flexibilityDuration" class="form-input" placeholder="0" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="flexibilityHold">Hold Time (sec)</label>
+                        <input type="number" id="flexibilityHold" class="form-input" placeholder="30" min="0">
+                    </div>
+                </div>
+
+                <div class="popular-exercises" id="flexibilitySuggestions">
+                    <h4>Popular Flexibility Exercises</h4>
+                    <div class="exercise-suggestions">
+                        <span class="exercise-suggestion" data-name="Hatha Yoga">Hatha Yoga</span>
+                        <span class="exercise-suggestion" data-name="Vinyasa Flow">Vinyasa Flow</span>
+                        <span class="exercise-suggestion" data-name="Pilates">Pilates</span>
+                        <span class="exercise-suggestion" data-name="Dynamic Warm-up">Dynamic Warm-up</span>
+                        <span class="exercise-suggestion" data-name="Cool-down Stretch">Cool-down Stretch</span>
+                        <span class="exercise-suggestion" data-name="Foam Rolling">Foam Rolling</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Balance Form -->
+            <div class="exercise-type-form" id="balanceForm">
+                <div class="type-indicator">
+                    <div class="type-icon">⚖️</div>
+                    <span class="type-label">Balance & Stability</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="balanceType">Exercise Type</label>
+                    <select id="balanceType" class="form-select" required>
+                        <option value="" disabled selected>Choose balance type</option>
+                        <option value="balance_training">Balance Training</option>
+                        <option value="functional_movement">Functional Movement</option>
+                        <option value="tai_chi">Tai Chi</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="balanceName">Exercise Name</label>
+                    <input type="text" id="balanceName" class="form-input" placeholder="e.g., Single Leg Stand, Tai Chi" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="balanceDuration">Duration (min)</label>
+                        <input type="number" id="balanceDuration" class="form-input" placeholder="0" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="balanceEquipment">Equipment</label>
+                        <select id="balanceEquipment" class="form-select">
+                            <option value="none">No Equipment</option>
+                            <option value="stability_ball">Stability Ball</option>
+                            <option value="balance_board">Balance Board</option>
+                            <option value="bosu_ball">BOSU Ball</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="popular-exercises" id="balanceSuggestions">
+                    <h4>Popular Balance Exercises</h4>
+                    <div class="exercise-suggestions">
+                        <span class="exercise-suggestion" data-name="Single Leg Stand">Single Leg Stand</span>
+                        <span class="exercise-suggestion" data-name="Tree Pose">Tree Pose</span>
+                        <span class="exercise-suggestion" data-name="Tai Chi Form">Tai Chi Form</span>
+                        <span class="exercise-suggestion" data-name="Balance Board">Balance Board</span>
+                        <span class="exercise-suggestion" data-name="Heel-to-Toe Walk">Heel-to-Toe Walk</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sports Specific Form -->
+            <div class="exercise-type-form" id="sportsForm">
+                <div class="type-indicator">
+                    <div class="type-icon">🏃</div>
+                    <span class="type-label">Sports-Specific Training</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="sportsType">Exercise Type</label>
+                    <select id="sportsType" class="form-select" required>
+                        <option value="" disabled selected>Choose sports type</option>
+                        <option value="plyometrics">Plyometrics</option>
+                        <option value="agility">Agility Training</option>
+                        <option value="endurance">Endurance Training</option>
+                        <option value="crossfit">CrossFit</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="sportsName">Exercise Name</label>
+                    <input type="text" id="sportsName" class="form-input" placeholder="e.g., Box Jumps, Ladder Drills" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="sportsDuration">Duration (min)</label>
+                        <input type="number" id="sportsDuration" class="form-input" placeholder="0" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="sportsRounds">Rounds/Sets</label>
+                        <input type="number" id="sportsRounds" class="form-input" placeholder="1" min="1">
+                    </div>
+                </div>
+
+                <div class="popular-exercises" id="sportsSuggestions">
+                    <h4>Popular Sports-Specific Exercises</h4>
+                    <div class="exercise-suggestions">
+                        <span class="exercise-suggestion" data-name="Box Jumps">Box Jumps</span>
+                        <span class="exercise-suggestion" data-name="Ladder Drills">Ladder Drills</span>
+                        <span class="exercise-suggestion" data-name="Sprint Intervals">Sprint Intervals</span>
+                        <span class="exercise-suggestion" data-name="Kettlebell Swings">Kettlebell Swings</span>
+                        <span class="exercise-suggestion" data-name="Battle Ropes">Battle Ropes</span>
+                        <span class="exercise-suggestion" data-name="Medicine Ball Throws">Medicine Ball Throws</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recovery Form -->
+            <div class="exercise-type-form" id="recoveryForm">
+                <div class="type-indicator">
+                    <div class="type-icon">😌</div>
+                    <span class="type-label">Recovery & Regeneration</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="recoveryType">Exercise Type</label>
+                    <select id="recoveryType" class="form-select" required>
+                        <option value="" disabled selected>Choose recovery type</option>
+                        <option value="active_recovery">Active Recovery</option>
+                        <option value="mobility_work">Mobility Work</option>
+                        <option value="meditation">Meditation & Mindfulness</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="recoveryName">Exercise Name</label>
+                    <input type="text" id="recoveryName" class="form-input" placeholder="e.g., Easy Walk, Foam Rolling" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="recoveryDuration">Duration (min)</label>
+                        <input type="number" id="recoveryDuration" class="form-input" placeholder="0" min="1" required>
+                    </div>
+                </div>
+
+                <div class="popular-exercises" id="recoverySuggestions">
+                    <h4>Popular Recovery Activities</h4>
+                    <div class="exercise-suggestions">
+                        <span class="exercise-suggestion" data-name="Easy Walk">Easy Walk</span>
+                        <span class="exercise-suggestion" data-name="Foam Rolling">Foam Rolling</span>
+                        <span class="exercise-suggestion" data-name="Gentle Yoga">Gentle Yoga</span>
+                        <span class="exercise-suggestion" data-name="Meditation">Meditation</span>
+                        <span class="exercise-suggestion" data-name="Breathing Exercises">Breathing Exercises</span>
+                        <span class="exercise-suggestion" data-name="Light Swimming">Light Swimming</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Common fields for all exercise types -->
+            <div class="exercise-type-form" id="commonFields" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label" for="exerciseNotes">Notes (Optional)</label>
+                    <textarea id="exerciseNotes" class="form-textarea" placeholder="Add any notes about your exercise..." rows="3"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="perceivedExertion">Perceived Exertion (1-10)</label>
+                        <input type="number" id="perceivedExertion" class="form-input" placeholder="5" min="1" max="10">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="performanceRating">Performance Rating (1-5)</label>
+                        <input type="number" id="performanceRating" class="form-input" placeholder="3" min="1" max="5">
+                    </div>
+                </div>
+            </div>
+
+            <div class="exercises-preview" id="exercisesPreview" style="display: none;">
+                <h3>Current Workout Exercises:</h3>
+                <div id="exercisesList"></div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-primary" id="addExerciseBtn" disabled>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Add Exercise
+                </button>
+                <button type="button" class="btn btn-success" id="completeWorkoutBtn" disabled>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <polyline points="20,6 9,17 4,12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Complete Workout
+                </button>
+            </div>
+        </form>
     </div>
 
     <div class="toast" id="toast">
@@ -560,17 +1071,40 @@
         <span>Exercise added successfully!</span>
     </div>
 
-    <!-- Load API before main script -->
+    <!-- Load API and Exercise Database before main script -->
     <script src="/js/api.js"></script>
     <script>
+        // Load exercise database
+        const EXERCISE_TYPES = {
+            cardio: {
+                examples: ['Running', 'Cycling', 'Swimming', 'Jump Rope', 'Elliptical', 'Rowing', 'Burpees', 'Mountain Climbers']
+            },
+            resistance: {
+                examples: ['Push-ups', 'Squats', 'Bench Press', 'Deadlift', 'Pull-ups', 'Overhead Press', 'Lunges', 'Planks']
+            },
+            flexibility: {
+                examples: ['Hatha Yoga', 'Vinyasa Flow', 'Pilates', 'Dynamic Warm-up', 'Cool-down Stretch', 'Foam Rolling']
+            },
+            balance: {
+                examples: ['Single Leg Stand', 'Tree Pose', 'Tai Chi Form', 'Balance Board', 'Heel-to-Toe Walk']
+            },
+            sports_specific: {
+                examples: ['Box Jumps', 'Ladder Drills', 'Sprint Intervals', 'Kettlebell Swings', 'Battle Ropes', 'Medicine Ball Throws']
+            },
+            recovery: {
+                examples: ['Easy Walk', 'Foam Rolling', 'Gentle Yoga', 'Meditation', 'Breathing Exercises', 'Light Swimming']
+            }
+        };
+
         let workoutStartTime = Date.now();
         let sessionTimer;
         let currentWorkoutId = null;
+        let selectedCategory = null;
+        let selectedIntensity = 'moderate';
 
         // Initialize workout session
         async function initializeWorkout() {
             try {
-                // Check if there's already a workout in progress
                 currentWorkoutId = localStorage.getItem('currentWorkoutId');
                 
                 if (!currentWorkoutId) {
@@ -581,7 +1115,6 @@
                 } else {
                     console.log('Resuming existing workout:', currentWorkoutId);
                     try {
-                        // Verify the workout still exists in MongoDB
                         await API.getWorkout(currentWorkoutId);
                     } catch (error) {
                         console.log('Existing workout not found, creating new one...');
@@ -590,7 +1123,6 @@
                     }
                 }
                 
-                // Load existing exercises and update display
                 await updateWorkoutStats();
                 
             } catch (error) {
@@ -629,11 +1161,9 @@
                 document.getElementById('exerciseCount').textContent = exerciseCount;
                 document.getElementById('totalDuration').textContent = `${totalDuration} min`;
                 
-                // Enable/disable complete button
                 const completeBtn = document.getElementById('completeWorkoutBtn');
                 completeBtn.disabled = exerciseCount === 0;
                 
-                // Update exercises preview
                 updateExercisesPreview(exercises);
                 
             } catch (error) {
@@ -659,101 +1189,139 @@
                 const item = document.createElement('div');
                 item.className = 'exercise-item';
                 
-                if (exercise.type === 'resistance') {
-                    item.innerHTML = `
-                        <strong>${exercise.name}</strong> - 
-                        ${exercise.weight}kg × ${exercise.sets} sets × ${exercise.reps} reps 
-                        (${exercise.duration} min)
-                    `;
-                } else if (exercise.type === 'cardio') {
-                    item.innerHTML = `
-                        <strong>${exercise.name}</strong> - 
-                        ${exercise.distance}km in ${exercise.duration} min
-                    `;
+                let details = `<strong>${exercise.name}</strong>`;
+                details += `<span class="category-badge">${exercise.category || exercise.type}</span><br>`;
+                
+                if (exercise.category === 'resistance' || exercise.type === 'resistance') {
+                    details += `${exercise.weight || 0}kg × ${exercise.sets || 0} sets × ${exercise.reps || 0} reps (${exercise.duration || 0} min)`;
+                } else if (exercise.category === 'cardio' || exercise.type === 'cardio') {
+                    details += `${exercise.distance || 0}km in ${exercise.duration || 0} minutes`;
+                } else {
+                    details += `Duration: ${exercise.duration || 0} minutes`;
                 }
                 
+                if (exercise.intensity) {
+                    details += ` • Intensity: ${exercise.intensity}`;
+                }
+                
+                item.innerHTML = details;
                 list.appendChild(item);
             });
         }
 
-        document.getElementById('exerciseType').addEventListener('change', function() {
-            const type = this.value;
-            const resistanceCard = document.getElementById('resistanceCard');
-            const cardioCard = document.getElementById('cardioCard');
-            
-            resistanceCard.classList.remove('active');
-            cardioCard.classList.remove('active');
-            
-            if (type === 'resistance') {
-                resistanceCard.classList.add('active');
-            } else if (type === 'cardio') {
-                cardioCard.classList.add('active');
+        // Category selection
+        document.querySelectorAll('.category-card').forEach(card => {
+            card.addEventListener('click', () => {
+                // Remove previous selection
+                document.querySelectorAll('.category-card').forEach(c => c.classList.remove('selected'));
+                document.querySelectorAll('.exercise-type-form').forEach(f => f.classList.remove('active'));
+                
+                // Select new category
+                card.classList.add('selected');
+                selectedCategory = card.dataset.category;
+                
+                // Show corresponding form
+                const form = document.getElementById(`${selectedCategory}Form`);
+                if (form) {
+                    form.classList.add('active');
+                    document.getElementById('commonFields').style.display = 'block';
+                }
+                
+                validateForm();
+            });
+        });
+
+        // Intensity selection
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('intensity-option')) {
+                // Remove previous selection
+                e.target.parentElement.querySelectorAll('.intensity-option').forEach(opt => 
+                    opt.classList.remove('selected')
+                );
+                
+                // Select new intensity
+                e.target.classList.add('selected');
+                selectedIntensity = e.target.dataset.intensity;
             }
-            
-            validateForm();
+        });
+
+        // Exercise suggestion clicks
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('exercise-suggestion')) {
+                const exerciseName = e.target.dataset.name;
+                const nameInput = document.querySelector(`#${selectedCategory}Name`);
+                if (nameInput) {
+                    nameInput.value = exerciseName;
+                    validateForm();
+                }
+            }
         });
 
         function validateForm() {
-            const type = document.getElementById('exerciseType').value;
-            let isValid = false;
+            const addBtn = document.getElementById('addExerciseBtn');
             
-            if (type === 'resistance') {
-                const name = document.getElementById('resistanceName').value.trim();
-                const weight = document.getElementById('weight').value;
-                const sets = document.getElementById('sets').value;
-                const reps = document.getElementById('reps').value;
-                const duration = document.getElementById('resistanceDuration').value;
-                
-                isValid = name && weight && sets && reps && duration;
-            } else if (type === 'cardio') {
-                const name = document.getElementById('cardioName').value.trim();
-                const distance = document.getElementById('distance').value;
-                const duration = document.getElementById('cardioDuration').value;
-                
-                isValid = name && distance && duration;
+            if (!selectedCategory) {
+                addBtn.disabled = true;
+                return;
             }
             
-            document.getElementById('addExerciseBtn').disabled = !isValid;
+            let isValid = false;
+            
+            if (selectedCategory === 'cardio') {
+                const name = document.getElementById('cardioName').value.trim();
+                const distance = document.getElementById('cardioDistance').value;
+                const duration = document.getElementById('cardioDuration').value;
+                isValid = name && distance && duration;
+            } else if (selectedCategory === 'resistance') {
+                const name = document.getElementById('resistanceName').value.trim();
+                const weight = document.getElementById('resistanceWeight').value;
+                const sets = document.getElementById('resistanceSets').value;
+                const reps = document.getElementById('resistanceReps').value;
+                const duration = document.getElementById('resistanceDuration').value;
+                isValid = name && weight !== '' && sets && reps && duration;
+            } else if (selectedCategory === 'flexibility') {
+                const name = document.getElementById('flexibilityName').value.trim();
+                const duration = document.getElementById('flexibilityDuration').value;
+                isValid = name && duration;
+            } else if (selectedCategory === 'balance') {
+                const name = document.getElementById('balanceName').value.trim();
+                const duration = document.getElementById('balanceDuration').value;
+                isValid = name && duration;
+            } else if (selectedCategory === 'sports_specific') {
+                const name = document.getElementById('sportsName').value.trim();
+                const duration = document.getElementById('sportsDuration').value;
+                isValid = name && duration;
+            } else if (selectedCategory === 'recovery') {
+                const name = document.getElementById('recoveryName').value.trim();
+                const duration = document.getElementById('recoveryDuration').value;
+                isValid = name && duration;
+            }
+            
+            addBtn.disabled = !isValid;
         }
 
-        document.querySelectorAll('input, select').forEach(input => {
+        // Form validation listeners
+        document.querySelectorAll('input, select, textarea').forEach(input => {
             input.addEventListener('input', validateForm);
+            input.addEventListener('change', validateForm);
         });
 
+        // Add exercise
         document.getElementById('addExerciseBtn').addEventListener('click', async function() {
             const btn = this;
-            const type = document.getElementById('exerciseType').value;
             
-            if (!currentWorkoutId) {
-                showToast('No workout session active. Please refresh the page.', 'error');
+            if (!currentWorkoutId || !selectedCategory) {
+                showToast('No workout session active or category selected.', 'error');
                 return;
             }
             
             btn.classList.add('btn-loading');
             btn.disabled = true;
             
-            let exerciseData = { type };
-            
-            if (type === 'resistance') {
-                exerciseData = {
-                    ...exerciseData,
-                    name: document.getElementById('resistanceName').value.trim(),
-                    weight: parseFloat(document.getElementById('weight').value),
-                    sets: parseInt(document.getElementById('sets').value),
-                    reps: parseInt(document.getElementById('reps').value),
-                    duration: parseInt(document.getElementById('resistanceDuration').value)
-                };
-            } else if (type === 'cardio') {
-                exerciseData = {
-                    ...exerciseData,
-                    name: document.getElementById('cardioName').value.trim(),
-                    distance: parseFloat(document.getElementById('distance').value),
-                    duration: parseInt(document.getElementById('cardioDuration').value)
-                };
-            }
-
             try {
+                const exerciseData = await buildExerciseData();
                 console.log('Adding exercise:', exerciseData);
+                
                 await API.addExercise(exerciseData);
                 
                 showToast('Exercise added successfully!', 'success');
@@ -762,13 +1330,83 @@
                 
             } catch (error) {
                 console.error('Error adding exercise:', error);
-                showToast('Error adding exercise. Please try again.', 'error');
+                showToast(`Error adding exercise: ${error.message}`, 'error');
             } finally {
                 btn.classList.remove('btn-loading');
-                validateForm(); // Re-enable button if form is valid
+                validateForm();
             }
         });
 
+        async function buildExerciseData() {
+            const commonData = {
+                category: selectedCategory,
+                intensity: selectedIntensity,
+                notes: document.getElementById('exerciseNotes').value.trim(),
+                perceivedExertion: parseInt(document.getElementById('perceivedExertion').value) || undefined,
+                performanceRating: parseInt(document.getElementById('performanceRating').value) || undefined
+            };
+
+            let exerciseData = { ...commonData };
+
+            if (selectedCategory === 'cardio') {
+                exerciseData = {
+                    ...exerciseData,
+                    type: document.getElementById('cardioType').value,
+                    name: document.getElementById('cardioName').value.trim(),
+                    distance: parseFloat(document.getElementById('cardioDistance').value),
+                    duration: parseInt(document.getElementById('cardioDuration').value),
+                    caloriesBurned: parseInt(document.getElementById('cardioCalories').value) || undefined,
+                    averageHeartRate: parseInt(document.getElementById('cardioHeartRate').value) || undefined
+                };
+            } else if (selectedCategory === 'resistance') {
+                exerciseData = {
+                    ...exerciseData,
+                    type: document.getElementById('resistanceType').value,
+                    name: document.getElementById('resistanceName').value.trim(),
+                    weight: parseFloat(document.getElementById('resistanceWeight').value),
+                    sets: parseInt(document.getElementById('resistanceSets').value),
+                    reps: parseInt(document.getElementById('resistanceReps').value),
+                    duration: parseInt(document.getElementById('resistanceDuration').value),
+                    restBetweenSets: parseInt(document.getElementById('resistanceRest').value) || 60,
+                    equipment: document.getElementById('resistanceEquipment').value
+                };
+            } else if (selectedCategory === 'flexibility') {
+                exerciseData = {
+                    ...exerciseData,
+                    type: document.getElementById('flexibilityType').value,
+                    name: document.getElementById('flexibilityName').value.trim(),
+                    duration: parseInt(document.getElementById('flexibilityDuration').value),
+                    stretchHoldTime: parseInt(document.getElementById('flexibilityHold').value) || undefined
+                };
+            } else if (selectedCategory === 'balance') {
+                exerciseData = {
+                    ...exerciseData,
+                    type: document.getElementById('balanceType').value,
+                    name: document.getElementById('balanceName').value.trim(),
+                    duration: parseInt(document.getElementById('balanceDuration').value),
+                    equipment: document.getElementById('balanceEquipment').value
+                };
+            } else if (selectedCategory === 'sports_specific') {
+                exerciseData = {
+                    ...exerciseData,
+                    type: document.getElementById('sportsType').value,
+                    name: document.getElementById('sportsName').value.trim(),
+                    duration: parseInt(document.getElementById('sportsDuration').value),
+                    sets: parseInt(document.getElementById('sportsRounds').value) || undefined
+                };
+            } else if (selectedCategory === 'recovery') {
+                exerciseData = {
+                    ...exerciseData,
+                    type: document.getElementById('recoveryType').value,
+                    name: document.getElementById('recoveryName').value.trim(),
+                    duration: parseInt(document.getElementById('recoveryDuration').value)
+                };
+            }
+
+            return exerciseData;
+        }
+
+        // Complete workout
         document.getElementById('completeWorkoutBtn').addEventListener('click', async function() {
             const btn = this;
             
@@ -781,9 +1419,8 @@
             btn.disabled = true;
             
             try {
-                // Verify workout has exercises
                 const workout = await API.getWorkout(currentWorkoutId);
-                if (!workout.exercises || workout.exercises.length === 0) {
+                if (!workout || !workout.exercises || workout.exercises.length === 0) {
                     showToast('Please add at least one exercise before completing the workout.', 'error');
                     btn.classList.remove('btn-loading');
                     btn.disabled = false;
@@ -808,9 +1445,33 @@
         });
 
         function resetForm() {
-            document.getElementById('exerciseForm').reset();
-            document.getElementById('resistanceCard').classList.remove('active');
-            document.getElementById('cardioCard').classList.remove('active');
+            // Clear category selection
+            document.querySelectorAll('.category-card').forEach(c => c.classList.remove('selected'));
+            document.querySelectorAll('.exercise-type-form').forEach(f => f.classList.remove('active'));
+            document.getElementById('commonFields').style.display = 'none';
+            
+            // Clear all form inputs
+            document.querySelectorAll('input, select, textarea').forEach(input => {
+                if (input.type === 'number') {
+                    input.value = '';
+                } else if (input.tagName === 'SELECT') {
+                    input.selectedIndex = 0;
+                } else {
+                    input.value = '';
+                }
+            });
+            
+            // Reset default values
+            document.getElementById('resistanceRest').value = '60';
+            document.getElementById('perceivedExertion').value = '';
+            document.getElementById('performanceRating').value = '';
+            
+            // Clear intensity selection
+            document.querySelectorAll('.intensity-option').forEach(opt => opt.classList.remove('selected'));
+            
+            selectedCategory = null;
+            selectedIntensity = 'moderate';
+            
             document.getElementById('addExerciseBtn').disabled = true;
         }
 
@@ -856,7 +1517,7 @@
                 localStorage.setItem('workoutStartTime', workoutStartTime.toString());
             } else {
                 startSessionTimer();
-                updateWorkoutStats(); // Refresh data when page becomes visible
+                updateWorkoutStats();
             }
         });
 
@@ -877,6 +1538,21 @@
             if (e.key === 'Escape') {
                 resetForm();
             }
+        });
+
+        // Set default intensity on category selection
+        document.querySelectorAll('.category-card').forEach(card => {
+            card.addEventListener('click', () => {
+                setTimeout(() => {
+                    const activeForm = document.querySelector('.exercise-type-form.active');
+                    if (activeForm) {
+                        const moderateOption = activeForm.querySelector('.intensity-option[data-intensity="moderate"]');
+                        if (moderateOption) {
+                            moderateOption.click();
+                        }
+                    }
+                }, 100);
+            });
         });
     </script>
 </body>

@@ -1,28 +1,228 @@
 const router = require("express").Router();
 const Workout = require("../models/Workout");
 
+// Exercise type validation lists
+const VALID_CATEGORIES = ["cardio", "resistance", "flexibility", "balance", "sports_specific", "recovery"];
+const VALID_TYPES = [
+    // Main categories
+    "cardio", "resistance", "flexibility", "balance", "sports_specific", "recovery",
+    // Cardio subcategories
+    "low_intensity_cardio", "moderate_intensity_cardio", "high_intensity_cardio", "hiit",
+    // Resistance subcategories
+    "bodyweight", "free_weights", "machines", "resistance_bands", "powerlifting", "olympic_lifting",
+    // Flexibility subcategories
+    "static_stretching", "dynamic_stretching", "yoga", "pilates",
+    // Balance subcategories
+    "balance_training", "functional_movement", "tai_chi",
+    // Sports specific subcategories
+    "plyometrics", "agility", "endurance", "crossfit",
+    // Recovery subcategories
+    "active_recovery", "mobility_work", "meditation"
+];
+const VALID_INTENSITIES = ["light", "moderate", "vigorous", "maximum"];
+const VALID_EQUIPMENT = [
+    "none", "dumbbells", "barbell", "kettlebell", "resistance_bands", 
+    "machines", "cardio_equipment", "suspension", "medicine_ball", "stability_ball"
+];
+
 // Middleware for logging API requests
 router.use((req, res, next) => {
     console.log(`📡 ${req.method} ${req.path} - ${new Date().toISOString()}`);
     next();
 });
 
+// Helper function to map exercise type to category
+function getExerciseCategory(type) {
+    const typeToCategory = {
+        // Cardio types
+        'cardio': 'cardio',
+        'low_intensity_cardio': 'cardio',
+        'moderate_intensity_cardio': 'cardio',
+        'high_intensity_cardio': 'cardio',
+        'hiit': 'cardio',
+        
+        // Resistance types
+        'resistance': 'resistance',
+        'bodyweight': 'resistance',
+        'free_weights': 'resistance',
+        'machines': 'resistance',
+        'resistance_bands': 'resistance',
+        'powerlifting': 'resistance',
+        'olympic_lifting': 'resistance',
+        
+        // Flexibility types
+        'flexibility': 'flexibility',
+        'static_stretching': 'flexibility',
+        'dynamic_stretching': 'flexibility',
+        'yoga': 'flexibility',
+        'pilates': 'flexibility',
+        
+        // Balance types
+        'balance': 'balance',
+        'balance_training': 'balance',
+        'functional_movement': 'balance',
+        'tai_chi': 'balance',
+        
+        // Sports specific types
+        'sports_specific': 'sports_specific',
+        'plyometrics': 'sports_specific',
+        'agility': 'sports_specific',
+        'endurance': 'sports_specific',
+        'crossfit': 'sports_specific',
+        
+        // Recovery types
+        'recovery': 'recovery',
+        'active_recovery': 'recovery',
+        'mobility_work': 'recovery',
+        'meditation': 'recovery'
+    };
+    
+    return typeToCategory[type] || 'resistance'; // Default fallback
+}
+
+// Helper function to validate exercise data
+function validateExerciseData(exerciseData) {
+    const errors = [];
+    
+    // Required fields
+    if (!exerciseData.name || !exerciseData.name.trim()) {
+        errors.push("Exercise name is required");
+    }
+    
+    if (!exerciseData.type || !VALID_TYPES.includes(exerciseData.type)) {
+        errors.push("Valid exercise type is required");
+    }
+    
+    if (!exerciseData.duration || exerciseData.duration <= 0) {
+        errors.push("Duration must be greater than 0");
+    }
+    
+    // Auto-set category if not provided
+    if (!exerciseData.category) {
+        exerciseData.category = getExerciseCategory(exerciseData.type);
+    }
+    
+    // Validate category
+    if (!VALID_CATEGORIES.includes(exerciseData.category)) {
+        errors.push("Valid exercise category is required");
+    }
+    
+    // Validate intensity if provided
+    if (exerciseData.intensity && !VALID_INTENSITIES.includes(exerciseData.intensity)) {
+        errors.push("Invalid intensity level");
+    }
+    
+    // Validate equipment if provided
+    if (exerciseData.equipment && !VALID_EQUIPMENT.includes(exerciseData.equipment)) {
+        errors.push("Invalid equipment type");
+    }
+    
+    // Category-specific validation
+    if (exerciseData.category === 'resistance') {
+        // For traditional resistance training, require sets and reps
+        if (['resistance', 'free_weights', 'machines', 'powerlifting'].includes(exerciseData.type)) {
+            if (!exerciseData.reps || exerciseData.reps <= 0) {
+                errors.push('Traditional resistance exercises must have positive reps');
+            }
+            if (!exerciseData.sets || exerciseData.sets <= 0) {
+                errors.push('Traditional resistance exercises must have positive sets');
+            }
+        }
+        
+        // Weight validation
+        if (exerciseData.weight !== undefined && exerciseData.weight < 0) {
+            errors.push('Weight cannot be negative');
+        }
+    }
+    
+    if (exerciseData.category === 'cardio') {
+        // Distance validation
+        if (exerciseData.distance !== undefined && exerciseData.distance < 0) {
+            errors.push('Distance cannot be negative');
+        }
+        
+        // Heart rate validation
+        if (exerciseData.averageHeartRate && (exerciseData.averageHeartRate < 50 || exerciseData.averageHeartRate > 220)) {
+            errors.push('Average heart rate seems unrealistic (50-220 bpm)');
+        }
+        
+        if (exerciseData.maxHeartRate && (exerciseData.maxHeartRate < 50 || exerciseData.maxHeartRate > 220)) {
+            errors.push('Max heart rate seems unrealistic (50-220 bpm)');
+        }
+    }
+    
+    // Validate perceived exertion
+    if (exerciseData.perceivedExertion && (exerciseData.perceivedExertion < 1 || exerciseData.perceivedExertion > 10)) {
+        errors.push('Perceived exertion must be between 1 and 10');
+    }
+    
+    // Validate performance rating
+    if (exerciseData.performanceRating && (exerciseData.performanceRating < 1 || exerciseData.performanceRating > 5)) {
+        errors.push('Performance rating must be between 1 and 5');
+    }
+    
+    return errors;
+}
+
 // GET all workouts (sorted by newest first)
 router.get("/api/workouts", async (req, res) => {
     try {
         console.log("📋 Fetching all workouts from MongoDB...");
-        const workouts = await Workout.find({}).sort({ day: -1 });
+        
+        // Support filtering by category, type, or date range
+        const { category, type, startDate, endDate, limit } = req.query;
+        let query = {};
+        
+        if (category) {
+            query['exercises.category'] = category;
+        }
+        
+        if (type) {
+            query['exercises.type'] = type;
+        }
+        
+        if (startDate || endDate) {
+            query.day = {};
+            if (startDate) query.day.$gte = new Date(startDate);
+            if (endDate) query.day.$lte = new Date(endDate);
+        }
+        
+        const workouts = await Workout.find(query)
+            .sort({ day: -1 })
+            .limit(limit ? parseInt(limit) : 0);
+            
         console.log(`✅ Found ${workouts.length} workouts`);
         
-        // Add some basic validation
-        const validWorkouts = workouts.map(workout => ({
+        // Include virtual fields in response
+        const workoutsWithVirtuals = workouts.map(workout => ({
             _id: workout._id,
             day: workout.day,
             exercises: workout.exercises || [],
-            totalDuration: workout.totalDuration || 0
+            title: workout.title,
+            description: workout.description,
+            location: workout.location,
+            workoutType: workout.workoutType,
+            difficulty: workout.difficulty,
+            overallRating: workout.overallRating,
+            mood: workout.mood,
+            notes: workout.notes,
+            goals: workout.goals,
+            achievements: workout.achievements,
+            personalRecords: workout.personalRecords,
+            createdAt: workout.createdAt,
+            updatedAt: workout.updatedAt,
+            // Virtual fields
+            totalDuration: workout.totalDuration,
+            exerciseCount: workout.exerciseCount,
+            totalCalories: workout.totalCalories,
+            totalVolume: workout.totalVolume,
+            totalDistance: workout.totalDistance,
+            categoryBreakdown: workout.categoryBreakdown,
+            intensityBreakdown: workout.intensityBreakdown,
+            averageIntensity: workout.averageIntensity
         }));
         
-        res.json(validWorkouts);
+        res.json(workoutsWithVirtuals);
     } catch (err) {
         console.error("❌ Error fetching workouts:", err);
         res.status(500).json({ 
@@ -41,16 +241,35 @@ router.post("/api/workouts", async (req, res) => {
         const workoutData = {
             day: req.body.day || new Date().toISOString(),
             exercises: Array.isArray(req.body.exercises) ? req.body.exercises : [],
-            totalDuration: req.body.totalDuration || 0,
-            ...req.body
+            title: req.body.title || undefined,
+            description: req.body.description || undefined,
+            location: req.body.location || "gym",
+            workoutType: req.body.workoutType || "mixed",
+            difficulty: req.body.difficulty || "intermediate",
+            overallRating: req.body.overallRating || undefined,
+            mood: req.body.mood || undefined,
+            notes: req.body.notes || undefined,
+            goals: req.body.goals || [],
+            achievements: req.body.achievements || [],
+            personalRecords: req.body.personalRecords || []
         };
         
         // Validate exercises if provided
         if (workoutData.exercises.length > 0) {
-            const validExercises = workoutData.exercises.filter(ex => 
-                ex.name && ex.type && (ex.type === 'cardio' || ex.type === 'resistance')
-            );
-            workoutData.exercises = validExercises;
+            const validationErrors = [];
+            workoutData.exercises.forEach((exercise, index) => {
+                const errors = validateExerciseData(exercise);
+                if (errors.length > 0) {
+                    validationErrors.push(`Exercise ${index + 1}: ${errors.join(', ')}`);
+                }
+            });
+            
+            if (validationErrors.length > 0) {
+                return res.status(400).json({
+                    error: "Exercise validation failed",
+                    details: validationErrors.join('; ')
+                });
+            }
         }
         
         const workout = await Workout.create(workoutData);
@@ -60,7 +279,14 @@ router.post("/api/workouts", async (req, res) => {
             _id: workout._id,
             day: workout.day,
             exercises: workout.exercises,
-            totalDuration: workout.totalDuration || 0
+            title: workout.title,
+            description: workout.description,
+            location: workout.location,
+            workoutType: workout.workoutType,
+            difficulty: workout.difficulty,
+            totalDuration: workout.totalDuration,
+            exerciseCount: workout.exerciseCount,
+            categoryBreakdown: workout.categoryBreakdown
         });
     } catch (err) {
         console.error("❌ Error creating workout:", err);
@@ -107,7 +333,28 @@ router.get("/api/workouts/:id", async (req, res) => {
             _id: workout._id,
             day: workout.day,
             exercises: workout.exercises || [],
-            totalDuration: workout.totalDuration || 0
+            title: workout.title,
+            description: workout.description,
+            location: workout.location,
+            workoutType: workout.workoutType,
+            difficulty: workout.difficulty,
+            overallRating: workout.overallRating,
+            mood: workout.mood,
+            notes: workout.notes,
+            goals: workout.goals,
+            achievements: workout.achievements,
+            personalRecords: workout.personalRecords,
+            createdAt: workout.createdAt,
+            updatedAt: workout.updatedAt,
+            // Virtual fields
+            totalDuration: workout.totalDuration,
+            exerciseCount: workout.exerciseCount,
+            totalCalories: workout.totalCalories,
+            totalVolume: workout.totalVolume,
+            totalDistance: workout.totalDistance,
+            categoryBreakdown: workout.categoryBreakdown,
+            intensityBreakdown: workout.intensityBreakdown,
+            averageIntensity: workout.averageIntensity
         });
     } catch (err) {
         console.error("❌ Error fetching workout:", err);
@@ -133,91 +380,50 @@ router.post("/api/workouts/:id/exercises", async (req, res) => {
         }
         
         // Validate exercise data
-        const exerciseData = req.body;
+        const exerciseData = { ...req.body };
+        const validationErrors = validateExerciseData(exerciseData);
         
-        // Required fields validation
-        if (!exerciseData.name || !exerciseData.type) {
-            return res.status(400).json({ 
-                error: "Missing required fields",
-                details: "Exercise name and type are required"
+        if (validationErrors.length > 0) {
+            return res.status(400).json({
+                error: "Exercise validation failed",
+                details: validationErrors.join(', ')
             });
         }
         
-        // Type validation
-        if (!['cardio', 'resistance'].includes(exerciseData.type)) {
-            return res.status(400).json({ 
-                error: "Invalid exercise type",
-                details: "Exercise type must be 'cardio' or 'resistance'"
-            });
-        }
-        
-        // Type-specific validation
-        if (exerciseData.type === 'resistance') {
-            const requiredFields = ['weight', 'sets', 'reps', 'duration'];
-            const missingFields = requiredFields.filter(field => 
-                exerciseData[field] === undefined || exerciseData[field] === null
-            );
-            
-            if (missingFields.length > 0) {
-                return res.status(400).json({
-                    error: "Missing required resistance exercise fields",
-                    details: `Missing: ${missingFields.join(', ')}`
-                });
-            }
-            
-            // Validate numeric values
-            if (exerciseData.weight < 0 || exerciseData.sets <= 0 || 
-                exerciseData.reps <= 0 || exerciseData.duration <= 0) {
-                return res.status(400).json({
-                    error: "Invalid numeric values",
-                    details: "Weight must be >= 0, sets/reps/duration must be > 0"
-                });
-            }
-        }
-        
-        if (exerciseData.type === 'cardio') {
-            const requiredFields = ['distance', 'duration'];
-            const missingFields = requiredFields.filter(field => 
-                exerciseData[field] === undefined || exerciseData[field] === null
-            );
-            
-            if (missingFields.length > 0) {
-                return res.status(400).json({
-                    error: "Missing required cardio exercise fields",
-                    details: `Missing: ${missingFields.join(', ')}`
-                });
-            }
-            
-            // Validate numeric values
-            if (exerciseData.distance < 0 || exerciseData.duration <= 0) {
-                return res.status(400).json({
-                    error: "Invalid numeric values",
-                    details: "Distance must be >= 0, duration must be > 0"
-                });
-            }
-        }
-        
-        // Sanitize exercise data
+        // Clean and prepare exercise data
         const cleanExercise = {
             name: exerciseData.name.trim(),
             type: exerciseData.type,
-            duration: parseInt(exerciseData.duration)
+            category: exerciseData.category,
+            duration: parseInt(exerciseData.duration),
+            intensity: exerciseData.intensity || 'moderate',
+            equipment: exerciseData.equipment || 'none',
+            notes: exerciseData.notes ? exerciseData.notes.trim() : undefined,
+            perceivedExertion: exerciseData.perceivedExertion ? parseInt(exerciseData.perceivedExertion) : undefined,
+            performanceRating: exerciseData.performanceRating ? parseInt(exerciseData.performanceRating) : undefined
         };
         
-        if (exerciseData.type === 'resistance') {
-            cleanExercise.weight = parseFloat(exerciseData.weight);
-            cleanExercise.sets = parseInt(exerciseData.sets);
-            cleanExercise.reps = parseInt(exerciseData.reps);
-        } else if (exerciseData.type === 'cardio') {
-            cleanExercise.distance = parseFloat(exerciseData.distance);
+        // Add category-specific fields
+        if (exerciseData.category === 'cardio') {
+            if (exerciseData.distance !== undefined) cleanExercise.distance = parseFloat(exerciseData.distance);
+            if (exerciseData.caloriesBurned) cleanExercise.caloriesBurned = parseInt(exerciseData.caloriesBurned);
+            if (exerciseData.averageHeartRate) cleanExercise.averageHeartRate = parseInt(exerciseData.averageHeartRate);
+            if (exerciseData.maxHeartRate) cleanExercise.maxHeartRate = parseInt(exerciseData.maxHeartRate);
+        } else if (exerciseData.category === 'resistance') {
+            if (exerciseData.weight !== undefined) cleanExercise.weight = parseFloat(exerciseData.weight);
+            if (exerciseData.sets) cleanExercise.sets = parseInt(exerciseData.sets);
+            if (exerciseData.reps) cleanExercise.reps = parseInt(exerciseData.reps);
+            if (exerciseData.restBetweenSets) cleanExercise.restBetweenSets = parseInt(exerciseData.restBetweenSets);
+        } else if (exerciseData.category === 'flexibility') {
+            if (exerciseData.stretchHoldTime) cleanExercise.stretchHoldTime = parseInt(exerciseData.stretchHoldTime);
+            if (exerciseData.rangeOfMotionImprovement) cleanExercise.rangeOfMotionImprovement = exerciseData.rangeOfMotionImprovement;
         }
         
         // Add exercise to workout
         const workout = await Workout.findByIdAndUpdate(
             req.params.id,
             { 
-                $push: { exercises: cleanExercise },
-                $inc: { totalDuration: cleanExercise.duration }
+                $push: { exercises: cleanExercise }
             },
             { new: true, runValidators: true }
         );
@@ -236,7 +442,12 @@ router.post("/api/workouts/:id/exercises", async (req, res) => {
             _id: workout._id,
             day: workout.day,
             exercises: workout.exercises,
-            totalDuration: workout.totalDuration || 0
+            title: workout.title,
+            workoutType: workout.workoutType,
+            totalDuration: workout.totalDuration,
+            exerciseCount: workout.exerciseCount,
+            categoryBreakdown: workout.categoryBreakdown,
+            intensityBreakdown: workout.intensityBreakdown
         });
     } catch (err) {
         console.error("❌ Error adding exercise:", err);
@@ -269,44 +480,6 @@ router.put("/api/workouts/:id", async (req, res) => {
             });
         }
         
-        // Handle legacy single exercise addition (backward compatibility)
-        if (req.body.name && req.body.type && !req.body.exercises) {
-            console.log("Legacy exercise addition detected, redirecting to POST /exercises");
-            
-            // Validate exercise data
-            if (!['cardio', 'resistance'].includes(req.body.type)) {
-                return res.status(400).json({
-                    error: "Invalid exercise type",
-                    details: "Exercise type must be 'cardio' or 'resistance'"
-                });
-            }
-            
-            const workout = await Workout.findByIdAndUpdate(
-                req.params.id,
-                { 
-                    $push: { exercises: req.body },
-                    $inc: { totalDuration: parseInt(req.body.duration) || 0 }
-                },
-                { new: true, runValidators: true }
-            );
-            
-            if (!workout) {
-                return res.status(404).json({ 
-                    error: "Workout not found",
-                    details: `No workout found with ID: ${req.params.id}`
-                });
-            }
-            
-            console.log("✅ Exercise added via PUT (legacy):", workout._id);
-            return res.json({
-                _id: workout._id,
-                day: workout.day,
-                exercises: workout.exercises,
-                totalDuration: workout.totalDuration || 0
-            });
-        }
-        
-        // Regular workout update
         const updateData = { ...req.body };
         
         // Validate exercises if provided
@@ -318,10 +491,20 @@ router.put("/api/workouts/:id", async (req, res) => {
                 });
             }
             
-            // Calculate total duration from exercises
-            updateData.totalDuration = updateData.exercises.reduce((sum, ex) => 
-                sum + (parseInt(ex.duration) || 0), 0
-            );
+            const validationErrors = [];
+            updateData.exercises.forEach((exercise, index) => {
+                const errors = validateExerciseData(exercise);
+                if (errors.length > 0) {
+                    validationErrors.push(`Exercise ${index + 1}: ${errors.join(', ')}`);
+                }
+            });
+            
+            if (validationErrors.length > 0) {
+                return res.status(400).json({
+                    error: "Exercise validation failed",
+                    details: validationErrors.join('; ')
+                });
+            }
         }
         
         const workout = await Workout.findByIdAndUpdate(
@@ -342,7 +525,18 @@ router.put("/api/workouts/:id", async (req, res) => {
             _id: workout._id,
             day: workout.day,
             exercises: workout.exercises,
-            totalDuration: workout.totalDuration || 0
+            title: workout.title,
+            description: workout.description,
+            location: workout.location,
+            workoutType: workout.workoutType,
+            difficulty: workout.difficulty,
+            overallRating: workout.overallRating,
+            mood: workout.mood,
+            notes: workout.notes,
+            totalDuration: workout.totalDuration,
+            exerciseCount: workout.exerciseCount,
+            categoryBreakdown: workout.categoryBreakdown,
+            intensityBreakdown: workout.intensityBreakdown
         });
     } catch (err) {
         console.error("❌ Error updating workout:", err);
@@ -401,89 +595,10 @@ router.delete("/api/workouts/:id", async (req, res) => {
     }
 });
 
-// DELETE single exercise from workout
-router.delete("/api/workouts/:id/exercises/:exerciseIndex", async (req, res) => {
-    try {
-        const { id, exerciseIndex } = req.params;
-        console.log(`🗑️ Deleting exercise ${exerciseIndex} from workout ${id}`);
-        
-        // Validate ObjectId format
-        if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-            return res.status(400).json({ 
-                error: "Invalid workout ID format",
-                details: "Workout ID must be a valid MongoDB ObjectId"
-            });
-        }
-        
-        // Validate exercise index
-        const index = parseInt(exerciseIndex);
-        if (isNaN(index) || index < 0) {
-            return res.status(400).json({
-                error: "Invalid exercise index",
-                details: "Exercise index must be a non-negative number"
-            });
-        }
-        
-        // Get workout first to validate exercise exists
-        const workout = await Workout.findById(id);
-        if (!workout) {
-            return res.status(404).json({ 
-                error: "Workout not found",
-                details: `No workout found with ID: ${id}`
-            });
-        }
-        
-        if (!workout.exercises || index >= workout.exercises.length) {
-            return res.status(404).json({
-                error: "Exercise not found",
-                details: `No exercise found at index ${index}`
-            });
-        }
-        
-        // Get the exercise duration before deletion for totalDuration update
-        const exerciseDuration = workout.exercises[index].duration || 0;
-        
-        // Remove exercise using MongoDB array operations
-        const updatedWorkout = await Workout.findByIdAndUpdate(
-            id,
-            { 
-                $unset: { [`exercises.${index}`]: 1 },
-                $inc: { totalDuration: -exerciseDuration }
-            },
-            { new: true }
-        );
-        
-        // Remove null elements left by $unset
-        await Workout.findByIdAndUpdate(
-            id,
-            { $pull: { exercises: null } },
-            { new: true }
-        );
-        
-        // Get final updated workout
-        const finalWorkout = await Workout.findById(id);
-        
-        console.log(`✅ Exercise deleted successfully from workout ${id}`);
-        res.json({
-            _id: finalWorkout._id,
-            day: finalWorkout.day,
-            exercises: finalWorkout.exercises,
-            totalDuration: finalWorkout.totalDuration || 0
-        });
-        
-    } catch (err) {
-        console.error("❌ Error deleting exercise:", err);
-        res.status(500).json({ 
-            error: "Failed to delete exercise", 
-            details: err.message 
-        });
-    }
-});
-
-// GET workout statistics
+// GET workout statistics with enhanced analytics
 router.get("/api/workouts/stats/summary", async (req, res) => {
     try {
-        console.log("📊 Calculating workout statistics...");
+        console.log("📊 Calculating enhanced workout statistics...");
         
         const workouts = await Workout.find({}).sort({ day: -1 });
         
@@ -493,52 +608,75 @@ router.get("/api/workouts/stats/summary", async (req, res) => {
                 totalExercises: 0,
                 totalDuration: 0,
                 averageDuration: 0,
-                totalWeight: 0,
-                averageExercisesPerWorkout: 0,
+                totalCalories: 0,
+                totalVolume: 0,
+                totalDistance: 0,
+                categoryStats: {},
+                intensityStats: {},
+                equipmentStats: {},
+                weeklyAverage: 0,
+                monthlyAverage: 0,
                 lastWorkoutDate: null
             });
         }
 
-        const stats = {
-            totalWorkouts: workouts.length,
-            totalExercises: 0,
-            totalDuration: 0,
-            totalWeight: 0,
-            cardioDistance: 0,
-            resistanceExercises: 0,
-            cardioExercises: 0
+        const stats = await Workout.getWorkoutStatistics();
+        const categoryStats = await Workout.getCategoryStatistics();
+        
+        // Calculate additional statistics
+        const now = new Date();
+        const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        
+        const weeklyWorkouts = workouts.filter(w => new Date(w.day) >= oneWeekAgo);
+        const monthlyWorkouts = workouts.filter(w => new Date(w.day) >= oneMonthAgo);
+        
+        // Intensity breakdown
+        const intensityStats = {};
+        const equipmentStats = {};
+        
+        workouts.forEach(workout => {
+            workout.exercises.forEach(exercise => {
+                // Intensity stats
+                const intensity = exercise.intensity || 'moderate';
+                if (!intensityStats[intensity]) {
+                    intensityStats[intensity] = { count: 0, duration: 0 };
+                }
+                intensityStats[intensity].count++;
+                intensityStats[intensity].duration += exercise.duration || 0;
+                
+                // Equipment stats
+                const equipment = exercise.equipment || 'none';
+                if (!equipmentStats[equipment]) {
+                    equipmentStats[equipment] = { count: 0, duration: 0 };
+                }
+                equipmentStats[equipment].count++;
+                equipmentStats[equipment].duration += exercise.duration || 0;
+            });
+        });
+        
+        const enhancedStats = {
+            ...stats,
+            categoryStats: categoryStats.reduce((acc, cat) => {
+                acc[cat._id] = {
+                    count: cat.count,
+                    totalDuration: cat.totalDuration,
+                    averageDuration: cat.averageDuration,
+                    totalCalories: cat.totalCalories || 0,
+                    popularExercises: cat.exercises.slice(0, 5)
+                };
+                return acc;
+            }, {}),
+            intensityStats,
+            equipmentStats,
+            weeklyAverage: weeklyWorkouts.length,
+            monthlyAverage: Math.round(monthlyWorkouts.length * (30/30)), // Normalized to 30 days
+            currentStreak: calculateWorkoutStreak(workouts),
+            longestStreak: calculateLongestStreak(workouts)
         };
 
-        workouts.forEach(workout => {
-            if (workout.exercises && workout.exercises.length > 0) {
-                stats.totalExercises += workout.exercises.length;
-                
-                workout.exercises.forEach(exercise => {
-                    stats.totalDuration += exercise.duration || 0;
-                    
-                    if (exercise.type === 'resistance') {
-                        stats.resistanceExercises++;
-                        const weight = exercise.weight || 0;
-                        const reps = exercise.reps || 0;
-                        const sets = exercise.sets || 1;
-                        stats.totalWeight += weight * reps * sets;
-                    } else if (exercise.type === 'cardio') {
-                        stats.cardioExercises++;
-                        stats.cardioDistance += exercise.distance || 0;
-                    }
-                });
-            }
-        });
-
-        // Calculate averages
-        stats.averageDuration = stats.totalWorkouts > 0 ? 
-            Math.round(stats.totalDuration / stats.totalWorkouts) : 0;
-        stats.averageExercisesPerWorkout = stats.totalWorkouts > 0 ?
-            Math.round((stats.totalExercises / stats.totalWorkouts) * 10) / 10 : 0;
-        stats.lastWorkoutDate = workouts[0]?.day || null;
-
-        console.log("✅ Workout statistics calculated:", stats);
-        res.json(stats);
+        console.log("✅ Enhanced workout statistics calculated");
+        res.json(enhancedStats);
     } catch (err) {
         console.error("❌ Error calculating workout stats:", err);
         res.status(500).json({ 
@@ -548,27 +686,199 @@ router.get("/api/workouts/stats/summary", async (req, res) => {
     }
 });
 
-// Health check endpoint
+// Helper function to calculate current workout streak
+function calculateWorkoutStreak(workouts) {
+    if (!workouts || workouts.length === 0) return 0;
+    
+    const sortedWorkouts = [...workouts].sort((a, b) => new Date(b.day) - new Date(a.day));
+    let streak = 0;
+    let currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+    
+    for (const workout of sortedWorkouts) {
+        const workoutDate = new Date(workout.day);
+        workoutDate.setHours(0, 0, 0, 0);
+        const daysDiff = Math.floor((currentDate - workoutDate) / (1000 * 60 * 60 * 24));
+        
+        if (daysDiff <= 1) {
+            streak++;
+            currentDate = workoutDate;
+        } else {
+            break;
+        }
+    }
+    
+    return streak;
+}
+
+// Helper function to calculate longest workout streak
+function calculateLongestStreak(workouts) {
+    if (!workouts || workouts.length === 0) return 0;
+    
+    const workoutDates = workouts.map(w => {
+        const date = new Date(w.day);
+        date.setHours(0, 0, 0, 0);
+        return date.getTime();
+    }).sort((a, b) => a - b);
+    
+    let longestStreak = 1;
+    let currentStreak = 1;
+    
+    for (let i = 1; i < workoutDates.length; i++) {
+        const daysDiff = (workoutDates[i] - workoutDates[i-1]) / (1000 * 60 * 60 * 24);
+        
+        if (daysDiff <= 1) {
+            currentStreak++;
+        } else {
+            longestStreak = Math.max(longestStreak, currentStreak);
+            currentStreak = 1;
+        }
+    }
+    
+    return Math.max(longestStreak, currentStreak);
+}
+
+// GET popular exercises
+router.get("/api/workouts/stats/popular-exercises", async (req, res) => {
+    try {
+        const { limit = 20, category, type } = req.query;
+        console.log(`📊 Getting popular exercises (limit: ${limit})`);
+        
+        let matchStage = {};
+        if (category) matchStage['exercises.category'] = category;
+        if (type) matchStage['exercises.type'] = type;
+        
+        const pipeline = [
+            { $unwind: '$exercises' }
+        ];
+        
+        if (Object.keys(matchStage).length > 0) {
+            pipeline.push({ $match: matchStage });
+        }
+        
+        pipeline.push(
+            {
+                $group: {
+                    _id: {
+                        name: '$exercises.name',
+                        type: '$exercises.type',
+                        category: '$exercises.category'
+                    },
+                    count: { $sum: 1 },
+                    totalDuration: { $sum: '$exercises.duration' },
+                    averageDuration: { $avg: '$exercises.duration' },
+                    totalVolume: { 
+                        $sum: { 
+                            $multiply: [
+                                { $ifNull: ['$exercises.weight', 0] },
+                                { $ifNull: ['$exercises.reps', 0] },
+                                { $ifNull: ['$exercises.sets', 1] }
+                            ]
+                        }
+                    },
+                    totalDistance: { $sum: { $ifNull: ['$exercises.distance', 0] } },
+                    totalCalories: { $sum: { $ifNull: ['$exercises.caloriesBurned', 0] } },
+                    lastPerformed: { $max: '$day' },
+                    averageIntensity: { $avg: '$exercises.intensity' }
+                }
+            },
+            { $sort: { count: -1 } },
+            { $limit: parseInt(limit) }
+        );
+        
+        const popularExercises = await Workout.aggregate(pipeline);
+        
+        console.log(`✅ Found ${popularExercises.length} popular exercises`);
+        res.json(popularExercises);
+    } catch (err) {
+        console.error("❌ Error getting popular exercises:", err);
+        res.status(500).json({ 
+            error: "Failed to get popular exercises", 
+            details: err.message 
+        });
+    }
+});
+
+// GET exercise types and categories info
+router.get("/api/exercise-types", (req, res) => {
+    console.log("📋 Fetching exercise types information");
+    
+    const exerciseTypes = {
+        categories: VALID_CATEGORIES,
+        types: VALID_TYPES,
+        intensities: VALID_INTENSITIES,
+        equipment: VALID_EQUIPMENT,
+        typeToCategory: {
+            // Map each type to its category for frontend use
+            'cardio': 'cardio',
+            'low_intensity_cardio': 'cardio',
+            'moderate_intensity_cardio': 'cardio',
+            'high_intensity_cardio': 'cardio',
+            'hiit': 'cardio',
+            'resistance': 'resistance',
+            'bodyweight': 'resistance',
+            'free_weights': 'resistance',
+            'machines': 'resistance',
+            'resistance_bands': 'resistance',
+            'powerlifting': 'resistance',
+            'olympic_lifting': 'resistance',
+            'flexibility': 'flexibility',
+            'static_stretching': 'flexibility',
+            'dynamic_stretching': 'flexibility',
+            'yoga': 'flexibility',
+            'pilates': 'flexibility',
+            'balance': 'balance',
+            'balance_training': 'balance',
+            'functional_movement': 'balance',
+            'tai_chi': 'balance',
+            'sports_specific': 'sports_specific',
+            'plyometrics': 'sports_specific',
+            'agility': 'sports_specific',
+            'endurance': 'sports_specific',
+            'crossfit': 'sports_specific',
+            'recovery': 'recovery',
+            'active_recovery': 'recovery',
+            'mobility_work': 'recovery',
+            'meditation': 'recovery'
+        }
+    };
+    
+    res.json(exerciseTypes);
+});
+
+// Health check endpoint with enhanced information
 router.get("/api/health", async (req, res) => {
     try {
-        console.log("🏥 Performing health check...");
+        console.log("🏥 Performing enhanced health check...");
         
-        // Test MongoDB connection by counting documents
+        // Test MongoDB connection
         const workoutCount = await Workout.countDocuments();
         const lastWorkout = await Workout.findOne().sort({ day: -1 });
+        const categoryStats = await Workout.getCategoryStatistics();
         
         const healthData = {
             status: "healthy",
             mongodb: "connected",
             timestamp: new Date().toISOString(),
             workoutCount: workoutCount,
+            categoryCount: categoryStats.length,
             lastWorkout: lastWorkout ? {
                 id: lastWorkout._id,
                 date: lastWorkout.day,
-                exerciseCount: lastWorkout.exercises?.length || 0
+                exerciseCount: lastWorkout.exercises?.length || 0,
+                workoutType: lastWorkout.workoutType,
+                totalDuration: lastWorkout.totalDuration
             } : null,
             api: {
-                version: "1.0.0",
+                version: "2.0.0",
+                features: [
+                    "Enhanced Exercise Types",
+                    "Category-based Organization", 
+                    "Intensity Tracking",
+                    "Equipment Management",
+                    "Advanced Analytics",
+                    "Workout Streaks"
+                ],
                 endpoints: [
                     "GET /api/workouts",
                     "POST /api/workouts", 
@@ -577,12 +887,14 @@ router.get("/api/health", async (req, res) => {
                     "DELETE /api/workouts/:id",
                     "POST /api/workouts/:id/exercises",
                     "GET /api/workouts/stats/summary",
+                    "GET /api/workouts/stats/popular-exercises",
+                    "GET /api/exercise-types",
                     "GET /api/health"
                 ]
             }
         };
         
-        console.log("✅ Health check completed successfully");
+        console.log("✅ Enhanced health check completed successfully");
         res.json(healthData);
     } catch (err) {
         console.error("❌ Health check failed:", err);
@@ -602,19 +914,22 @@ router.all("/api/*", (req, res) => {
         error: "API endpoint not found",
         details: `${req.method} ${req.path} is not a valid API endpoint`,
         availableEndpoints: [
-            "GET /api/workouts - Get all workouts",
+            "GET /api/workouts - Get all workouts (supports filtering)",
             "POST /api/workouts - Create new workout",
             "GET /api/workouts/:id - Get specific workout",
             "PUT /api/workouts/:id - Update workout",
             "DELETE /api/workouts/:id - Delete workout",
             "POST /api/workouts/:id/exercises - Add exercise to workout",
-            "GET /api/workouts/stats/summary - Get workout statistics",
-            "GET /api/health - API health check"
+            "GET /api/workouts/stats/summary - Get enhanced workout statistics",
+            "GET /api/workouts/stats/popular-exercises - Get popular exercises",
+            "GET /api/exercise-types - Get exercise types and categories",
+            "GET /api/health - Enhanced API health check"
         ]
     });
 });
 
 module.exports = (app) => {
     app.use(router);
-    console.log("🔌 API routes initialized successfully");
+    console.log("🔌 Enhanced API routes initialized successfully");
+    console.log("🎯 New features: Enhanced exercise types, intensity tracking, equipment management");
 };
